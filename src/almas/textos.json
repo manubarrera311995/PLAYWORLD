@@ -1,0 +1,32 @@
+{
+  "noctambula": {
+    "nombre": "Alma Noctámbula",
+    "corto": "Noctámbula",
+    "texto": "Vive para la noche. La música le suena mejor a las 2 a.m. El festival empieza cuando se apaga el sol."
+  },
+  "melancolica": {
+    "nombre": "Alma Melancólica Feliz",
+    "corto": "Melancólica",
+    "texto": "Llora en los conciertos y lo considera lo mejor de la vida. Sale vacía y llena al mismo tiempo."
+  },
+  "intensa": {
+    "nombre": "Alma Intensa",
+    "corto": "Intensa",
+    "texto": "Siempre primera fila. Aguanta el sol y el empujón. Sale sin voz y conforme."
+  },
+  "nostalgica": {
+    "nombre": "Alma Nostálgica",
+    "corto": "Nostálgica",
+    "texto": "Cada canción abre una puerta que creía cerrada. Se va más quieta, convencida de que valió la pena."
+  },
+  "colectiva": {
+    "nombre": "Alma Colectiva",
+    "corto": "Colectiva",
+    "texto": "Le importan tanto las filas y las conversaciones como el headliner. La música es el fondo de la gente."
+  },
+  "exploradora": {
+    "nombre": "Alma Exploradora",
+    "corto": "Exploradora",
+    "texto": "Llega sin horario. Busca tarimas chicas y artistas que no conoce. Se va con playlist nueva."
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "playworld",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "data:archivo": "tsx scripts/build-archivo.ts",
+    "data:pool": "tsx scripts/build-pool.ts",
+    "data:semilla": "tsx scripts/build-semilla.ts",
+    "data": "tsx scripts/build-archivo.ts && tsx scripts/build-pool.ts && tsx scripts/build-semilla.ts"
+  },
+  "devDependencies": {
+    "@fontsource/anton": "^5.2.7",
+    "@fontsource/inter": "^5.2.8",
+    "@sveltejs/vite-plugin-svelte": "^5.1.1",
+    "@tsconfig/svelte": "^5.0.8",
+    "@types/d3-force": "^3.0.10",
+    "@types/node": "^24.13.3",
+    "@types/p5": "^1.7.6",
+    "svelte": "^5.57.0",
+    "svelte-check": "^4.7.6",
+    "tsx": "^4.20.5",
+    "typescript": "~5.9.2",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "d3-force": "^3.0.0",
+    "gsap": "^3.13.0",
+    "p5": "^1.11.11"
+  }
+}

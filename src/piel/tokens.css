@@ -1,0 +1,97 @@
+:root {
+  --ink: #fff6ef;
+  --ink-soft: rgba(255, 245, 236, 0.9);
+  --ink-mute: rgba(255, 246, 239, 0.72);
+  --ink-title: #fff8f1;
+  --bg-deep: #100a12;
+  --c1: #f07810;
+  --c2: #d01662;
+  --c3: #011544;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --z-bg: 0;
+  --z-scene: 2;
+  --z-grain: 8;
+  --z-ui: 12;
+  --pad-x: clamp(16px, 5vw, 64px);
+  --pad-y: clamp(16px, 4vh, 40px);
+  --bp-compacto: 767px;
+  --bp-medio: 1023px;
+  --bp-cine: 1024px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  background: var(--bg-deep);
+}
+
+body {
+  min-height: 100%;
+  min-height: 100dvh;
+  font-family: Inter, system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--bg-deep);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+#app {
+  height: 100%;
+  min-height: 100dvh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.mundo {
+  position: relative;
+  height: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.mundo__bg {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-bg);
+  pointer-events: none;
+  isolation: isolate;
+  background:
+    radial-gradient(80% 90% at 0% 0%, var(--c1) 0%, transparent 55%),
+    radial-gradient(70% 80% at 100% 10%, var(--c2) 0%, transparent 50%),
+    radial-gradient(60% 70% at 90% 90%, var(--c3) 0%, transparent 55%),
+    radial-gradient(50% 60% at 20% 100%, #7a1458 0%, transparent 50%),
+    linear-gradient(158deg, var(--c1) 0%, #e83a28 18%, var(--c2) 42%, #8a1458 62%, #3a1658 80%, var(--c3) 100%);
+}
+
+.mundo__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 80% at 50% 35%, rgba(255, 255, 255, 0.1), transparent 65%),
+    radial-gradient(100% 100% at 50% 50%, transparent 40%, rgba(18, 0, 36, 0.32) 100%);
+}

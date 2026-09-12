@@ -1,0 +1,12 @@
+{
+  "brand": "PLAYWORLD",
+  "question": "¿Cuál fue tu FEP favorito?",
+  "chips": [
+    { "id": "2011", "label": "2011" },
+    { "id": "2013", "label": "2013" },
+    { "id": "2018", "label": "2018" },
+    { "id": "2022", "label": "2022" },
+    { "id": "2026", "label": "2026" }
+  ],
+  "cta": "Continuar"
+}

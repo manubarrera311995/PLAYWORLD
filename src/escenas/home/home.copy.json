@@ -1,0 +1,13 @@
+{
+  "brand": "PLAYWORLD",
+  "title": ["PLAYWORLD"],
+  "tagline": "Una cartografía emocional de un mundo distinto",
+  "footer": "15 años · archivo emocional",
+  "cta": "Entrar",
+  "cards": [
+    { "year": 2013, "className": "y2013", "art": null, "label": "Primera edición" },
+    { "year": 2018, "className": "y2018", "art": null, "label": "Atardecer en el Picnic" },
+    { "year": 2022, "className": "y2022", "art": null, "label": "Manilla del festival" },
+    { "year": 2026, "className": "y2026", "art": null, "label": "Edición actual" }
+  ]
+}

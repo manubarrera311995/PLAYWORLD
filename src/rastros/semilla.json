@@ -1,0 +1,182 @@
+[
+  {
+    "id": "semilla-luna",
+    "alias": "Luna",
+    "almaId": "noctambula",
+    "trackIds": [
+      "CCS_7",
+      "CCS_1",
+      "DE_3",
+      "DFT_3",
+      "MJZ_17"
+    ],
+    "yearHint": 2013,
+    "createdAt": "2026-01-01T12:00:00.000Z",
+    "origen": "semilla"
+  },
+  {
+    "id": "semilla-mateo",
+    "alias": "Mateo",
+    "almaId": "intensa",
+    "trackIds": [
+      "MJZ_17",
+      "DE_3",
+      "DFT_3",
+      "CCS_7",
+      "CTV_9"
+    ],
+    "yearHint": 2013,
+    "createdAt": "2026-01-01T12:01:00.000Z",
+    "origen": "semilla"
+  },
+  {
+    "id": "semilla-sofia",
+    "alias": "Sofía",
+    "almaId": "nostalgica",
+    "trackIds": [
+      "CMS_1",
+      "ACF_2",
+      "GDF_4",
+      "TRV_13",
+      "TYC_14"
+    ],
+    "yearHint": 2013,
+    "createdAt": "2026-01-01T12:02:00.000Z",
+    "origen": "semilla"
+  },
+  {
+    "id": "semilla-nico",
+    "alias": "Nico",
+    "almaId": "colectiva",
+    "trackIds": [
+      "CMS_1",
+      "CTV_9",
+      "ACF_2",
+      "TYC_14",
+      "TRV_13"
+    ],
+    "yearHint": 2013,
+    "createdAt": "2026-01-01T12:03:00.000Z",
+    "origen": "semilla"
+  },
+  {
+    "id": "semilla-vale",
+    "alias": "Vale",
+    "almaId": "exploradora",
+    "trackIds": [
+      "DFT_17",
+      "TYC_14",
+      "CCS_1",
+      "GDF_4",
+      "DE_3"
+    ],
+    "yearHint": 2013,
+    "createdAt": "2026-01-01T12:04:00.000Z",
+    "origen": "semilla"
+  },
+  {
+    "id": "semilla-camila",
+    "alias": "Camila",
+    "almaId": "melancolica",
+    "trackIds": [
+      "CMS_1",
+      "TRV_13",
+      "GDF_4",
+      "ACF_2",
+      "CCS_1"
+    ],
+    "yearHint": 2013,
+    "createdAt": "2026-01-01T12:05:00.000Z",
+    "origen": "semilla"
+  },
+  {
+    "id": "semilla-andres",
+    "alias": "Andrés",
+    "almaId": "noctambula",
+    "trackIds": [
+      "CCS_1",
+      "DFT_3",
+      "MJZ_17",
+      "DE_3",
+      "CCS_7"
+    ],
+    "yearHint": 2013,
+    "createdAt": "2026-01-01T12:06:00.000Z",
+    "origen": "semilla"
+  },
+  {
+    "id": "semilla-isa",
+    "alias": "Isa",
+    "almaId": "intensa",
+    "trackIds": [
+      "DE_3",
+      "MJZ_17",
+      "DFT_3",
+      "CTV_9",
+      "CCS_7"
+    ],
+    "yearHint": 2013,
+    "createdAt": "2026-01-01T12:07:00.000Z",
+    "origen": "semilla"
+  },
+  {
+    "id": "semilla-diego",
+    "alias": "Diego",
+    "almaId": "exploradora",
+    "trackIds": [
+      "TYC_14",
+      "DFT_17",
+      "GDF_4",
+      "ACF_2",
+      "CCS_7"
+    ],
+    "yearHint": 2013,
+    "createdAt": "2026-01-01T12:08:00.000Z",
+    "origen": "semilla"
+  },
+  {
+    "id": "semilla-rafa",
+    "alias": "Rafa",
+    "almaId": "colectiva",
+    "trackIds": [
+      "CMS_1",
+      "GDF_4",
+      "ACF_2",
+      "CCS_1",
+      "TYC_14"
+    ],
+    "yearHint": 2026,
+    "createdAt": "2026-01-01T12:09:00.000Z",
+    "origen": "semilla"
+  },
+  {
+    "id": "semilla-elena",
+    "alias": "Elena",
+    "almaId": "melancolica",
+    "trackIds": [
+      "TRV_13",
+      "CMS_1",
+      "ACF_2",
+      "GDF_4",
+      "CTV_9"
+    ],
+    "yearHint": 2013,
+    "createdAt": "2026-01-01T12:10:00.000Z",
+    "origen": "semilla"
+  },
+  {
+    "id": "semilla-tomas",
+    "alias": "Tomás",
+    "almaId": "noctambula",
+    "trackIds": [
+      "CCS_7",
+      "DFT_3",
+      "MJZ_17",
+      "CCS_1",
+      "DFT_17"
+    ],
+    "yearHint": 2013,
+    "createdAt": "2026-01-01T12:11:00.000Z",
+    "origen": "semilla"
+  }
+]

@@ -1,0 +1,375 @@
+[
+  {
+    "year": 2010,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "Una edición del Picnic.",
+      "Memoria en construcción.",
+      "Sigue explorando el archivo."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2011,
+    "hasDNA": true,
+    "conteo": 202,
+    "tesis": [
+      "El Picnic todavía cabía en la palma.",
+      "Oscuridad temprana.",
+      "El archivo empieza a hablar."
+    ],
+    "stats": {
+      "mediana": {
+        "nostalgia": 74,
+        "oscuridad": 90,
+        "energy": 37,
+        "happy": 28,
+        "danceability": 39
+      },
+      "pctMenor": 83,
+      "tempoMedio": 150
+    },
+    "collage": [
+      {
+        "trackId": "PDC_4",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "FHM_9",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "CSM_2",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "BGR_5",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "SXL_7",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "SXL_4",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "CSS_8",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "SXL_7",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2011"
+  },
+  {
+    "year": 2012,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "Una edición del Picnic.",
+      "Memoria en construcción.",
+      "Sigue explorando el archivo."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2013,
+    "hasDNA": true,
+    "conteo": 260,
+    "tesis": [
+      "El Picnic ya era oscuro.",
+      "74% en modo menor.",
+      "Nostalgia 76."
+    ],
+    "stats": {
+      "mediana": {
+        "nostalgia": 70,
+        "oscuridad": 70,
+        "energy": 31,
+        "happy": 28,
+        "danceability": 38
+      },
+      "pctMenor": 72,
+      "tempoMedio": 144
+    },
+    "collage": [
+      {
+        "trackId": "CMS_1",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "CCS_7",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "ALC_3",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "CTV_6",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "CMS_1",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "ALC_7",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "CMS_1",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "PLN_1",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2013"
+  },
+  {
+    "year": 2014,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "Una edición del Picnic.",
+      "Memoria en construcción.",
+      "Sigue explorando el archivo."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2015,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "Una edición del Picnic.",
+      "Memoria en construcción.",
+      "Sigue explorando el archivo."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2016,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "Una edición del Picnic.",
+      "Memoria en construcción.",
+      "Sigue explorando el archivo."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2017,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "Una edición del Picnic.",
+      "Memoria en construcción.",
+      "Sigue explorando el archivo."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2018,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "El Picnic se sintió abierto.",
+      "Más luz, más crowd.",
+      "Una edición de expansión."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2019,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "Una edición del Picnic.",
+      "Memoria en construcción.",
+      "Sigue explorando el archivo."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2020,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "Una edición del Picnic.",
+      "Memoria en construcción.",
+      "Sigue explorando el archivo."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2021,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "Una edición del Picnic.",
+      "Memoria en construcción.",
+      "Sigue explorando el archivo."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2022,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "El regreso tenía peso.",
+      "Cuerpo, ritmo, archivo vivo.",
+      "Una edición de reencuentro."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2023,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "Una edición del Picnic.",
+      "Memoria en construcción.",
+      "Sigue explorando el archivo."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2024,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "Una edición del Picnic.",
+      "Memoria en construcción.",
+      "Sigue explorando el archivo."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2025,
+    "hasDNA": false,
+    "conteo": 0,
+    "tesis": [
+      "Una edición del Picnic.",
+      "Memoria en construcción.",
+      "Sigue explorando el archivo."
+    ],
+    "stats": {
+      "mediana": {},
+      "pctMenor": 0,
+      "tempoMedio": 0
+    },
+    "collage": [],
+    "caption": "Memoria en construcción"
+  },
+  {
+    "year": 2026,
+    "hasDNA": true,
+    "conteo": 6,
+    "tesis": [
+      "El archivo sigue creciendo.",
+      "Tu Picnic todavía se escribe.",
+      "Bienvenido al presente."
+    ],
+    "stats": {
+      "mediana": {
+        "nostalgia": 90,
+        "oscuridad": 79,
+        "energy": 11,
+        "happy": 36,
+        "danceability": 49
+      },
+      "pctMenor": 100,
+      "tempoMedio": 165
+    },
+    "collage": [],
+    "caption": "Audio DNA · FEP 2026"
+  }
+]

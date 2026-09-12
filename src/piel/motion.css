@@ -1,0 +1,47 @@
+.will-move {
+  will-change: transform, opacity;
+}
+
+.escena-capa {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-scene);
+  overflow: hidden;
+}
+
+.escena-capa.is-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.escena-capa.is-leave {
+  z-index: calc(var(--z-scene) + 2);
+  pointer-events: none;
+}
+
+.escena-capa.is-enter {
+  z-index: calc(var(--z-scene) + 1);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .mundo__bg,
+  .escena-capa,
+  .tipo-hero {
+    filter: none !important;
+  }
+
+  .will-move {
+    will-change: auto;
+  }
+}
+
+.reduce .mundo__bg {
+  transition: none;
+}
