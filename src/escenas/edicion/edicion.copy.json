@@ -1,0 +1,97 @@
+{
+  "brand": "PLAYWORLD",
+  "eyebrow": "FEP · FICHA DE EDICIÓN",
+  "cartel": "EL CARTEL",
+  "back": "Archivo",
+  "cta": "Ahora es tu momento",
+  "loading": "Cargando el Audio DNA de la edición…",
+  "emptyTitle": "Memoria en construcción",
+  "emptyBody": "Esta edición todavía no tiene Audio DNA en el archivo. Sintoniza otro año.",
+  "cue": "Ver el carácter ↓",
+  "songEmpty": "Elige un punto. El overlay muestra su desvío respecto a la mediana de la edición.",
+  "songEyebrow": "CANCIÓN CONTRA EL AÑO",
+  "polesTitle": "Dos polos",
+  "polesIntro": "Corte en energy 50. No es un clustering: es la partición que pide el IQR.",
+  "poleSoft": "Polo suave",
+  "poleHot": "Polo intenso",
+  "polePull": "{low} tira hacia abajo. {high} tira hacia arriba.",
+  "legendMinor": "Menor",
+  "legendMajor": "Mayor",
+  "legendHot": "Acto enfocado",
+  "mapNote": "{n} puntos · {hot} sobre energy 50 · ejes fijos 0–100",
+  "mapNoteAct": "Filtro: {artist} · {n} canciones encendidas, el resto baja",
+  "mapAria": "Canciones según relajación y energía",
+  "mapX": "RELAXED (0–100) →",
+  "mapY": "ENERGY (0–100) →",
+  "mapIntense": "INTENSO",
+  "mapSoft": "SUAVE",
+  "fingerprintHint": "La marca es la mediana. La barra es el 50% medio (p25–p75). Happy estrecho = clima del modelo. Aggressive ancho = territorio del año. Sad no aparece: es 100 − happy.",
+  "deltaHint": "Cero = mediana de {year}. Durazno = por encima. Rosa = por debajo.",
+  "actsEyebrow": "DOS CENTROS",
+  "songCenter": "mediana de canciones",
+  "actCenter": "mediana de actos",
+  "actsHint": "La primera cifra da un voto a cada canción. La segunda da el mismo peso a cada acto. Pasa el cursor por un acto, o elige una portada arriba, para ver sus canciones en el mapa.",
+  "actsScale": "Acto · n",
+  "actsSame": "Las dos formas de contar coinciden en {metric}: el clima no depende del tamaño de los repertorios.",
+  "actsDiff": "Al contar canciones, el centro queda {n} puntos {dir} del centro que da un voto a cada acto.",
+  "above": "por encima",
+  "below": "por debajo",
+  "lineupNote": "{n} actos. Elige una portada para filtrar el mapa, el fingerprint y la lista.",
+  "lineupNoteAct": "{artist}: {n} canciones en el mapa. Vuelve a pulsar la portada para ver todo el cartel.",
+  "foot": "Audio DNA · datos de canciones agrupadas por acto",
+  "jump": [
+    { "id": "tesis", "label": "01 Tesis" },
+    { "id": "campo", "label": "02 Campo" },
+    { "id": "actos", "label": "03 Actos" }
+  ],
+  "chapters": {
+    "tesis": {
+      "n": "01",
+      "eyebrow": "CARÁCTER",
+      "title": "Fingerprint con rango",
+      "question": "¿Cuál es el clima de esta edición, y dónde se abre de verdad?",
+      "unit": "mediana + IQR · 0–100"
+    },
+    "campo": {
+      "n": "02",
+      "eyebrow": "TERRITORIO",
+      "title": "Dos cuerpos",
+      "question": "¿El año es un solo clima o dos nubes?",
+      "unit": "X = relaxed · Y = energy"
+    },
+    "actos": {
+      "n": "03",
+      "eyebrow": "AUTORÍA",
+      "title": "Quién sostiene el clima",
+      "question": "¿El carácter lo comparte el cartel o lo producen pocos actos?",
+      "unit": "1 marca = 1 acto"
+    }
+  },
+  "moods": {
+    "happy": "Happy",
+    "danceability": "Danceability",
+    "engagement": "Engagement",
+    "nostalgia": "Nostalgia",
+    "oscuridad": "Oscuridad",
+    "energy": "Energy",
+    "relaxed": "Relaxed",
+    "aggressive": "Aggressive"
+  },
+  "stats": {
+    "songs": "Canciones",
+    "minor": "Modo menor",
+    "happy": "Happy, clima",
+    "aggressive": "Aggressive, territorio"
+  },
+  "character": {
+    "partida": "partida en dos cuerpos",
+    "intensa": "intensa",
+    "contenida": "contenida",
+    "tension": "en tensión"
+  },
+  "tesis": {
+    "partida": "Una edición {character}: happy casi no se mueve (IQR {happyIqr}), pero energy y relaxed abren {energyIqr} y {relaxedIqr} puntos.",
+    "simple": "Una edición {character}: su energía central es {energyMedian}, y el 50% medio ocupa {energyIqr} puntos."
+  },
+  "method": "{n} canciones · {acts} actos · {minor}% en modo menor. Oscuridad {oscuridad}, nostalgia {nostalgia}. Los centros usan medianas."
+}

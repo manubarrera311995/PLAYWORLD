@@ -4,10 +4,23 @@
   "tagline": "Una cartografía emocional de un mundo distinto",
   "footer": "15 años · archivo emocional",
   "cta": "Entrar",
+  "scrollHint": "desliza",
   "cards": [
-    { "year": 2013, "className": "y2013", "art": null, "label": "Primera edición" },
-    { "year": 2018, "className": "y2018", "art": null, "label": "Atardecer en el Picnic" },
-    { "year": 2022, "className": "y2022", "art": null, "label": "Manilla del festival" },
-    { "year": 2026, "className": "y2026", "art": null, "label": "Edición actual" }
+    { "year": 2011, "className": "y2011", "art": "/assets/home/caratulas/2011.jpg", "label": "En la palma" },
+    { "year": 2012, "className": "y2012", "art": "/assets/home/caratulas/2012.jpg", "label": "Eco" },
+    { "year": 2013, "className": "y2013", "art": "/assets/home/caratulas/2013.jpg", "label": "Ya era oscuro" },
+    { "year": 2014, "className": "y2014", "art": "/assets/home/caratulas/2014.jpg", "label": "Niebla" },
+    { "year": 2015, "className": "y2015", "art": "/assets/home/caratulas/2015.jpg", "label": "Polvo" },
+    { "year": 2016, "className": "y2016", "art": "/assets/home/caratulas/2016.jpg", "label": "Bruma" },
+    { "year": 2017, "className": "y2017", "art": "/assets/home/caratulas/2017.jpg", "label": "Espera" },
+    { "year": 2018, "className": "y2018", "art": "/assets/home/caratulas/2018.jpg", "label": "Atardecer" },
+    { "year": 2019, "className": "y2019", "art": "/assets/home/caratulas/2019.jpg", "label": "Umbral" },
+    { "year": 2020, "className": "y2020", "art": "/assets/home/caratulas/2020.jpg", "label": "Silencio" },
+    { "year": 2021, "className": "y2021", "art": "/assets/home/caratulas/2021.jpg", "label": "Reverso" },
+    { "year": 2022, "className": "y2022", "art": "/assets/home/caratulas/2022.jpg", "label": "El regreso" },
+    { "year": 2023, "className": "y2023", "art": "/assets/home/caratulas/2023.jpg", "label": "Pulso" },
+    { "year": 2024, "className": "y2024", "art": "/assets/home/caratulas/2024.jpg", "label": "Víspera" },
+    { "year": 2025, "className": "y2025", "art": "/assets/home/caratulas/2025.jpg", "label": "Casi" },
+    { "year": 2026, "className": "y2026", "art": "/assets/home/caratulas/2026.jpg", "label": "Ahora" }
   ]
 }

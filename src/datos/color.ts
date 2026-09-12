@@ -61,8 +61,8 @@ export function tracksAPaleta(tracks: Track[]): Paleta {
 
 export function artUrl(url: string | null, size: "64" | "300" | "640"): string | null {
   if (!url) return null;
-  const map = { "64": "04851", "300": "01e02", "640": "0b273" } as const;
-  return url.replace(/ab67616d0000[0-9a-f]+/i, `ab67616d0000${map[size]}`);
+  const map = { "64": "4851", "300": "1e02", "640": "b273" } as const;
+  return url.replace(/ab67616d0000[0-9a-f]{4}/i, `ab67616d0000${map[size]}`);
 }
 
 export const paletaDefault: Paleta = DEFAULT;

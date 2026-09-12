@@ -36,9 +36,9 @@
 .tipo-hero {
   font-family: Anton, Impact, Haettenschweiler, sans-serif;
   font-weight: 400;
-  font-size: clamp(56px, 16vw, 148px);
-  line-height: 0.9;
-  letter-spacing: -0.02em;
+  font-size: clamp(72px, min(20vw, 28vh), 320px);
+  line-height: 0.86;
+  letter-spacing: -0.03em;
   text-transform: uppercase;
   color: var(--ink-title);
   text-shadow: 0 8px 40px rgba(20, 0, 40, 0.28);
@@ -78,6 +78,6 @@
 
 @media (max-width: 767px) {
   .tipo-hero {
-    font-size: clamp(48px, 18vw, 96px);
+    font-size: clamp(56px, 19vw, 92px);
   }
 }

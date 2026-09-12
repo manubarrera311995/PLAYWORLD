@@ -1,11 +1,15 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Director from "./escenas/director/Director.svelte";
+  import Boot from "./escenas/boot/Boot.svelte";
   import { granoSketch } from "./sketches/grano.sketch";
   import { p5Isla } from "./sketches/p5Isla";
   import { paleta } from "./sketches/paleta";
   import { initReducedMotion } from "./motion/reducedMotion";
   import { initViewport } from "./estado/viewport";
+
+  let directorOn = $state(false);
+  let bootOn = $state(true);
 
   const grano = (el: HTMLElement) => {
     const isla = p5Isla(el, granoSketch, {}, paleta);
@@ -27,5 +31,10 @@
     <div class="mundo__veil"></div>
   </div>
   <div class="grano" {@attach grano} aria-hidden="true"></div>
-  <Director />
+  {#if directorOn}
+    <Director />
+  {/if}
+  {#if bootOn}
+    <Boot onrevelar={() => (directorOn = true)} onsalida={() => (bootOn = false)} />
+  {/if}
 </div>

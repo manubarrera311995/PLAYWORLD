@@ -107,7 +107,7 @@
     <section
       class={[
         "escena-capa",
-        "will-move",
+        capa.fase !== "live" && "will-move",
         capa.fase === "enter" && "is-enter",
         capa.fase === "leave" && "is-leave",
         SCROLL.has(capa.ruta.name) && "is-scroll",

@@ -1,20 +1,59 @@
 [
   {
     "year": 2010,
-    "hasDNA": false,
-    "conteo": 0,
+    "hasDNA": true,
+    "conteo": 85,
     "tesis": [
       "Una edición del Picnic.",
       "Memoria en construcción.",
       "Sigue explorando el archivo."
     ],
     "stats": {
-      "mediana": {},
-      "pctMenor": 0,
-      "tempoMedio": 0
+      "mediana": {
+        "nostalgia": 77,
+        "oscuridad": 86,
+        "energy": 33,
+        "happy": 28,
+        "danceability": 38
+      },
+      "pctMenor": 85,
+      "tempoMedio": 147
     },
-    "collage": [],
-    "caption": "Memoria en construcción"
+    "collage": [
+      {
+        "trackId": "ALK_1",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "TMD_2",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "ALK_3",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "BBE_12",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "PLS_6",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "PLS_12",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "THE_5",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "MTS_3",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2010"
   },
   {
     "year": 2011,
@@ -74,25 +113,64 @@
   },
   {
     "year": 2012,
-    "hasDNA": false,
-    "conteo": 0,
+    "hasDNA": true,
+    "conteo": 220,
     "tesis": [
       "Una edición del Picnic.",
       "Memoria en construcción.",
       "Sigue explorando el archivo."
     ],
     "stats": {
-      "mediana": {},
-      "pctMenor": 0,
-      "tempoMedio": 0
+      "mediana": {
+        "nostalgia": 76,
+        "oscuridad": 85,
+        "energy": 32,
+        "happy": 28,
+        "danceability": 38
+      },
+      "pctMenor": 79,
+      "tempoMedio": 148
     },
-    "collage": [],
-    "caption": "Memoria en construcción"
+    "collage": [
+      {
+        "trackId": "SUP_4",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "GEN_6",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "CPL_8",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "CAI_11",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "TTP_8",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "TTP_8",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "YUK_4",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "GEN_9",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2012"
   },
   {
     "year": 2013,
     "hasDNA": true,
-    "conteo": 260,
+    "conteo": 262,
     "tesis": [
       "El Picnic ya era oscuro.",
       "74% en modo menor.",
@@ -100,14 +178,14 @@
     ],
     "stats": {
       "mediana": {
-        "nostalgia": 70,
-        "oscuridad": 70,
-        "energy": 31,
+        "nostalgia": 77,
+        "oscuridad": 85,
+        "energy": 32,
         "happy": 28,
         "danceability": 38
       },
-      "pctMenor": 72,
-      "tempoMedio": 144
+      "pctMenor": 75,
+      "tempoMedio": 145
     },
     "collage": [
       {
@@ -127,11 +205,11 @@
         "porQue": "la más calma"
       },
       {
-        "trackId": "CMS_1",
+        "trackId": "STA_6",
         "porQue": "la más bailable"
       },
       {
-        "trackId": "ALC_7",
+        "trackId": "CTV_10",
         "porQue": "la más feroz"
       },
       {
@@ -139,7 +217,7 @@
         "porQue": "la más lenta"
       },
       {
-        "trackId": "PLN_1",
+        "trackId": "STA_9",
         "porQue": "la más luminosa"
       }
     ],
@@ -147,105 +225,339 @@
   },
   {
     "year": 2014,
-    "hasDNA": false,
-    "conteo": 0,
+    "hasDNA": true,
+    "conteo": 475,
     "tesis": [
       "Una edición del Picnic.",
       "Memoria en construcción.",
       "Sigue explorando el archivo."
     ],
     "stats": {
-      "mediana": {},
-      "pctMenor": 0,
-      "tempoMedio": 0
+      "mediana": {
+        "nostalgia": 75,
+        "oscuridad": 84,
+        "energy": 32,
+        "happy": 28,
+        "danceability": 38
+      },
+      "pctMenor": 77,
+      "tempoMedio": 147
     },
-    "collage": [],
-    "caption": "Memoria en construcción"
+    "collage": [
+      {
+        "trackId": "VVW_13",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "AOB_6",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "AFI_2",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "AFI_3",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "DR_6",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "EFR_2",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "CC_10",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "EOS_12",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2014"
   },
   {
     "year": 2015,
-    "hasDNA": false,
-    "conteo": 0,
+    "hasDNA": true,
+    "conteo": 608,
     "tesis": [
       "Una edición del Picnic.",
       "Memoria en construcción.",
       "Sigue explorando el archivo."
     ],
     "stats": {
-      "mediana": {},
-      "pctMenor": 0,
-      "tempoMedio": 0
+      "mediana": {
+        "nostalgia": 75,
+        "oscuridad": 88,
+        "energy": 35,
+        "happy": 27,
+        "danceability": 38
+      },
+      "pctMenor": 81,
+      "tempoMedio": 139
     },
-    "collage": [],
-    "caption": "Memoria en construcción"
+    "collage": [
+      {
+        "trackId": "FRF_2",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "LTD_2",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "ACA_12",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "ACA_19",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "CHT_12",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "DRD_6",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "QQN_7",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "CLH_23",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2015"
   },
   {
     "year": 2016,
-    "hasDNA": false,
-    "conteo": 0,
+    "hasDNA": true,
+    "conteo": 576,
     "tesis": [
       "Una edición del Picnic.",
       "Memoria en construcción.",
       "Sigue explorando el archivo."
     ],
     "stats": {
-      "mediana": {},
-      "pctMenor": 0,
-      "tempoMedio": 0
+      "mediana": {
+        "nostalgia": 76,
+        "oscuridad": 87,
+        "energy": 35,
+        "happy": 28,
+        "danceability": 37
+      },
+      "pctMenor": 80,
+      "tempoMedio": 140
     },
-    "collage": [],
-    "caption": "Memoria en construcción"
+    "collage": [
+      {
+        "trackId": "ELM_1",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "ABS_5",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "ABS_5",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "ABS_13",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "VIG_3",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "ATR_17",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "TAR_3",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "AHJ_15",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2016"
   },
   {
     "year": 2017,
-    "hasDNA": false,
-    "conteo": 0,
+    "hasDNA": true,
+    "conteo": 584,
     "tesis": [
       "Una edición del Picnic.",
       "Memoria en construcción.",
       "Sigue explorando el archivo."
     ],
     "stats": {
-      "mediana": {},
-      "pctMenor": 0,
-      "tempoMedio": 0
+      "mediana": {
+        "nostalgia": 76,
+        "oscuridad": 88,
+        "energy": 36,
+        "happy": 28,
+        "danceability": 37
+      },
+      "pctMenor": 79,
+      "tempoMedio": 138
     },
-    "collage": [],
-    "caption": "Memoria en construcción"
+    "collage": [
+      {
+        "trackId": "VJY_9",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "AJD_3",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "AJD_4",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "CDT_1",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "DMS_11",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "AJD_7",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "AKM_1",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "TXX_10",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2017"
   },
   {
     "year": 2018,
-    "hasDNA": false,
-    "conteo": 0,
+    "hasDNA": true,
+    "conteo": 606,
     "tesis": [
       "El Picnic se sintió abierto.",
       "Más luz, más crowd.",
       "Una edición de expansión."
     ],
     "stats": {
-      "mediana": {},
-      "pctMenor": 0,
-      "tempoMedio": 0
+      "mediana": {
+        "nostalgia": 75,
+        "oscuridad": 88,
+        "energy": 35,
+        "happy": 28,
+        "danceability": 37
+      },
+      "pctMenor": 80,
+      "tempoMedio": 137
     },
-    "collage": [],
-    "caption": "Memoria en construcción"
+    "collage": [
+      {
+        "trackId": "LDR_13",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "DLS_11",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "ALE_10",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "BBE_3",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "STK_5",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "BNB_8",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "LCG_4",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "TCF_6",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2018"
   },
   {
     "year": 2019,
-    "hasDNA": false,
-    "conteo": 0,
+    "hasDNA": true,
+    "conteo": 655,
     "tesis": [
       "Una edición del Picnic.",
       "Memoria en construcción.",
       "Sigue explorando el archivo."
     ],
     "stats": {
-      "mediana": {},
-      "pctMenor": 0,
-      "tempoMedio": 0
+      "mediana": {
+        "nostalgia": 78,
+        "oscuridad": 86,
+        "energy": 32,
+        "happy": 27,
+        "danceability": 37
+      },
+      "pctMenor": 78,
+      "tempoMedio": 131
     },
-    "collage": [],
-    "caption": "Memoria en construcción"
+    "collage": [
+      {
+        "trackId": "USM_2",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "RDS_6",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "TIE_23",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "SAM_3",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "TOP_8",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "YUM_1",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "ZHU_1",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "UND_7",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2019"
   },
   {
     "year": 2020,
@@ -283,76 +595,232 @@
   },
   {
     "year": 2022,
-    "hasDNA": false,
-    "conteo": 0,
+    "hasDNA": true,
+    "conteo": 782,
     "tesis": [
       "El regreso tenía peso.",
       "Cuerpo, ritmo, archivo vivo.",
       "Una edición de reencuentro."
     ],
     "stats": {
-      "mediana": {},
-      "pctMenor": 0,
-      "tempoMedio": 0
+      "mediana": {
+        "nostalgia": 75,
+        "oscuridad": 89,
+        "energy": 38,
+        "happy": 28,
+        "danceability": 37
+      },
+      "pctMenor": 76,
+      "tempoMedio": 133
     },
-    "collage": [],
-    "caption": "Memoria en construcción"
+    "collage": [
+      {
+        "trackId": "ELM_6",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "ASH_2",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "ARM_4",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "ANE_10",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "DE_1",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "IDL_11",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "NIN_14",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "BAB_11",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2022"
   },
   {
     "year": 2023,
-    "hasDNA": false,
-    "conteo": 0,
+    "hasDNA": true,
+    "conteo": 1057,
     "tesis": [
       "Una edición del Picnic.",
       "Memoria en construcción.",
       "Sigue explorando el archivo."
     ],
     "stats": {
-      "mediana": {},
-      "pctMenor": 0,
-      "tempoMedio": 0
+      "mediana": {
+        "nostalgia": 77,
+        "oscuridad": 87,
+        "energy": 35,
+        "happy": 27,
+        "danceability": 36
+      },
+      "pctMenor": 74,
+      "tempoMedio": 128
     },
-    "collage": [],
-    "caption": "Memoria en construcción"
+    "collage": [
+      {
+        "trackId": "CCT_6",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "EV_12",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "BDC_5",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "ALF_7",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "MDG_5",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "ANA_5",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "MRB_5",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "P&P_4",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2023"
   },
   {
     "year": 2024,
-    "hasDNA": false,
-    "conteo": 0,
+    "hasDNA": true,
+    "conteo": 971,
     "tesis": [
       "Una edición del Picnic.",
       "Memoria en construcción.",
       "Sigue explorando el archivo."
     ],
     "stats": {
-      "mediana": {},
-      "pctMenor": 0,
-      "tempoMedio": 0
+      "mediana": {
+        "nostalgia": 76,
+        "oscuridad": 89,
+        "energy": 39,
+        "happy": 28,
+        "danceability": 37
+      },
+      "pctMenor": 77,
+      "tempoMedio": 130
     },
-    "collage": [],
-    "caption": "Memoria en construcción"
+    "collage": [
+      {
+        "trackId": "HMI_3",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "BGY_7",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "ARC_10",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "ACF_10",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "FTI_11",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "ARC_6",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "ETN_5",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "DNN_5",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2024"
   },
   {
     "year": 2025,
-    "hasDNA": false,
-    "conteo": 0,
+    "hasDNA": true,
+    "conteo": 1113,
     "tesis": [
       "Una edición del Picnic.",
       "Memoria en construcción.",
       "Sigue explorando el archivo."
     ],
     "stats": {
-      "mediana": {},
-      "pctMenor": 0,
-      "tempoMedio": 0
+      "mediana": {
+        "nostalgia": 75,
+        "oscuridad": 90,
+        "energy": 40,
+        "happy": 28,
+        "danceability": 37
+      },
+      "pctMenor": 77,
+      "tempoMedio": 127
     },
-    "collage": [],
-    "caption": "Memoria en construcción"
+    "collage": [
+      {
+        "trackId": "SVC_1",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "ARM_10",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "ABG_10",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "ATC_1",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "TDS_9",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "NMF_5",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "RHW_7",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "DNO_3",
+        "porQue": "la más luminosa"
+      }
+    ],
+    "caption": "Audio DNA · FEP 2025"
   },
   {
     "year": 2026,
     "hasDNA": true,
-    "conteo": 6,
+    "conteo": 817,
     "tesis": [
       "El archivo sigue creciendo.",
       "Tu Picnic todavía se escribe.",
@@ -360,16 +828,49 @@
     ],
     "stats": {
       "mediana": {
-        "nostalgia": 90,
-        "oscuridad": 79,
-        "energy": 11,
-        "happy": 36,
-        "danceability": 49
+        "nostalgia": 74,
+        "oscuridad": 89,
+        "energy": 40,
+        "happy": 28,
+        "danceability": 38
       },
-      "pctMenor": 100,
-      "tempoMedio": 165
+      "pctMenor": 78,
+      "tempoMedio": 134
     },
-    "collage": [],
+    "collage": [
+      {
+        "trackId": "ACF_4",
+        "porQue": "la más nostálgica"
+      },
+      {
+        "trackId": "ARV_5",
+        "porQue": "la más intensa"
+      },
+      {
+        "trackId": "ADR_10",
+        "porQue": "la más oscura"
+      },
+      {
+        "trackId": "ACF_1",
+        "porQue": "la más calma"
+      },
+      {
+        "trackId": "YMK_8",
+        "porQue": "la más bailable"
+      },
+      {
+        "trackId": "PGY_10",
+        "porQue": "la más feroz"
+      },
+      {
+        "trackId": "JDN_4",
+        "porQue": "la más lenta"
+      },
+      {
+        "trackId": "ROI_9",
+        "porQue": "la más luminosa"
+      }
+    ],
     "caption": "Audio DNA · FEP 2026"
   }
 ]

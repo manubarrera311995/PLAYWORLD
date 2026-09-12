@@ -1,12 +1,48 @@
 {
   "brand": "PLAYWORLD",
-  "question": "¿Cuál fue tu FEP favorito?",
-  "chips": [
-    { "id": "2011", "label": "2011" },
-    { "id": "2013", "label": "2013" },
-    { "id": "2018", "label": "2018" },
-    { "id": "2022", "label": "2022" },
-    { "id": "2026", "label": "2026" }
+  "paso": "{n} / {total}",
+  "atras": "Atrás",
+  "cta": "Continuar",
+  "revealEyebrow": "Tu año",
+  "questions": [
+    {
+      "id": "distancia",
+      "text": "¿Te quedas o te vas al frente?",
+      "options": [
+        { "id": "quedas", "label": "Te quedas" },
+        { "id": "frente", "label": "Al frente" }
+      ]
+    },
+    {
+      "id": "gesto",
+      "text": "¿Lloras o empujas?",
+      "options": [
+        { "id": "lloras", "label": "Lloras" },
+        { "id": "empujas", "label": "Empujas" }
+      ]
+    },
+    {
+      "id": "busqueda",
+      "text": "¿Buscas lo que no conoces?",
+      "options": [
+        { "id": "desconocido", "label": "Lo que no conozco" },
+        { "id": "conocido", "label": "Lo que ya era" }
+      ]
+    }
   ],
-  "cta": "Continuar"
+  "pesos": {
+    "quedas": { "2011": 2, "2019": 2 },
+    "frente": { "2022": 2, "2026": 2 },
+    "lloras": { "2011": 1, "2019": 1 },
+    "empujas": { "2022": 1, "2026": 1 },
+    "desconocido": { "2019": 2, "2026": 2 },
+    "conocido": { "2011": 2, "2022": 2 }
+  },
+  "desempate": [2011, 2019, 2022, 2026],
+  "revelados": {
+    "2011": { "year": 2011, "linea": "El archivo todavía cabía en la palma." },
+    "2019": { "year": 2019, "linea": "Justo antes de que se callara." },
+    "2022": { "year": 2022, "linea": "El reencuentro tenía peso." },
+    "2026": { "year": 2026, "linea": "El archivo todavía se escribe." }
+  }
 }

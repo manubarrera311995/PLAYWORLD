@@ -1,19 +1,29 @@
 import type { Track } from "./tipos";
+import { leerJson } from "./http";
 
 let cache: Track[] | null = null;
+let percCache: Record<string, number[]> | null = null;
+
+export function hidratarPool(tracks: Track[]): void {
+  cache = tracks;
+}
+
+export function hidratarPercentiles(perc: Record<string, number[]>): void {
+  percCache = perc;
+}
 
 export async function cargarPool(): Promise<Track[]> {
   if (cache) return cache;
-  const res = await fetch("/data/archivo/pool.ipod.json");
-  if (!res.ok) return [];
-  cache = (await res.json()) as Track[];
+  const data = await leerJson<Track[]>("/data/archivo/pool.ipod.json");
+  cache = Array.isArray(data) ? data : [];
   return cache;
 }
 
 export async function cargarPercentiles(): Promise<Record<string, number[]>> {
-  const res = await fetch("/data/archivo/percentiles.json");
-  if (!res.ok) return {};
-  return (await res.json()) as Record<string, number[]>;
+  if (percCache) return percCache;
+  const data = await leerJson<Record<string, number[]>>("/data/archivo/percentiles.json");
+  percCache = data && typeof data === "object" && !Array.isArray(data) ? data : {};
+  return percCache;
 }
 
 export function poolPorAnio(pool: Track[], year: number | null): Track[] {
