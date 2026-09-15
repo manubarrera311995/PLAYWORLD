@@ -9,8 +9,10 @@
   import { cargarTracks } from "../../datos/archivo";
   import {
     actPrefix,
+    amplitudDe,
     caracterDe,
     fill,
+    generosDe,
     groupActs,
     median,
     round,
@@ -24,11 +26,12 @@
   import Campo from "./Campo.svelte";
   import PanelCancion from "./PanelCancion.svelte";
   import Actos from "./Actos.svelte";
+  import Generos from "./Generos.svelte";
   import Boton from "../../ui/Boton.svelte";
   import { navigate } from "../director/router";
 
-  type Props = { year: number; anios?: number[] };
-  let { year, anios = [] }: Props = $props();
+  type Props = { year: number };
+  let { year }: Props = $props();
 
   let tracks = $state.raw<Track[]>([]);
   let loading = $state(true);
@@ -58,30 +61,20 @@
 
   const info = $derived(caracterDe(tracks));
   const thesis = $derived.by(() => {
-    const character = copy.character[info.kind];
-    if (info.split && info.happy && info.energy && info.relaxed) {
-      return fill(copy.tesis.partida, {
-        character,
-        happyIqr: round(info.happy.iqr),
-        energyIqr: round(info.energy.iqr),
-        relaxedIqr: round(info.relaxed.iqr),
-      });
-    }
+    if (info.split) return copy.tesis.partida;
     return fill(copy.tesis.simple, {
-      character,
+      character: copy.character[info.kind],
       energyMedian: round(info.energy?.median),
-      energyIqr: round(info.energy?.iqr),
     });
   });
-  const method = $derived(
-    fill(copy.method, {
-      n: tracks.length,
-      acts: info.nActs,
-      minor: info.minorShare,
-      oscuridad: round(info.oscuridad?.median),
-      nostalgia: round(info.nostalgia?.median),
-    }),
+  const thesisLead = $derived(
+    info.split
+      ? copy.tesisLead.partida
+      : fill(copy.tesisLead.simple, { diff: copy.tesisLeadDiff[amplitudDe(info.energy?.iqr)] }),
   );
+  const happySpread = $derived(amplitudDe(info.happy?.iqr));
+  const aggressiveSpread = $derived(amplitudDe(info.aggressive?.iqr));
+  const mix = $derived(generosDe(tracks));
   const lineupActs = $derived(
     groupActs(tracks)
       .map((act) => ({ ...act, energy: median(values(act.songs, "energy")) }))
@@ -170,28 +163,26 @@
 {:else}
   <article class="ficha" {@attach montar}>
     <section class="opening" aria-labelledby="page-title">
-      <div data-in>
-        <p class="kicker">{copy.eyebrow}</p>
-        {#if anios.length}
-          <nav class="years" aria-label="Cambiar edición">
-            {#each anios as y (y)}
-              <button type="button" class={[y === year && "is-on"]} onclick={() => navigate(`/edicion/${y}`)}>
-                {y}
-              </button>
-            {/each}
-          </nav>
-        {/if}
+      <div class="year" data-in>
         <h1 id="page-title">{year}</h1>
       </div>
       <div class="side" data-in>
         <p class="thesis">{thesis}</p>
-        <p class="method">{method}</p>
+        <p class="thesis-lead">{thesisLead}</p>
         <div class="stats">
           <div class="stat"><strong>{tracks.length}</strong><span>{copy.stats.songs}</span></div>
           <div class="stat"><strong>{info.minorShare}%</strong><span>{copy.stats.minor}</span></div>
-          <div class="stat"><strong>IQR {round(info.happy?.iqr)}</strong><span>{copy.stats.happy}</span></div>
-          <div class="stat"><strong>IQR {round(info.aggressive?.iqr)}</strong><span>{copy.stats.aggressive}</span></div>
+          <div class="stat is-words">
+            <strong>{copy.stats.spread[happySpread]}</strong>
+            <span>{copy.stats.happy}</span>
+          </div>
+          <div class="stat is-words">
+            <strong>{copy.stats.spread[aggressiveSpread]}</strong>
+            <span>{copy.stats.aggressive}</span>
+          </div>
+          <p class="stats-hint">{copy.statsHint}</p>
         </div>
+        <Generos {mix} />
       </div>
       <div class="cartel" data-in>
         <Lineup
@@ -202,7 +193,6 @@
           onact={(prefix) => elegirActo(prefix, true)}
         />
       </div>
-      <a class="cue" href="#tesis" onclick={(e) => irA("tesis", e)}>{copy.cue}</a>
     </section>
 
     <nav class="jump" aria-label="Capítulos">
@@ -235,13 +225,13 @@
         question={copy.chapters.campo.question}
         unit={copy.chapters.campo.unit}
       />
-      <div class="split">
+      <div class="split split--campo">
         <Campo {tracks} {selected} {selectedAct} onselect={elegirCancion} />
         <PanelCancion {tracks} {selected} {year} />
       </div>
     </section>
 
-    <section class="chapter" id="actos" aria-labelledby="actos-title">
+    <section class="chapter chapter--wide" id="actos" aria-labelledby="actos-title">
       <Capitulo
         n={copy.chapters.actos.n}
         eyebrow={copy.chapters.actos.eyebrow}
@@ -279,8 +269,14 @@
     font-weight: 400;
   }
   .ficha {
+    width: 100%;
+  }
+  .opening,
+  .jump,
+  .foot,
+  .chapter:not(.chapter--wide) {
     width: min(1380px, 100%);
-    margin: 0 auto;
+    margin-inline: auto;
   }
   .jump {
     position: sticky;
@@ -305,39 +301,20 @@
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
     align-content: center;
-    align-items: end;
+    align-items: center;
     gap: clamp(28px, 6vw, 90px);
     padding: 48px var(--pad-x) 72px;
   }
-  .kicker {
-    margin-bottom: 12px;
-    color: var(--ink-mute);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.23em;
-    text-transform: uppercase;
-  }
-  .years {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 14px;
-    margin: 0 0 8px;
-  }
-  .years button {
-    appearance: none;
-    border: 0;
-    padding: 0;
-    background: transparent;
-    color: var(--ink-mute);
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    cursor: pointer;
-  }
-  .years button.is-on,
-  .years button:hover {
-    color: var(--ink);
+  .year {
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    align-self: stretch;
+    min-height: 0;
+    text-align: center;
   }
   h1 {
+    margin: 0;
     font-family: Anton, Impact, sans-serif;
     font-size: clamp(112px, 26vw, 340px);
     font-weight: 400;
@@ -345,17 +322,17 @@
     letter-spacing: -0.045em;
   }
   .thesis {
-    max-width: 22ch;
+    max-width: 26ch;
     font-size: clamp(22px, 3vw, 40px);
-    line-height: 1.1;
+    line-height: 1.12;
     letter-spacing: -0.03em;
   }
-  .method {
-    margin-top: 18px;
-    max-width: 56ch;
-    color: var(--ink-mute);
-    font-size: 11px;
-    line-height: 1.55;
+  .thesis-lead {
+    max-width: 38ch;
+    margin-top: 12px;
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1.45;
   }
   .stats {
     display: grid;
@@ -363,11 +340,25 @@
     gap: 14px 18px;
     margin-top: 28px;
   }
+  .stats-hint {
+    grid-column: 1 / -1;
+    margin: 2px 0 0;
+    max-width: 46ch;
+    color: var(--ink-mute);
+    font-size: 11px;
+    line-height: 1.45;
+    letter-spacing: 0;
+    text-transform: none;
+  }
   .stat strong {
     display: block;
     font-family: Anton, Impact, sans-serif;
     font-size: 28px;
     letter-spacing: -0.03em;
+  }
+  .stat.is-words strong {
+    font-size: clamp(20px, 2.2vw, 26px);
+    line-height: 1.05;
   }
   .stat span {
     color: var(--ink-mute);
@@ -377,28 +368,27 @@
   }
   .cartel {
     grid-column: 1 / -1;
-  }
-  .cue {
-    grid-column: 1 / -1;
-    justify-self: start;
-    margin-top: 8px;
-    border-bottom: 1px solid var(--ink-soft);
-    padding-bottom: 5px;
-    color: var(--ink-soft);
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
+    overflow: visible;
   }
   .chapter {
     padding: clamp(72px, 10vh, 120px) var(--pad-x);
     border-top: 1px solid rgba(255, 246, 239, 0.14);
     scroll-margin-top: 48px;
   }
+  .chapter--wide {
+    width: 100%;
+  }
   .split {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.8fr);
     gap: clamp(28px, 4vw, 64px);
     align-items: start;
+  }
+  .split--campo {
+    grid-template-areas:
+      "map panel"
+      "legend legend";
+    row-gap: 16px;
   }
   .foot {
     display: flex;
@@ -422,6 +412,12 @@
     .opening,
     .split {
       grid-template-columns: 1fr;
+    }
+    .split--campo {
+      grid-template-areas:
+        "map"
+        "panel"
+        "legend";
     }
     h1 {
       font-size: clamp(96px, 32vw, 180px);

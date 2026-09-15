@@ -1,5 +1,26 @@
+import homeCopy from "../home/home.copy.json";
+
 export type Pesos = Record<string, Record<string, number>>;
 export type Revelado = { year: number; linea: string };
+export type CaratulaAnio = { year: number; art: string; label: string };
+
+const ART_FALLBACK = "/assets/home/caratulas";
+const ECOS_SUELO = [2012, 2014, 2016, 2018, 2020, 2023] as const;
+
+/** Misma carátula que la órbita del home, para que el revelado cierre el círculo. */
+export function caratulaDe(year: number): CaratulaAnio {
+  const card = homeCopy.cards.find((c) => c.year === year);
+  return {
+    year,
+    art: card?.art ?? `${ART_FALLBACK}/${year}.jpg`,
+    label: card?.label ?? "",
+  };
+}
+
+/** Recortes del archivo que se derraman alrededor de la pregunta, no de la puerta. */
+export function ecosDelSuelo(): CaratulaAnio[] {
+  return ECOS_SUELO.map((year) => caratulaDe(year));
+}
 
 export function fill(tpl: string, vars: Record<string, string | number>): string {
   return tpl.replace(/\{(\w+)\}/g, (_, k: string) => String(vars[k] ?? ""));

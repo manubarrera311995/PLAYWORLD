@@ -1,7 +1,12 @@
 {
   "brand": "PLAYWORLD",
   "title": ["PLAYWORLD"],
-  "tagline": "Una cartografía emocional de un mundo distinto",
+  "kicker": "Escucha • Descubre • Siente",
+  "tagline": "Una cartografía emocional de un mundo sonoro",
+  "ejes": ["Música", "Cultura", "Personas", "Playlists", "Emociones"],
+  "mantra": ["El", "sonido", "también", "nos", "une"],
+  "sueloIzq": ["Realidades", "sonoras", "más humanas"],
+  "sueloDer": ["La música", "imagina", "otros mundos"],
   "footer": "15 años · archivo emocional",
   "cta": "Entrar",
   "scrollHint": "desliza",

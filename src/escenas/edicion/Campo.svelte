@@ -121,6 +121,7 @@
 <style>
   .shell {
     position: relative;
+    grid-area: map;
   }
   .map {
     display: block;
@@ -184,9 +185,14 @@
     display: flex;
     flex-wrap: wrap;
     gap: 16px 22px;
-    margin-top: 16px;
+    align-items: center;
+    grid-area: legend;
     color: var(--ink-mute);
     font-size: 11px;
+  }
+  .legend > span:last-child {
+    margin-left: auto;
+    text-align: right;
   }
   .swatch {
     display: inline-block;
@@ -203,5 +209,12 @@
   }
   .swatch--hot {
     background: #ff9466;
+  }
+  @media (max-width: 980px) {
+    .legend > span:last-child {
+      width: 100%;
+      margin-left: 0;
+      text-align: left;
+    }
   }
 </style>

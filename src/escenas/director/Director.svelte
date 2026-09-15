@@ -11,7 +11,8 @@
   import Creacion from "../creacion/Creacion.svelte";
   import Colectiva from "../colectiva/Colectiva.svelte";
   import { currentRuta, hrefOf, initRouter, subscribe, type RutaParsed } from "./router";
-  import { crossfade } from "./transiciones";
+  import { crossfade, disolverFondoHome, disuelveFondo, ocultarFondoHome } from "./transiciones";
+  import { cambiarCielo, type LimpiezaCielo } from "../../motion/cielo";
   import { reduce } from "../../motion/reducedMotion";
   import { parcheRecorrido } from "../../estado/recorrido";
   import { precargarPool } from "../../datos/archivo";
@@ -35,6 +36,7 @@
   let busy = false;
   let capas = $state.raw<Capa[]>([{ id: 0, ruta: currentRuta(), fase: "live" }]);
   const nodos = new SvelteMap<number, HTMLElement>();
+  let limpiarCielo: LimpiezaCielo = () => undefined;
 
   function registrar(el: HTMLElement) {
     const id = Number(el.dataset.capa);
@@ -79,9 +81,18 @@
     await tick();
     const leaveEl = nodos.get(leaveId) ?? null;
     const enterEl = nodos.get(enterId);
+    // Req 8.2: el cielo arranca en este mismo tick, antes del await del
+    // crossfade. No se llama a la limpieza previa: cambiarCielo mata el
+    // contexto anterior con kill(false) y un revert aquí saltaría el velo.
+    limpiarCielo = cambiarCielo(next.name, get(reduce));
+    // Req 7.1: arranca en el mismo tick que el crossfade y sin await, de modo
+    // que ambas animaciones comparten inicio y duración.
+    if (disuelveFondo(actual.ruta.name, next.name)) disolverFondoHome(leaveEl, get(reduce));
     try {
       if (enterEl) await crossfade(leaveEl, enterEl, get(reduce));
     } finally {
+      // Req 7.3, 7.4: la foto queda a opacity 0 antes de retirar la capa saliente.
+      ocultarFondoHome(leaveEl);
       capas = capas.filter((c) => c.fase !== "leave").map((c) => ({ ...c, fase: "live" as const }));
       busy = false;
     }
@@ -94,9 +105,17 @@
     const unsub = subscribe((next) => {
       void ir(next);
     });
+    // La primera emisión aplica el cielo de la escena viva; las siguientes
+    // cubren el cambio en caliente de prefers-reduced-motion (Req 8.2, 11.4).
+    const unsubReduce = reduce.subscribe((quieto) => {
+      const capa = viva();
+      if (capa) limpiarCielo = cambiarCielo(capa.ruta.name, quieto);
+    });
     return () => {
       stop();
       unsub();
+      unsubReduce();
+      limpiarCielo();
     };
   });
 </script>

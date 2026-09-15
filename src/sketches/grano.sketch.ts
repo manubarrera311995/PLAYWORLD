@@ -25,8 +25,8 @@ export const granoSketch: Sketch<GranoParams> = (p: p5, params, paleta: Readable
   const speck = 2;
   const cell = tile * speck;
   const maxMotitas = 360;
-  const maxEstela = 72;
-  const vidaEstela = 78;
+  const maxEstela = 110;
+  const vidaEstela = 132;
   let buffer: p5.Graphics | null = null;
   let pattern: CanvasPattern | null = null;
   let stamp: HTMLCanvasElement | null = null;
@@ -42,6 +42,8 @@ export const granoSketch: Sketch<GranoParams> = (p: p5, params, paleta: Readable
   let hy = 0;
   let visto = false;
   let activo = false;
+  let wake = 0;
+  let lastAng = 0;
   const motitas: Motita[] = [];
   const estela: Estela[] = [];
   const drop: Array<() => void> = [];
@@ -112,14 +114,18 @@ export const granoSketch: Sketch<GranoParams> = (p: p5, params, paleta: Readable
     sctx.clearRect(0, 0, stamp.width, stamp.height);
     sctx.drawImage(ctx.canvas, 0, 0);
 
-    const energia = Math.min(1, 0.28 + spd * 0.12);
-    const rx = 54 + energia * 42 + spd * 3;
-    const ry = 76 + energia * 52 + spd * 5;
-    const ang = spd > 0.2 ? Math.atan2(dy, dx) : 0;
-    const inv = spd > 0.2 ? 1 / spd : 0;
+    const energia = Math.min(1, 0.16 + wake * 0.09);
+    const t = Math.min(1, wake * 0.55);
+    const along = 68 + energia * 32 + wake * 4.6;
+    const across = 22 + energia * 10 + wake * 0.7;
+    const idle = 28 + energia * 8;
+    const rx = idle + (along - idle) * t;
+    const ry = idle + (across - idle) * t;
+    const ang = lastAng;
+    const inv = spd > 0.18 ? 1 / spd : 0;
     const nx = dx * inv;
     const ny = dy * inv;
-    const push = 6 + spd * 1.1;
+    const push = 4.5 + wake * 0.7;
 
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -128,7 +134,7 @@ export const granoSketch: Sketch<GranoParams> = (p: p5, params, paleta: Readable
     ctx.beginPath();
     ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
     ctx.clip();
-    ctx.scale(1.1, 1.16);
+    ctx.scale(1.08, 1.05);
     ctx.rotate(-ang);
     ctx.translate(-hx, -hy);
     ctx.drawImage(stamp, -nx * push, -ny * push);
@@ -154,13 +160,13 @@ export const granoSketch: Sketch<GranoParams> = (p: p5, params, paleta: Readable
     const n = Math.min(12, 3 + Math.floor(energia * (8 + pal.granoVelocidad * 6)));
     for (let i = 0; i < n; i++) {
       const lado = p.random() > 0.5 ? 1 : -1;
-      const spread = 0.55 + p.random() * 1.2;
+      const spread = 0.28 + p.random() * 0.7;
       nacer(
-        x + (p.random() - 0.5) * 28,
-        y + (p.random() - 0.5) * 28,
-        atrasX * (0.25 + p.random() * 0.7) + -atrasY * lado * spread + (p.random() - 0.5) * 0.45,
-        atrasY * (0.25 + p.random() * 0.7) + atrasX * lado * spread + (p.random() - 0.5) * 0.45,
-        52 + p.random() * 40,
+        x + (p.random() - 0.5) * 14,
+        y + (p.random() - 0.5) * 14,
+        atrasX * (0.2 + p.random() * 0.55) + -atrasY * lado * spread + (p.random() - 0.5) * 0.28,
+        atrasY * (0.2 + p.random() * 0.55) + atrasX * lado * spread + (p.random() - 0.5) * 0.28,
+        110 + p.random() * 90,
         speck + (p.random() > 0.75 ? speck : 0),
       );
     }
@@ -189,16 +195,16 @@ export const granoSketch: Sketch<GranoParams> = (p: p5, params, paleta: Readable
     for (let i = len - 1; i >= 0; i--) {
       const pt = estela[i];
       const t = 1 - pt.life / vidaEstela;
-      rociar(ctx, pt.x, pt.y, 16 + t * 64, Math.floor(8 + (1 - t) * 16), 0.28 * (pt.life / vidaEstela));
+      rociar(ctx, pt.x, pt.y, 8 + t * 18, Math.floor(5 + (1 - t) * 10), 0.3 * (pt.life / vidaEstela));
     }
 
     for (let i = motitas.length - 1; i >= 0; i--) {
       const m = motitas[i];
       m.x += m.vx;
       m.y += m.vy;
-      m.vx *= 0.97;
-      m.vy *= 0.97;
-      m.life -= 1;
+      m.vx *= 0.985;
+      m.vy *= 0.985;
+      m.life -= 0.62;
       if (m.life <= 0) {
         motitas.splice(i, 1);
         continue;
@@ -281,6 +287,8 @@ export const granoSketch: Sketch<GranoParams> = (p: p5, params, paleta: Readable
         dx = hx - hx0;
         dy = hy - hy0;
         spd = Math.hypot(dx, dy);
+        wake = Math.max(spd, wake * Math.pow(0.978, dt));
+        if (spd > 0.22) lastAng = Math.atan2(dy, dx);
         if (activo) {
           const ultimo = estela[0];
           const salto = ultimo ? Math.hypot(tx - ultimo.x, ty - ultimo.y) : 99;
@@ -290,7 +298,7 @@ export const granoSketch: Sketch<GranoParams> = (p: p5, params, paleta: Readable
           }
         }
         for (let i = estela.length - 1; i >= 0; i--) {
-          estela[i].life -= 0.55;
+          estela[i].life -= 0.36 * dt;
           if (estela[i].life <= 0) estela.splice(i, 1);
         }
         if (activo && spd > 0.2) {

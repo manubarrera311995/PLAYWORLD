@@ -3,7 +3,9 @@
   import Marca from "../../ui/Marca.svelte";
   import Asterisco from "../../ui/Asterisco.svelte";
   import Collage from "./Collage.svelte";
+  import FondoHome from "./FondoHome.svelte";
   import { montarOrbita } from "./orbita";
+  import { montarFondoHome } from "./fondo";
   import { navigate } from "../director/router";
   import type { RutaParsed } from "../director/router";
 
@@ -11,14 +13,22 @@
   let { ruta: _ruta }: Props = $props();
 </script>
 
-<section class="home" {@attach montarOrbita}>
+<!--
+  Dos contextos hermanos e independientes sobre el mismo `<section>`: la órbita
+  primero (intacta, diff cero en `orbita.ts`) y el fondo después. Cada attach
+  devuelve su propia limpieza, así que Svelte las invoca por separado y ninguna
+  puede arrastrar a la otra (Req 6.1, 6.2, 6.4, 14.4, 14.5).
+-->
+<section class="home" {@attach montarOrbita} {@attach montarFondoHome}>
   <div class="home__pin">
+    <FondoHome />
     <header class="home__top">
       <Marca texto={copy.brand} />
       <Asterisco />
     </header>
     <div class="home__stage">
       <div class="home__copy">
+        <p class="home__kicker">{copy.kicker}</p>
         <h1 class="tipo-hero">{copy.title[0]}</h1>
         <p class="tipo-cuerpo">{copy.tagline}</p>
       </div>
@@ -43,9 +53,36 @@
         </span>
       </button>
     </div>
+    <aside class="home__fragmentos" aria-hidden="true">
+      <p class="tipo-eco home__eco home__eco--ejes">
+        {#each copy.ejes as eje (eje)}
+          <span>{eje}</span>
+        {/each}
+      </p>
+      <p class="tipo-eco home__eco home__eco--mantra">
+        {#each copy.mantra as linea (linea)}
+          <span>{linea}</span>
+        {/each}
+      </p>
+      <p class="tipo-eco home__eco home__eco--suelo-izq">
+        {#each copy.sueloIzq as linea (linea)}
+          <span>{linea}</span>
+        {/each}
+      </p>
+      <p class="tipo-eco home__eco home__eco--suelo-der">
+        {#each copy.sueloDer as linea (linea)}
+          <span>{linea}</span>
+        {/each}
+      </p>
+    </aside>
     <div class="home__cue">
       <p class="home__cue-label">{copy.scrollHint}</p>
-      <span class="home__cue-flecha" aria-hidden="true"></span>
+      <span class="home__cue-gesto" aria-hidden="true">
+        <span class="home__cue-capsula">
+          <span class="home__cue-punto"></span>
+        </span>
+        <span class="home__cue-linea"></span>
+      </span>
     </div>
     <p class="tipo-pie home__foot">{copy.footer}</p>
   </div>
@@ -65,6 +102,7 @@
     gap: 12px;
     overflow: visible;
   }
+  /* El layout de `.home__fondo` y de su foto vive ahora en `FondoHome.svelte`. */
   .home__top {
     position: relative;
     z-index: 5;
@@ -72,8 +110,69 @@
     justify-content: space-between;
     align-items: center;
   }
+  .home__kicker {
+    font-size: clamp(10px, 1vw, 12px);
+    font-weight: 500;
+    letter-spacing: 0.42em;
+    text-indent: 0.42em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .home__fragmentos {
+    position: absolute;
+    inset: var(--pad-y) var(--pad-x);
+    z-index: 5;
+    pointer-events: none;
+  }
+  .home__eco {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    max-width: 16ch;
+  }
+  .home__eco span {
+    display: block;
+  }
+  .home__eco--ejes {
+    top: clamp(52px, 9vh, 88px);
+    left: 0;
+  }
+  .home__eco--ejes::after,
+  .home__eco--mantra::after,
+  .home__eco--suelo-izq::before {
+    content: "";
+    display: block;
+    width: 22px;
+    height: 1px;
+    background: rgba(255, 246, 239, 0.38);
+  }
+  .home__eco--ejes::after,
+  .home__eco--mantra::after {
+    margin-top: 12px;
+  }
+  .home__eco--suelo-izq::before {
+    margin-bottom: 12px;
+  }
+  .home__eco--mantra {
+    top: clamp(64px, 12vh, 110px);
+    right: 0;
+    text-align: right;
+    align-items: flex-end;
+  }
+  .home__eco--suelo-izq {
+    bottom: 0;
+    left: 0;
+  }
+  .home__eco--suelo-der {
+    bottom: 0;
+    right: 0;
+    text-align: right;
+    align-items: flex-end;
+  }
   .home__stage {
     position: relative;
+    z-index: 1;
     min-width: 0;
     min-height: 0;
     overflow: visible;
@@ -258,23 +357,52 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 14px;
     color: var(--ink-mute);
-    padding-bottom: 6px;
+    pointer-events: none;
   }
   .home__cue-label {
-    letter-spacing: 0.28em;
-    text-indent: 0.28em;
+    letter-spacing: 0.46em;
+    text-indent: 0.46em;
     text-transform: uppercase;
     font-size: 11px;
+    font-weight: 500;
+    color: rgba(255, 246, 239, 0.82);
   }
-  .home__cue-flecha {
-    width: 10px;
-    height: 10px;
-    border-right: 1.5px solid currentColor;
-    border-bottom: 1.5px solid currentColor;
-    transform: rotate(45deg);
-    animation: cue-bounce 1.5s var(--ease-soft) infinite;
+  .home__cue-gesto {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .home__cue-capsula {
+    position: relative;
+    display: block;
+    width: 24px;
+    height: 42px;
+    overflow: hidden;
+    border: 1.25px solid rgba(255, 246, 239, 0.86);
+    border-radius: 999px;
+  }
+  .home__cue-punto {
+    position: absolute;
+    left: 50%;
+    top: 9px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255, 246, 239, 0.96);
+    transform: translateX(-50%);
+    animation: cue-punto 1.85s var(--ease-soft) infinite;
+  }
+  .home__cue-linea {
+    display: block;
+    width: 1px;
+    height: 28px;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 246, 239, 0.72) 0%,
+      rgba(255, 246, 239, 0) 100%
+    );
   }
   @keyframes play-halo {
     0% {
@@ -301,15 +429,21 @@
       transform: scale(1.16);
     }
   }
-  @keyframes cue-bounce {
-    0%,
-    100% {
-      transform: rotate(45deg) translate(0, 0);
-      opacity: 0.85;
+  @keyframes cue-punto {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(0);
     }
-    50% {
-      transform: rotate(45deg) translate(5px, 5px);
-      opacity: 0.25;
+    18% {
+      opacity: 1;
+    }
+    72% {
+      opacity: 0.15;
+      transform: translateX(-50%) translateY(18px);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(18px);
     }
   }
 
@@ -368,6 +502,13 @@
     .tipo-hero {
       font-size: clamp(56px, 19vw, 92px);
     }
+    .home__fragmentos {
+      display: none;
+    }
+    .home__kicker {
+      letter-spacing: 0.28em;
+      text-indent: 0.28em;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -405,9 +546,10 @@
       inset: auto;
       width: 100%;
     }
-    .home__cue,
-    .home__cue-flecha {
+    .home__cue {
       display: none;
+    }
+    .home__cue-punto {
       animation: none;
     }
     .home__foot {

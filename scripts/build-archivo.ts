@@ -313,7 +313,7 @@ async function main(): Promise<void> {
         ? statsDe(tracks)
         : { mediana: {}, pctMenor: 0, tempoMedio: 0 },
       collage: hasDNA ? extremos(tracks) : [],
-      caption: hasDNA ? `Audio DNA · FEP ${y}` : "Memoria en construcción",
+      caption: hasDNA ? `Clima · FEP ${y}` : "Memoria en construcción",
     });
   }
 

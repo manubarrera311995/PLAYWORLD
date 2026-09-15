@@ -100,3 +100,24 @@ img {
     radial-gradient(70% 80% at 50% 35%, rgba(255, 255, 255, 0.1), transparent 65%),
     radial-gradient(100% 100% at 50% 50%, transparent 40%, rgba(18, 0, 36, 0.32) 100%);
 }
+
+/*
+ * Fantasma del JPEG del home. Misma foto, misma cobertura, a la opacidad del
+ * tramo final del scroll (~0.10) y un blur corto para que no compita con el
+ * texto del hook. Vive entre el cielo (z-bg) y las escenas (z-scene): en el
+ * home la foto nítida la tapa; al desmontar el home queda este eco.
+ */
+.mundo__eco {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-bg) + 1);
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  opacity: 0.12;
+  filter: brightness(0.86) blur(12px);
+  transform: scale(1.04);
+}

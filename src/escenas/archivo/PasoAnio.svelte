@@ -1,96 +1,143 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
+  import { fly } from "svelte/transition";
+  import { reduce as reduceMotion } from "../../motion/reducedMotion";
+  import Onda from "./Onda.svelte";
 
   type Props = {
     year: number;
+    years?: number[];
     hasDNA: boolean;
     tesis: string[];
+    cifra?: string;
     children?: Snippet;
   };
-  let { year, hasDNA, tesis, children }: Props = $props();
+  let { year, years = [], hasDNA, tesis, cifra = "", children }: Props = $props();
 
   const digits = $derived(String(year).padStart(4, "0").split(""));
+  const reduce = $derived($reduceMotion);
+  const inYear = $derived(reduce ? { y: 0, duration: 0 } : { y: 18, duration: 720 });
+  const inMeta = $derived(reduce ? { y: 0, duration: 0 } : { y: 18, duration: 720, delay: 80 });
 </script>
 
 <div class="paso">
-  <h1 class="year" aria-label={String(year)}>
-    {#each digits as d, i (i)}
-      <span aria-hidden="true">{d}</span>
-    {/each}
-  </h1>
-  <div class="sur">
-    {#if tesis.length}
-      <div class="meta">
-        {#each tesis as line (line)}
-          <p>{line}</p>
+  <Onda {year} {years} />
+  {#key year}
+    <div class="year-slot" in:fly={inYear}>
+      <h1 class="year" aria-label={String(year)}>
+        {#each digits as d, i (i)}
+          <span aria-hidden="true">{d}</span>
         {/each}
-      </div>
-    {:else if !hasDNA}
-      <p class="meta">Memoria en construcción.</p>
-    {/if}
-    {@render children?.()}
-  </div>
+      </h1>
+    </div>
+    <div class="sur" in:fly={inMeta}>
+      {#if cifra}
+        <p class="cifra">{cifra}</p>
+      {/if}
+      {#if tesis.length}
+        <div class="meta">
+          {#each tesis as line (line)}
+            <p>{line}</p>
+          {/each}
+        </div>
+      {:else if !hasDNA}
+        <p class="meta">Memoria en construcción.</p>
+      {/if}
+      {@render children?.()}
+    </div>
+  {/key}
 </div>
 
 <style>
   .paso {
+    --year-size: clamp(88px, min(22vw, 32vh), 280px);
+    position: relative;
     height: 100%;
     min-height: 0;
     width: 100%;
     text-align: center;
-    display: grid;
-    grid-template-rows: 1fr auto 1fr;
-    justify-items: center;
-    gap: 32px;
+    overflow: hidden;
   }
+
+  .year-slot {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
   .year {
     display: flex;
     justify-content: center;
     align-items: center;
-    grid-row: 2;
     margin: 0;
-    height: 0.82em;
     font-family: Anton, Impact, sans-serif;
-    font-size: clamp(88px, min(28vw, 34vh), 280px);
-    line-height: 1;
+    font-size: var(--year-size);
+    line-height: 0.82;
     font-kerning: none;
     font-variant-numeric: tabular-nums;
     color: var(--ink-title);
-    text-shadow: 0 14px 56px rgba(0, 0, 0, 0.4);
-    gap: 0.06em;
+    letter-spacing: -0.02em;
+    gap: 0.02em;
   }
+
   .year span {
     display: block;
-    width: 1ch;
+    width: 0.82em;
     text-align: center;
   }
+
   .sur {
-    grid-row: 3;
-    align-self: start;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    z-index: 2;
     display: grid;
     justify-items: center;
-    gap: 8px;
+    gap: 10px;
     min-width: 0;
+    padding-top: calc(var(--year-size) * 0.48);
+    pointer-events: none;
   }
+
   .meta {
     display: grid;
     gap: 2px;
-    max-width: 28ch;
+    max-width: 32ch;
   }
+
+  .cifra {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-indent: 0.28em;
+    text-transform: uppercase;
+    color: rgba(255, 246, 239, 0.72);
+    font-variant-numeric: tabular-nums;
+  }
+
   .meta p,
   p.meta {
-    color: var(--ink-soft);
-    font-size: clamp(13px, 1.3vw, 16px);
-    letter-spacing: 0.04em;
-    line-height: 1.25;
+    color: rgba(255, 245, 236, 0.8);
+    font-size: clamp(12px, 1.15vw, 14px);
+    letter-spacing: 0.02em;
+    line-height: 1.45;
   }
+
   @media (max-width: 767px) {
     .paso {
-      gap: 24px;
+      --year-size: clamp(72px, 22vw, 128px);
     }
     .year {
-      font-size: clamp(72px, 22vw, 128px);
-      gap: 0.04em;
+      gap: 0.01em;
+    }
+    .sur {
+      padding-top: calc(var(--year-size) * 0.52);
     }
   }
 </style>

@@ -80,6 +80,7 @@ export function montarOrbita(root: HTMLElement): () => void {
   const stage = root.querySelector<HTMLElement>(".home__stage");
   const orbita = root.querySelector<HTMLElement>(".home__orbita");
   const copyEl = root.querySelector<HTMLElement>(".home__copy");
+  const fragmentos = root.querySelector<HTMLElement>(".home__fragmentos");
   const play = root.querySelector<HTMLElement>(".home__play");
   const destello = root.querySelector<HTMLElement>(".home__play-destello");
   const brillo = root.querySelector<HTMLElement>(".home__play-brillo");
@@ -256,6 +257,7 @@ export function montarOrbita(root: HTMLElement): () => void {
       });
       gsap.set(orbita, { rotation: 0 });
       gsap.set(copyEl, { autoAlpha: 1, scale: 1, y: 0 });
+      if (fragmentos) gsap.set(fragmentos, { autoAlpha: 1 });
       gsap.set(play, { autoAlpha: 0, scale: 0.42, rotation: 0, y: 0 });
       if (cue) gsap.set(cue, { autoAlpha: 1 });
       if (foot) gsap.set(foot, { autoAlpha: 0 });
@@ -297,6 +299,9 @@ export function montarOrbita(root: HTMLElement): () => void {
         },
         0.06,
       );
+      if (fragmentos) {
+        tl.to(fragmentos, { autoAlpha: 0, duration: 0.28, ease: "power2.inOut" }, 0.06);
+      }
 
       if (foot) tl.to(foot, { autoAlpha: 1, duration: 0.12, ease: "power1.out" }, 0.62);
 

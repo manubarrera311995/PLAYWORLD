@@ -1,20 +1,18 @@
 {
   "brand": "PLAYWORLD",
-  "eyebrow": "FEP · FICHA DE EDICIÓN",
   "cartel": "EL CARTEL",
   "back": "Archivo",
   "cta": "Ahora es tu momento",
-  "loading": "Cargando el Audio DNA de la edición…",
+  "loading": "Cargando el clima de la edición…",
   "emptyTitle": "Memoria en construcción",
-  "emptyBody": "Esta edición todavía no tiene Audio DNA en el archivo. Sintoniza otro año.",
-  "cue": "Ver el carácter ↓",
+  "emptyBody": "Esta edición todavía no tiene el clima de las canciones en el archivo. Sintoniza otro año.",
   "songEmpty": "Elige un punto. El overlay muestra su desvío respecto a la mediana de la edición.",
   "songEyebrow": "CANCIÓN CONTRA EL AÑO",
   "polesTitle": "Dos polos",
-  "polesIntro": "Corte en energy 50. No es un clustering: es la partición que pide el IQR.",
+  "polesIntro": "Partimos las canciones por energía. Debajo de 50 van al polo suave; de 50 en adelante, al intenso. Las cifras son el valor típico de cada grupo.",
   "poleSoft": "Polo suave",
   "poleHot": "Polo intenso",
-  "polePull": "{low} tira hacia abajo. {high} tira hacia arriba.",
+  "polePull": "{low} es el acto más suave. {high} es el más intenso.",
   "legendMinor": "Menor",
   "legendMajor": "Mayor",
   "legendHot": "Acto enfocado",
@@ -25,12 +23,19 @@
   "mapY": "ENERGY (0–100) →",
   "mapIntense": "INTENSO",
   "mapSoft": "SUAVE",
-  "fingerprintHint": "La marca es la mediana. La barra es el 50% medio (p25–p75). Happy estrecho = clima del modelo. Aggressive ancho = territorio del año. Sad no aparece: es 100 − happy.",
+  "fpY": "RASGO ↑",
+  "fpX": "VALOR (0–100) →",
+  "legendMedian": "Valor típico",
+  "legendIqr": "Mitad de las canciones",
+  "legendWide": "Se abren",
+  "legendSong": "Canción elegida",
   "deltaHint": "Cero = mediana de {year}. Durazno = por encima. Rosa = por debajo.",
   "actsEyebrow": "DOS CENTROS",
   "songCenter": "mediana de canciones",
   "actCenter": "mediana de actos",
-  "actsHint": "La primera cifra da un voto a cada canción. La segunda da el mismo peso a cada acto. Pasa el cursor por un acto, o elige una portada arriba, para ver sus canciones en el mapa.",
+  "actsHint": "Cada columna es un acto; cada marca, una canción. El punto grande es la mediana del acto. Las líneas horizontales son los dos centros del año. Elige una columna para filtrar el mapa.",
+  "legendActSong": "Canción",
+  "legendActMedian": "Mediana del acto",
   "actsScale": "Acto · n",
   "actsSame": "Las dos formas de contar coinciden en {metric}: el clima no depende del tamaño de los repertorios.",
   "actsDiff": "Al contar canciones, el centro queda {n} puntos {dir} del centro que da un voto a cada acto.",
@@ -38,7 +43,7 @@
   "below": "por debajo",
   "lineupNote": "{n} actos. Elige una portada para filtrar el mapa, el fingerprint y la lista.",
   "lineupNoteAct": "{artist}: {n} canciones en el mapa. Vuelve a pulsar la portada para ver todo el cartel.",
-  "foot": "Audio DNA · datos de canciones agrupadas por acto",
+  "foot": "Clima de las canciones · agrupadas por acto",
   "jump": [
     { "id": "tesis", "label": "01 Tesis" },
     { "id": "campo", "label": "02 Campo" },
@@ -48,9 +53,9 @@
     "tesis": {
       "n": "01",
       "eyebrow": "CARÁCTER",
-      "title": "Fingerprint con rango",
+      "title": "El clima del año",
       "question": "¿Cuál es el clima de esta edición, y dónde se abre de verdad?",
-      "unit": "mediana + IQR · 0–100"
+      "unit": "valor típico + amplitud · 0–100"
     },
     "campo": {
       "n": "02",
@@ -64,7 +69,7 @@
       "eyebrow": "AUTORÍA",
       "title": "Quién sostiene el clima",
       "question": "¿El carácter lo comparte el cartel o lo producen pocos actos?",
-      "unit": "1 marca = 1 acto"
+      "unit": "1 columna = 1 acto · marcas = canciones"
     }
   },
   "moods": {
@@ -79,19 +84,47 @@
   },
   "stats": {
     "songs": "Canciones",
-    "minor": "Modo menor",
-    "happy": "Happy, clima",
-    "aggressive": "Aggressive, territorio"
+    "minor": "En tono menor",
+    "happy": "Ánimo",
+    "aggressive": "Agresividad",
+    "spread": {
+      "pareja": "Se parecen",
+      "media": "Se parecen un poco",
+      "abierta": "Se diferencian"
+    }
   },
+  "statsHint": "En menor es el tono más oscuro. Se parecen: las canciones son parecidas en eso. Se diferencian: hay más de un polo.",
   "character": {
-    "partida": "partida en dos cuerpos",
+    "partida": "partida en dos",
     "intensa": "intensa",
     "contenida": "contenida",
     "tension": "en tensión"
   },
   "tesis": {
-    "partida": "Una edición {character}: happy casi no se mueve (IQR {happyIqr}), pero energy y relaxed abren {energyIqr} y {relaxedIqr} puntos.",
-    "simple": "Una edición {character}: su energía central es {energyMedian}, y el 50% medio ocupa {energyIqr} puntos."
+    "partida": "Una edición partida en dos: el ánimo es compartido, la energía no.",
+    "simple": "Una edición {character}: la energía típica está en {energyMedian}."
   },
-  "method": "{n} canciones · {acts} actos · {minor}% en modo menor. Oscuridad {oscuridad}, nostalgia {nostalgia}. Los centros usan medianas."
+  "tesisLead": {
+    "partida": "Las canciones se parecen en ánimo, pero se diferencian en energía y calma.",
+    "simple": "En energía, las canciones {diff}."
+  },
+  "tesisLeadDiff": {
+    "pareja": "se parecen",
+    "media": "se parecen un poco",
+    "abierta": "se diferencian"
+  },
+  "method": "{n} canciones · {acts} actos · {minor}% en modo menor. Oscuridad {oscuridad}, nostalgia {nostalgia}. Los centros usan medianas.",
+  "generos": {
+    "kicker": "GÉNERO DEL CARTEL",
+    "mixed": "Cartel mezclado",
+    "incomplete": "Sin predominio",
+    "empty": "Sin género",
+    "resto": "Resto",
+    "aria": "Distribución de géneros de la edición",
+    "notePlural": "{pct}% de las etiquetadas · 2º {second}",
+    "notePluralSolo": "{pct}% de las etiquetadas",
+    "noteMixed": "{parts} de las etiquetadas",
+    "noteIncomplete": "Solo {labeled}% del catálogo tiene género",
+    "noteEmpty": "Esta edición no tiene géneros en el archivo."
+  }
 }

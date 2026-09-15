@@ -3,30 +3,31 @@
   "paso": "{n} / {total}",
   "atras": "Atrás",
   "cta": "Continuar",
+  "kicker": "Antes de entrar",
   "revealEyebrow": "Tu año",
   "questions": [
     {
       "id": "distancia",
       "text": "¿Te quedas o te vas al frente?",
       "options": [
-        { "id": "quedas", "label": "Te quedas" },
-        { "id": "frente", "label": "Al frente" }
+        { "id": "quedas", "label": "Te quedas", "year": 2011 },
+        { "id": "frente", "label": "Al frente", "year": 2026 }
       ]
     },
     {
       "id": "gesto",
       "text": "¿Lloras o empujas?",
       "options": [
-        { "id": "lloras", "label": "Lloras" },
-        { "id": "empujas", "label": "Empujas" }
+        { "id": "lloras", "label": "Lloras", "year": 2019 },
+        { "id": "empujas", "label": "Empujas", "year": 2022 }
       ]
     },
     {
       "id": "busqueda",
       "text": "¿Buscas lo que no conoces?",
       "options": [
-        { "id": "desconocido", "label": "Lo que no conozco" },
-        { "id": "conocido", "label": "Lo que ya era" }
+        { "id": "desconocido", "label": "Lo que no conozco", "year": 2015 },
+        { "id": "conocido", "label": "Lo que ya era", "year": 2013 }
       ]
     }
   ],

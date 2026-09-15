@@ -16,6 +16,15 @@ export type Acto = {
 
 export type CaracterKind = "partida" | "intensa" | "contenida" | "tension";
 
+export type AmplitudKind = "pareja" | "media" | "abierta";
+
+export function amplitudDe(iqr: number | null | undefined): AmplitudKind {
+  const n = iqr ?? 0;
+  if (n < 10) return "pareja";
+  if (n < 25) return "media";
+  return "abierta";
+}
+
 export const MOOD_KEYS: DnaKey[] = [
   "happy",
   "danceability",
@@ -187,4 +196,110 @@ export function fill(tpl: string, vars: Record<string, string | number>): string
 
 export function round(n: number | null | undefined): number {
   return Math.round(n ?? 0);
+}
+
+export type GeneroKind = "pluralidad" | "mezcla" | "incompleto" | "vacio";
+
+export type GeneroBar = {
+  label: string;
+  n: number;
+  pct: number;
+  rest?: boolean;
+};
+
+export type GeneroMix = {
+  kind: GeneroKind;
+  top: string;
+  second: string;
+  topPct: number;
+  secondPct: number;
+  labeled: number;
+  unlabeled: number;
+  total: number;
+  unlabeledPct: number;
+  labeledPct: number;
+  bars: GeneroBar[];
+};
+
+const UNLABELED_MAX = 60;
+const MIXED_GAP = 8;
+const MAX_BARS = 4;
+
+function genreOf(track: Track): string | null {
+  const genre = track.genre?.trim();
+  return genre ? genre : null;
+}
+
+export function generosDe(tracks: Track[]): GeneroMix {
+  const total = tracks.length;
+  const counts = new Map<string, number>();
+  let unlabeled = 0;
+  for (const track of tracks) {
+    const genre = genreOf(track);
+    if (!genre) {
+      unlabeled++;
+      continue;
+    }
+    counts.set(genre, (counts.get(genre) ?? 0) + 1);
+  }
+  const labeled = total - unlabeled;
+  const unlabeledPct = total ? Math.round((100 * unlabeled) / total) : 0;
+  const labeledPct = total ? Math.round((100 * labeled) / total) : 0;
+  const empty: GeneroMix = {
+    kind: "vacio",
+    top: "",
+    second: "",
+    topPct: 0,
+    secondPct: 0,
+    labeled,
+    unlabeled,
+    total,
+    unlabeledPct,
+    labeledPct,
+    bars: [],
+  };
+  if (!labeled) return empty;
+
+  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"));
+  const share = (n: number) => Math.round((100 * n) / labeled);
+  const toBar = (label: string, n: number, rest = false): GeneroBar => ({
+    label,
+    n,
+    pct: share(n),
+    ...(rest ? { rest: true } : {}),
+  });
+
+  const bars =
+    ranked.length <= MAX_BARS
+      ? ranked.map(([label, n]) => toBar(label, n))
+      : [
+          ...ranked.slice(0, MAX_BARS - 1).map(([label, n]) => toBar(label, n)),
+          toBar(
+            "Resto",
+            ranked.slice(MAX_BARS - 1).reduce((sum, [, n]) => sum + n, 0),
+            true,
+          ),
+        ];
+
+  const top = ranked[0]![0];
+  const second = ranked[1]?.[0] ?? "";
+  const topPct = share(ranked[0]![1]);
+  const secondPct = ranked[1] ? share(ranked[1][1]) : 0;
+  let kind: GeneroKind = "pluralidad";
+  if (unlabeledPct > UNLABELED_MAX) kind = "incompleto";
+  else if (ranked[1] && topPct - secondPct < MIXED_GAP) kind = "mezcla";
+
+  return {
+    kind,
+    top,
+    second,
+    topPct,
+    secondPct,
+    labeled,
+    unlabeled,
+    total,
+    unlabeledPct,
+    labeledPct,
+    bars,
+  };
 }

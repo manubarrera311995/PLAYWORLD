@@ -23,6 +23,7 @@
     "@types/d3-force": "^3.0.10",
     "@types/node": "^24.13.3",
     "@types/p5": "^1.7.6",
+    "fast-check": "4.3.0",
     "svelte": "^5.57.0",
     "svelte-check": "^4.7.6",
     "tsx": "^4.20.5",

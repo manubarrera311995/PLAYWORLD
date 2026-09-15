@@ -71,6 +71,7 @@
 
 <style>
   .panel {
+    grid-area: panel;
     min-height: 420px;
     padding: 22px;
     border: 1px solid rgba(255, 246, 239, 0.14);

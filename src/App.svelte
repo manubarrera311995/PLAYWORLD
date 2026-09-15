@@ -30,6 +30,7 @@
   <div class="mundo__bg" aria-hidden="true">
     <div class="mundo__veil"></div>
   </div>
+  <img class="mundo__eco" src="/assets/home/fondo.jpeg" alt="" aria-hidden="true" />
   <div class="grano" {@attach grano} aria-hidden="true"></div>
   {#if directorOn}
     <Director />
