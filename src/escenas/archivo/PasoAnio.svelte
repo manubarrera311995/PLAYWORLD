@@ -23,27 +23,27 @@
 <div class="paso">
   <Onda {year} {years} />
   {#key year}
-    <div class="year-slot" in:fly={inYear}>
-      <h1 class="year" aria-label={String(year)}>
+    <div class="nucleo">
+      <h1 class="year" aria-label={String(year)} in:fly={inYear}>
         {#each digits as d, i (i)}
           <span aria-hidden="true">{d}</span>
         {/each}
       </h1>
-    </div>
-    <div class="sur" in:fly={inMeta}>
-      {#if cifra}
-        <p class="cifra">{cifra}</p>
-      {/if}
-      {#if tesis.length}
-        <div class="meta">
-          {#each tesis as line (line)}
-            <p>{line}</p>
-          {/each}
-        </div>
-      {:else if !hasDNA}
-        <p class="meta">Memoria en construcción.</p>
-      {/if}
-      {@render children?.()}
+      <div class="sur" in:fly={inMeta}>
+        {#if cifra}
+          <p class="cifra">{cifra}</p>
+        {/if}
+        {#if tesis.length}
+          <div class="meta">
+            {#each tesis as line (line)}
+              <p>{line}</p>
+            {/each}
+          </div>
+        {:else if !hasDNA}
+          <p class="meta">Memoria en construcción.</p>
+        {/if}
+        {@render children?.()}
+      </div>
     </div>
   {/key}
 </div>
@@ -55,18 +55,23 @@
     height: 100%;
     min-height: 0;
     width: 100%;
-    text-align: center;
-    overflow: hidden;
-  }
-
-  .year-slot {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    text-align: center;
+    overflow: visible;
+  }
+
+  .nucleo {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
     pointer-events: none;
+    transform: translateY(clamp(40px, 7.5vh, 76px));
   }
 
   .year {
@@ -91,17 +96,10 @@
   }
 
   .sur {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    z-index: 2;
     display: grid;
     justify-items: center;
     gap: 10px;
     min-width: 0;
-    padding-top: calc(var(--year-size) * 0.48);
-    pointer-events: none;
   }
 
   .meta {
@@ -136,8 +134,9 @@
     .year {
       gap: 0.01em;
     }
-    .sur {
-      padding-top: calc(var(--year-size) * 0.52);
+    .nucleo {
+      gap: 10px;
+      transform: translateY(clamp(24px, 5vh, 48px));
     }
   }
 </style>

@@ -14,6 +14,9 @@ dist-ssr
 # Data cruda — nunca al repo
 raw/
 
+# Sondas de gráficas
+.preview/
+
 # Secretos
 .env
 .env.local

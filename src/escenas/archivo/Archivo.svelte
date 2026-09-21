@@ -7,6 +7,7 @@
   import PasoAnio from "./PasoAnio.svelte";
   import Marca from "../../ui/Marca.svelte";
   import Boton from "../../ui/Boton.svelte";
+  import CueDesliza from "../../ui/CueDesliza.svelte";
   import { cargarEdiciones } from "../../datos/archivo";
   import type { Edicion } from "../../datos/tipos";
   import { formatN } from "./curva";
@@ -45,13 +46,33 @@
     `${String(idx + 1).padStart(2, "0")} / ${String(years.length).padStart(2, "0")}`,
   );
   const reduce = $derived($reduceMotion);
+  const puedeSubir = $derived(idx > 0);
+  const puedeBajar = $derived(idx < years.length - 1);
+  /** Tras dejar de deslizar o tocar: lo bastante largo para leer el año, corto para que el gesto vuelva. */
+  const CUE_IDLE_MS = 2800;
+  let cueVivo = $state(true);
+  let cueIdle = 0;
 
   onMount(() => {
     void cargarEdiciones().then((e) => (ediciones = e));
   });
 
+  function programarCue(): void {
+    window.clearTimeout(cueIdle);
+    cueIdle = window.setTimeout(() => {
+      cueVivo = true;
+    }, CUE_IDLE_MS);
+  }
+
+  function dormirCue(): void {
+    if (reduce) return;
+    cueVivo = false;
+    programarCue();
+  }
+
   function setYear(y: number): void {
     if (!years.includes(y)) return;
+    if (y !== year) dormirCue();
     parcheRecorrido({ yearHint: y });
     navigate(`/archivo?y=${y}`, true);
   }
@@ -113,6 +134,11 @@
 
   function montar(el: HTMLElement) {
     const stopRueda = rueda(el);
+    const offIdle = [
+      on(el, "wheel", dormirCue, { passive: true }),
+      on(el, "pointerdown", dormirCue),
+      on(el, "keydown", dormirCue),
+    ];
     const gsap = ensureGsap();
     const ctx = gsap.context(() => {
       if (reduce) return;
@@ -126,6 +152,8 @@
     }, el);
     return () => {
       stopRueda();
+      offIdle.forEach((stop) => stop());
+      window.clearTimeout(cueIdle);
       ctx.revert();
     };
   }
@@ -153,7 +181,19 @@
       hasDNA={ed?.hasDNA ?? false}
       tesis={ed?.tesis ?? []}
       {cifra}
-    />
+    >
+      <div class="archivo__acciones">
+        <Boton onclick={() => navigate(`/edicion/${year}`)}>{copy.cta}</Boton>
+      </div>
+    </PasoAnio>
+    <div class={["archivo__cue", !cueVivo && "is-oculto"]}>
+      <CueDesliza
+        texto={copy.scrollHint}
+        subir={puedeSubir}
+        bajar={puedeBajar}
+        reservar
+      />
+    </div>
   </div>
 
   <Sintonizador
@@ -165,10 +205,6 @@
     foco={yearFoco}
     onchange={setYear}
   />
-
-  <footer data-chrome>
-    <Boton onclick={() => navigate(`/edicion/${year}`)}>{copy.cta}</Boton>
-  </footer>
 </section>
 
 <style>
@@ -178,7 +214,7 @@
     min-height: 100dvh;
     overflow: hidden;
     display: grid;
-    grid-template-rows: auto 1fr auto auto;
+    grid-template-rows: auto 1fr auto;
     padding: var(--pad-y) var(--pad-x);
     padding-left: clamp(16px, 5vw, 64px);
     gap: 8px;
@@ -241,35 +277,45 @@
     min-height: 0;
     height: 100%;
     display: grid;
+    grid-template-rows: 1fr auto;
   }
 
-  footer {
-    position: relative;
-    z-index: 3;
-    display: flex;
-    justify-content: center;
-    padding-bottom: 4px;
+  .archivo__acciones {
+    display: grid;
+    justify-items: center;
+    padding-top: 6px;
   }
 
-  footer :global(.boton) {
+  .archivo__acciones :global(.boton) {
+    pointer-events: auto;
     background: transparent;
     border-color: rgba(255, 246, 239, 0.72);
     color: var(--ink-title);
     padding: 11px 28px;
     letter-spacing: 0.22em;
-    text-indent: 0.22em;
   }
 
-  footer :global(.boton:hover) {
+  .archivo__acciones :global(.boton:hover) {
     background: rgba(255, 246, 239, 0.08);
   }
 
-  @media (min-width: 768px) {
-    footer {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: var(--pad-y);
+  .archivo__cue {
+    justify-self: center;
+    z-index: 4;
+    pointer-events: none;
+    opacity: 1;
+    padding-bottom: 2px;
+    transition: opacity 480ms var(--ease-soft);
+  }
+
+  .archivo__cue.is-oculto {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .archivo__cue {
+      display: none;
+      transition: none;
     }
   }
 </style>

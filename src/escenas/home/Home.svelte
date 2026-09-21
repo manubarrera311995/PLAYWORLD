@@ -4,6 +4,7 @@
   import Asterisco from "../../ui/Asterisco.svelte";
   import Collage from "./Collage.svelte";
   import FondoHome from "./FondoHome.svelte";
+  import CueDesliza from "../../ui/CueDesliza.svelte";
   import { montarOrbita } from "./orbita";
   import { montarFondoHome } from "./fondo";
   import { navigate } from "../director/router";
@@ -76,13 +77,7 @@
       </p>
     </aside>
     <div class="home__cue">
-      <p class="home__cue-label">{copy.scrollHint}</p>
-      <span class="home__cue-gesto" aria-hidden="true">
-        <span class="home__cue-capsula">
-          <span class="home__cue-punto"></span>
-        </span>
-        <span class="home__cue-linea"></span>
-      </span>
+      <CueDesliza texto={copy.scrollHint} />
     </div>
     <p class="tipo-pie home__foot">{copy.footer}</p>
   </div>
@@ -354,55 +349,6 @@
   .home__cue {
     position: relative;
     z-index: 5;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    color: var(--ink-mute);
-    pointer-events: none;
-  }
-  .home__cue-label {
-    letter-spacing: 0.46em;
-    text-indent: 0.46em;
-    text-transform: uppercase;
-    font-size: 11px;
-    font-weight: 500;
-    color: rgba(255, 246, 239, 0.82);
-  }
-  .home__cue-gesto {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .home__cue-capsula {
-    position: relative;
-    display: block;
-    width: 24px;
-    height: 42px;
-    overflow: hidden;
-    border: 1.25px solid rgba(255, 246, 239, 0.86);
-    border-radius: 999px;
-  }
-  .home__cue-punto {
-    position: absolute;
-    left: 50%;
-    top: 9px;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: rgba(255, 246, 239, 0.96);
-    transform: translateX(-50%);
-    animation: cue-punto 1.85s var(--ease-soft) infinite;
-  }
-  .home__cue-linea {
-    display: block;
-    width: 1px;
-    height: 28px;
-    background: linear-gradient(
-      to bottom,
-      rgba(255, 246, 239, 0.72) 0%,
-      rgba(255, 246, 239, 0) 100%
-    );
   }
   @keyframes play-halo {
     0% {
@@ -427,23 +373,6 @@
     50% {
       opacity: 0.78;
       transform: scale(1.16);
-    }
-  }
-  @keyframes cue-punto {
-    0% {
-      opacity: 0;
-      transform: translateX(-50%) translateY(0);
-    }
-    18% {
-      opacity: 1;
-    }
-    72% {
-      opacity: 0.15;
-      transform: translateX(-50%) translateY(18px);
-    }
-    100% {
-      opacity: 0;
-      transform: translateX(-50%) translateY(18px);
     }
   }
 
@@ -548,9 +477,6 @@
     }
     .home__cue {
       display: none;
-    }
-    .home__cue-punto {
-      animation: none;
     }
     .home__foot {
       position: static;

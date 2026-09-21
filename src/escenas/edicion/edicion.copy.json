@@ -12,10 +12,10 @@
   "polesIntro": "Partimos las canciones por energía. Debajo de 50 van al polo suave; de 50 en adelante, al intenso. Las cifras son el valor típico de cada grupo.",
   "poleSoft": "Polo suave",
   "poleHot": "Polo intenso",
-  "polePull": "{low} es el acto más suave. {high} es el más intenso.",
+  "polePull": "{low} es el artista más suave. {high} es el más intenso.",
   "legendMinor": "Menor",
   "legendMajor": "Mayor",
-  "legendHot": "Acto enfocado",
+  "legendHot": "Artista enfocado",
   "mapNote": "{n} puntos · {hot} sobre energy 50 · ejes fijos 0–100",
   "mapNoteAct": "Filtro: {artist} · {n} canciones encendidas, el resto baja",
   "mapAria": "Canciones según relajación y energía",
@@ -30,24 +30,30 @@
   "legendWide": "Se abren",
   "legendSong": "Canción elegida",
   "deltaHint": "Cero = mediana de {year}. Durazno = por encima. Rosa = por debajo.",
-  "actsEyebrow": "DOS CENTROS",
-  "songCenter": "mediana de canciones",
-  "actCenter": "mediana de actos",
-  "actsHint": "Cada columna es un acto; cada marca, una canción. El punto grande es la mediana del acto. Las líneas horizontales son los dos centros del año. Elige una columna para filtrar el mapa.",
+  "actsEyebrow": "REPARTO DEL CLIMA",
+  "actsShare": "artistas en el clima del año",
+  "actsShareOf": "de {total}",
+  "actsCenters": "Centros del año: {songs} contando canciones, {acts} dando un voto a cada artista.",
+  "actsHint": "Cada fila es un artista, de mayor a menor mediana. La línea vertical es la mediana del año, y «cerca del clima» son 10 puntos o menos de distancia. Pasa por una fila para ver su mitad central; púlsala para filtrar el mapa.",
   "legendActSong": "Canción",
-  "legendActMedian": "Mediana del acto",
-  "actsScale": "Acto · n",
-  "actsSame": "Las dos formas de contar coinciden en {metric}: el clima no depende del tamaño de los repertorios.",
-  "actsDiff": "Al contar canciones, el centro queda {n} puntos {dir} del centro que da un voto a cada acto.",
+  "legendActMedian": "Mediana del artista",
+  "legendActIqr": "Mitad central (al señalar)",
+  "actsRefYear": "MEDIANA DEL AÑO",
+  "actsRefActs": "MEDIANA DE ARTISTAS",
+  "actsTip": "{n} canciones · mediana {v}",
+  "actsTipDelta": "{sign}{d} vs. el año",
+  "actsTipThin": "Pocas canciones: la mediana dice poco",
+  "actsSame": "Las dos coinciden: el clima no depende del tamaño de los repertorios.",
+  "actsDiff": "Contando canciones el centro queda {n} puntos {dir}: pesan más los repertorios grandes.",
   "above": "por encima",
   "below": "por debajo",
-  "lineupNote": "{n} actos. Elige una portada para filtrar el mapa, el fingerprint y la lista.",
+  "lineupNote": "{n} artistas. Elige una portada para filtrar el mapa, el fingerprint y la lista.",
   "lineupNoteAct": "{artist}: {n} canciones en el mapa. Vuelve a pulsar la portada para ver todo el cartel.",
-  "foot": "Clima de las canciones · agrupadas por acto",
+  "foot": "Clima de las canciones · agrupadas por artista",
   "jump": [
     { "id": "tesis", "label": "01 Tesis" },
     { "id": "campo", "label": "02 Campo" },
-    { "id": "actos", "label": "03 Actos" }
+    { "id": "actos", "label": "03 Artistas" }
   ],
   "chapters": {
     "tesis": {
@@ -68,8 +74,8 @@
       "n": "03",
       "eyebrow": "AUTORÍA",
       "title": "Quién sostiene el clima",
-      "question": "¿El carácter lo comparte el cartel o lo producen pocos actos?",
-      "unit": "1 columna = 1 acto · marcas = canciones"
+      "question": "¿El clima lo pone todo el cartel o unos pocos artistas?",
+      "unit": "1 fila = 1 artista · marcas = canciones"
     }
   },
   "moods": {
@@ -113,7 +119,7 @@
     "media": "se parecen un poco",
     "abierta": "se diferencian"
   },
-  "method": "{n} canciones · {acts} actos · {minor}% en modo menor. Oscuridad {oscuridad}, nostalgia {nostalgia}. Los centros usan medianas.",
+  "method": "{n} canciones · {acts} artistas · {minor}% en modo menor. Oscuridad {oscuridad}, nostalgia {nostalgia}. Los centros usan medianas.",
   "generos": {
     "kicker": "GÉNERO DEL CARTEL",
     "mixed": "Cartel mezclado",
