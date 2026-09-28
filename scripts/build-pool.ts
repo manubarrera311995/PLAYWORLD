@@ -2,6 +2,7 @@ import { readFile, writeFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+/** Muestra transversal para Creación y Colectiva. El iPod lee `tracks.{año}.json`. */
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIR = path.join(ROOT, "public", "data", "archivo");
 

@@ -1,24 +1,16 @@
 {
-  "title": "Mete 5 canciones al iPod.",
+  "momento": "Ahora es tu momento",
   "subtitle": "No preguntamos quién eres. El archivo lee lo que te llevas.",
+  "instruccion": "Elige 5 canciones de {year}.",
+  "sinAnio": "Vuelve a una edición para llenar este iPod.",
   "capacity": 5,
   "ctaClose": "Cerrar el iPod",
   "boot": "PLAYWORLD ✱ · Ahora es tu momento",
   "menu": {
-    "year": "Por año",
-    "mood": "Por mood",
-    "random": "Al azar",
+    "songs": "Canciones",
     "mine": "Mi iPod",
     "close": "Cerrar el iPod"
   },
-  "moods": [
-    { "id": "noche", "label": "Noche" },
-    { "id": "lagrima", "label": "Lágrima" },
-    { "id": "fiesta", "label": "Fiesta" },
-    { "id": "calma", "label": "Calma" },
-    { "id": "furia", "label": "Furia" },
-    { "id": "rareza", "label": "Rareza" }
-  ],
   "meter": "Meter al iPod",
   "quitar": "Quitar",
   "lleno": "Ya hay 5"

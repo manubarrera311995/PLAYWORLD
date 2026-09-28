@@ -1,9 +1,29 @@
-<script lang="ts">
-  /** Entrada simple — revelado Polaroid es oleada 2. */
-</script>
-
-<div class="revelado" aria-hidden="true"></div>
+<div class="velo" aria-hidden="true"></div>
 
 <style>
-  .revelado { display: none; }
+  .velo {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    background: var(--bg-deep);
+    pointer-events: none;
+    animation: creacion-revelar 1.5s var(--ease-out) forwards;
+  }
+
+  @keyframes creacion-revelar {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .velo {
+      animation: none;
+      opacity: 0;
+    }
+  }
+
+  :global(html.reduce) .velo {
+    animation: none;
+    opacity: 0;
+  }
 </style>

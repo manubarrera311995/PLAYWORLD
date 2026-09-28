@@ -7,9 +7,9 @@ import {
   type EstadoIpod,
 } from "./maquina";
 
-export type IpodCtx = { pool: Track[]; anios: number[]; yearHint: number | null };
+export type IpodCtx = { pool: Track[]; yearHint: number | null };
 
-const ctx: IpodCtx = { pool: [], anios: [], yearHint: null };
+const ctx: IpodCtx = { pool: [], yearHint: null };
 
 export const ipod = writable<EstadoIpod>(estadoInicial());
 
