@@ -53,6 +53,7 @@
     </ul>
   {/if}
   <p class="note">{note}</p>
+  <p class="note">{copy.generos.bajoBarras}</p>
 </div>
 
 <style>

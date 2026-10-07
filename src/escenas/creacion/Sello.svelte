@@ -11,7 +11,7 @@
 
   const forma = $derived(puntosSello(verticesSello(puntajes)));
   const anclas = $derived(anclasSello());
-  const leyenda = $derived(`${almas[principal].corto}, con un borde de ${almas[eco].corto}`);
+  const leyenda = $derived("Esta alma salió de las cinco canciones que elegiste.");
 </script>
 
 <figure class="sello">

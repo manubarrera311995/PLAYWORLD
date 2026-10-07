@@ -7,24 +7,14 @@
   import { ensureGsap } from "../../motion/gsap";
   import { reduce } from "../../motion/reducedMotion";
   import { cargarTracks } from "../../datos/archivo";
-  import {
-    actPrefix,
-    amplitudDe,
-    caracterDe,
-    fill,
-    generosDe,
-    groupActs,
-    median,
-    round,
-    values,
-  } from "./ficha";
+  import { actPrefix, caracterDe, fill, generosDe, groupActs, median, round, values } from "./ficha";
+  import { RASGO_KEYS, filasArtistas, rasgosDe, tempoDe, tonalidadesDe, type RasgoKey } from "./lectura";
   import copy from "./edicion.copy.json";
+  import contextos from "./contextos.json";
   import Capitulo from "./Capitulo.svelte";
   import Lineup from "./Lineup.svelte";
-  import Fingerprint from "./Fingerprint.svelte";
-  import Polos from "./Polos.svelte";
-  import Campo from "./Campo.svelte";
-  import PanelCancion from "./PanelCancion.svelte";
+  import Rasgos from "./Rasgos.svelte";
+  import Tonalidades from "./Tonalidades.svelte";
   import Actos from "./Actos.svelte";
   import Generos from "./Generos.svelte";
   import Boton from "../../ui/Boton.svelte";
@@ -35,9 +25,10 @@
 
   let tracks = $state.raw<Track[]>([]);
   let loading = $state(true);
-  let selected = $state.raw<Track | null>(null);
   let selectedAct = $state<string | null>(null);
-  let jumpOn = $state("tesis");
+  let selectedSong = $state<string | null>(null);
+  let rasgo = $state<RasgoKey>("energy");
+  let jumpOn = $state("clima");
 
   onMount(() => {
     let cancelled = false;
@@ -59,22 +50,14 @@
     };
   });
 
-  const info = $derived(caracterDe(tracks));
-  const thesis = $derived.by(() => {
-    if (info.split) return copy.tesis.partida;
-    return fill(copy.tesis.simple, {
-      character: copy.character[info.kind],
-      energyMedian: round(info.energy?.median),
-    });
-  });
-  const thesisLead = $derived(
-    info.split
-      ? copy.tesisLead.partida
-      : fill(copy.tesisLead.simple, { diff: copy.tesisLeadDiff[amplitudDe(info.energy?.iqr)] }),
+  const contexto = $derived(
+    (contextos as Record<string, { titulo: string; parrafos: string[] }>)[String(year)],
   );
-  const happySpread = $derived(amplitudDe(info.happy?.iqr));
-  const aggressiveSpread = $derived(amplitudDe(info.aggressive?.iqr));
-  const mix = $derived(generosDe(tracks));
+  const cancion = $derived(tracks.find((track) => track.id === selectedSong) ?? null);
+  const vista = $derived(cancion ? [cancion] : tracks);
+  const vistaInfo = $derived(caracterDe(vista));
+  const tempo = $derived(tempoDe(vista));
+  const mix = $derived(generosDe(vista));
   const lineupActs = $derived(
     groupActs(tracks)
       .map((act) => ({ ...act, energy: median(values(act.songs, "energy")) }))
@@ -86,27 +69,42 @@
     if (act) return fill(copy.lineupNoteAct, { artist: act.artist, n: act.songs.length });
     return fill(copy.lineupNote, { n: lineupActs.length });
   });
-  function elegirCancion(song: Track): void {
-    selected = song;
-    selectedAct = actPrefix(song.id);
+  const rasgoOn = $derived(
+    values(vista, rasgo).length ? rasgo : (RASGO_KEYS.find((key) => values(vista, key).length) ?? "energy"),
+  );
+  const rasgos = $derived(rasgosDe(vista));
+  const lectura = $derived(filasArtistas(vista, rasgoOn));
+  const notas = $derived(tonalidadesDe(vista));
+  const trait = $derived((copy.moods as Record<string, string>)[rasgoOn] ?? rasgoOn);
+
+  function elegirRasgo(key: RasgoKey): void {
+    rasgo = key;
   }
 
   function elegirActo(prefix: string, scroll = false): void {
     if (!prefix || selectedAct === prefix) {
       selectedAct = null;
-      selected = null;
+      selectedSong = null;
       return;
     }
-    const act = groupActs(tracks).find((item) => item.prefix === prefix);
     selectedAct = prefix;
-    selected = act?.songs.find((song) => song.art) ?? act?.songs[0] ?? null;
-    if (scroll) document.getElementById("campo")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    selectedSong = null;
+    if (scroll) document.getElementById(`acto-${prefix}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function elegirCancion(id: string): void {
+    if (selectedSong === id) {
+      selectedSong = null;
+      return;
+    }
+    selectedSong = id;
+    selectedAct = actPrefix(id);
   }
 
   function onEscape(e: KeyboardEvent): void {
     if (e.key !== "Escape") return;
-    selected = null;
     selectedAct = null;
+    selectedSong = null;
   }
 
   function irA(id: string, e: MouseEvent): void {
@@ -156,8 +154,16 @@
   <p class="status">{copy.loading}</p>
 {:else if !tracks.length}
   <div class="empty">
-    <h1>{copy.emptyTitle}</h1>
-    <p>{copy.emptyBody}</p>
+    <h1>{year}</h1>
+    {#if contexto}
+      <p class="contexto-titulo">{contexto.titulo}</p>
+      {#each contexto.parrafos as parrafo}
+        <p class="contexto">{parrafo}</p>
+      {/each}
+    {:else}
+      <p class="contexto-titulo">{copy.emptyTitle}</p>
+      <p class="contexto">{copy.emptyBody}</p>
+    {/if}
     <Boton onclick={() => navigate("/archivo")}>{copy.back}</Boton>
   </div>
 {:else}
@@ -166,23 +172,22 @@
       <div class="year" data-in>
         <h1 id="page-title">{year}</h1>
       </div>
-      <div class="side" data-in>
-        <p class="thesis">{thesis}</p>
-        <p class="thesis-lead">{thesisLead}</p>
-        <div class="stats">
-          <div class="stat"><strong>{tracks.length}</strong><span>{copy.stats.songs}</span></div>
-          <div class="stat"><strong>{info.minorShare}%</strong><span>{copy.stats.minor}</span></div>
-          <div class="stat is-words">
-            <strong>{copy.stats.spread[happySpread]}</strong>
-            <span>{copy.stats.happy}</span>
-          </div>
-          <div class="stat is-words">
-            <strong>{copy.stats.spread[aggressiveSpread]}</strong>
-            <span>{copy.stats.aggressive}</span>
-          </div>
-          <p class="stats-hint">{copy.statsHint}</p>
+      {#if contexto}
+        <div class="relato" data-in>
+          <p class="contexto-titulo">{contexto.titulo}</p>
+          {#each contexto.parrafos as parrafo}
+            <p class="contexto">{parrafo}</p>
+          {/each}
         </div>
+      {/if}
+      <div class="metricas" data-in>
         <Generos {mix} />
+        <div class="stats">
+          <div class="stat"><strong>{vista.length}</strong><span>{copy.stats.songs}</span></div>
+          <div class="stat"><strong>{vistaInfo.minorShare}%</strong><span>{copy.stats.minor}</span></div>
+          <div class="stat"><strong>{vistaInfo.nActs}</strong><span>{copy.stats.acts}</span></div>
+          <div class="stat"><strong>{tempo ? round(tempo.median) : "—"}</strong><span>{copy.stats.tempo}</span></div>
+        </div>
       </div>
       <div class="cartel" data-in>
         <Lineup
@@ -199,39 +204,39 @@
       {#each copy.jump as item (item.id)}
         <a href="#{item.id}" class={[jumpOn === item.id && "is-on"]} onclick={(e) => irA(item.id, e)}>{item.label}</a>
       {/each}
+      {#if cancion}
+        <button type="button" class="filtro" onclick={() => (selectedSong = null)}>
+          <span>{cancion.artist.split(",")[0]?.trim()} — {cancion.track}</span>
+          <span class="quitar">{copy.songClear}</span>
+        </button>
+      {/if}
     </nav>
 
-    <section class="chapter" id="tesis" aria-labelledby="tesis-title">
+    <section class="chapter" id="clima" aria-labelledby="clima-title">
       <Capitulo
-        n={copy.chapters.tesis.n}
-        eyebrow={copy.chapters.tesis.eyebrow}
-        title={copy.chapters.tesis.title}
-        titleId="tesis-title"
-        question={copy.chapters.tesis.question}
-        unit={copy.chapters.tesis.unit}
+        n={copy.chapters.clima.n}
+        eyebrow={copy.chapters.clima.eyebrow}
+        title={copy.chapters.clima.title}
+        titleId="clima-title"
+        question={copy.chapters.clima.question}
+        unit={copy.chapters.clima.unit}
       />
-      <div class="split">
-        <Fingerprint {tracks} {selected} />
-        <Polos {tracks} />
-      </div>
+      <Rasgos filas={rasgos} rasgo={rasgoOn} onrasgo={elegirRasgo} />
     </section>
 
-    <section class="chapter" id="campo" aria-labelledby="campo-title">
+    <section class="chapter" id="tonalidades" aria-labelledby="tonalidades-title">
       <Capitulo
-        n={copy.chapters.campo.n}
-        eyebrow={copy.chapters.campo.eyebrow}
-        title={copy.chapters.campo.title}
-        titleId="campo-title"
-        question={copy.chapters.campo.question}
-        unit={copy.chapters.campo.unit}
+        n={copy.chapters.tonalidades.n}
+        eyebrow={copy.chapters.tonalidades.eyebrow}
+        title={copy.chapters.tonalidades.title}
+        titleId="tonalidades-title"
+        question={copy.chapters.tonalidades.question}
+        unit={copy.chapters.tonalidades.unit}
       />
-      <div class="split split--campo">
-        <Campo {tracks} {selected} {selectedAct} onselect={elegirCancion} />
-        <PanelCancion {tracks} {selected} {year} />
-      </div>
+      <Tonalidades {notas} />
     </section>
 
-    <section class="chapter chapter--wide" id="actos" aria-labelledby="actos-title">
+    <section class="chapter" id="actos" aria-labelledby="actos-title">
       <Capitulo
         n={copy.chapters.actos.n}
         eyebrow={copy.chapters.actos.eyebrow}
@@ -240,14 +245,14 @@
         question={copy.chapters.actos.question}
         unit={copy.chapters.actos.unit}
       />
-      <Actos {tracks} {selectedAct} onact={elegirActo} />
+      <Actos {lectura} {trait} {selectedAct} {selectedSong} onact={elegirActo} onsong={elegirCancion} />
     </section>
 
     <footer class="foot">
       <p>{copy.foot}</p>
       <div class="acciones">
         <Boton onclick={() => navigate("/archivo")}>{copy.back}</Boton>
-        <Boton onclick={() => navigate("/ipod")}>{copy.cta}</Boton>
+        <Boton onclick={() => navigate("/ipod")}>{fill(copy.cta, { year })}</Boton>
       </div>
     </footer>
   </article>
@@ -274,7 +279,7 @@
   .opening,
   .jump,
   .foot,
-  .chapter:not(.chapter--wide) {
+  .chapter {
     width: min(1380px, 100%);
     margin-inline: auto;
   }
@@ -296,69 +301,110 @@
   .jump a:hover {
     color: var(--ink);
   }
+  .filtro {
+    margin-left: auto;
+    display: inline-flex;
+    gap: 10px;
+    align-items: baseline;
+    max-width: min(46ch, 70%);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--c1);
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.3;
+    text-align: left;
+    cursor: pointer;
+  }
+  .filtro span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .quitar {
+    flex: none;
+    color: var(--ink-mute);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
   .opening {
     min-height: 100dvh;
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+    grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
     align-content: center;
     align-items: center;
-    gap: clamp(28px, 6vw, 90px);
+    gap: clamp(28px, 4vw, 64px);
     padding: 48px var(--pad-x) 72px;
   }
   .year {
-    display: grid;
-    align-items: center;
-    justify-items: center;
-    align-self: stretch;
-    min-height: 0;
+    container-type: inline-size;
+    min-width: 0;
     text-align: center;
+  }
+  .relato {
+    display: grid;
+    gap: 14px;
+    align-content: center;
+    min-width: 0;
+    text-align: left;
   }
   h1 {
     margin: 0;
     font-family: Anton, Impact, sans-serif;
-    font-size: clamp(112px, 26vw, 340px);
+    font-size: clamp(96px, 42cqi, 280px);
     font-weight: 400;
-    line-height: 0.72;
+    line-height: 0.78;
     letter-spacing: -0.045em;
   }
-  .thesis {
-    max-width: 26ch;
-    font-size: clamp(22px, 3vw, 40px);
-    line-height: 1.12;
+  .contexto-titulo {
+    margin: 0;
+    font-family: Anton, Impact, sans-serif;
+    font-size: clamp(22px, 2.4vw, 32px);
+    font-weight: 400;
+    line-height: 1.05;
     letter-spacing: -0.03em;
   }
-  .thesis-lead {
-    max-width: 38ch;
-    margin-top: 12px;
+  .contexto {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
     color: var(--ink-soft);
-    font-size: 13px;
-    line-height: 1.45;
+  }
+  .empty .contexto,
+  .empty .contexto-titulo {
+    margin-inline: auto;
+    text-align: left;
+  }
+  .metricas {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+    align-items: center;
+    gap: clamp(28px, 4vw, 64px);
+    padding-top: 12px;
+  }
+  .metricas :global(.generos) {
+    width: min(40ch, 100%);
+    margin-top: 0;
+    justify-self: center;
   }
   .stats {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px 18px;
-    margin-top: 28px;
-  }
-  .stats-hint {
-    grid-column: 1 / -1;
-    margin: 2px 0 0;
-    max-width: 46ch;
-    color: var(--ink-mute);
-    font-size: 11px;
-    line-height: 1.45;
-    letter-spacing: 0;
-    text-transform: none;
+    grid-template-columns: repeat(2, auto);
+    gap: 22px 56px;
+    margin: 0;
+    justify-self: center;
+    justify-content: center;
+    align-content: center;
+    text-align: center;
   }
   .stat strong {
     display: block;
     font-family: Anton, Impact, sans-serif;
     font-size: 28px;
     letter-spacing: -0.03em;
-  }
-  .stat.is-words strong {
-    font-size: clamp(20px, 2.2vw, 26px);
-    line-height: 1.05;
   }
   .stat span {
     color: var(--ink-mute);
@@ -374,21 +420,6 @@
     padding: clamp(72px, 10vh, 120px) var(--pad-x);
     border-top: 1px solid rgba(255, 246, 239, 0.14);
     scroll-margin-top: 48px;
-  }
-  .chapter--wide {
-    width: 100%;
-  }
-  .split {
-    display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.8fr);
-    gap: clamp(28px, 4vw, 64px);
-    align-items: start;
-  }
-  .split--campo {
-    grid-template-areas:
-      "map panel"
-      "legend legend";
-    row-gap: 16px;
   }
   .foot {
     display: flex;
@@ -410,17 +441,11 @@
       overflow-x: auto;
     }
     .opening,
-    .split {
+    .metricas {
       grid-template-columns: 1fr;
     }
-    .split--campo {
-      grid-template-areas:
-        "map"
-        "panel"
-        "legend";
-    }
     h1 {
-      font-size: clamp(96px, 32vw, 180px);
+      font-size: clamp(96px, 28vw, 180px);
     }
   }
 </style>

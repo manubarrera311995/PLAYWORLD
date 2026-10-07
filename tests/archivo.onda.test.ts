@@ -5,9 +5,11 @@ import {
   fmt,
   focoDe,
   ondaDe,
+  origenRespiro,
   panDe,
   pathBezier,
   puntosDeOnda,
+  velosDeOnda,
   xDeFoco,
 } from "../src/escenas/archivo/onda";
 
@@ -41,6 +43,26 @@ describe("onda del archivo", () => {
     const tail = pts[pts.length - 1].x + panDe(1);
     expect(head).toBeLessThan(-80);
     expect(tail).toBeGreaterThan(ONDA_VB.w + 80);
+  });
+
+  it("cada velo cabe en su caja, con el mismo trazo de antes", () => {
+    const o = ondaDe();
+    const v = velosDeOnda();
+    expect(v.lejos.d).toBe(o.lejos);
+    expect(v.medio.d).toBe(o.medio);
+    expect(v.cerca.d).toBe(o.cerca);
+    expect(v.lejos.sigma).toBe(8);
+    expect(v.medio.sigma).toBe(8);
+    expect(v.cerca.sigma).toBe(4.5);
+    for (const capa of [v.lejos, v.medio, v.cerca]) {
+      expect(capa.w).toBeGreaterThan(capa.stroke);
+      expect(capa.h).toBeGreaterThan(capa.stroke);
+      expect(capa.minX).toBeLessThan(0);
+      expect(capa.minX + capa.w).toBeGreaterThan(ONDA_VB.w);
+    }
+    const origen = origenRespiro();
+    expect(origen.y).toBeGreaterThan(0);
+    expect(origen.y).toBeLessThan(ONDA_VB.h);
   });
 
   it("formatea y no dibuja una curva vacia", () => {

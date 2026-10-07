@@ -9,6 +9,7 @@
   import { recorrido } from "../../estado/recorrido";
   import type { AlmaId } from "../../almas/almas";
   import type { RutaParsed } from "../director/router";
+  import { navigate } from "../director/router";
   import { cargarPool } from "../../datos/pool";
 
   type Props = { ruta?: RutaParsed };
@@ -53,6 +54,7 @@
     <Marca texto={copy.brand} />
     <h1 class="tipo-seccion">{copy.title}</h1>
     <p class="eyebrow">{copy.kicker}</p>
+    <p class="bajada">{copy.bajada}</p>
     <FiltroAlmas actual={filtro} mia={rec.alma?.principal ?? null} onchange={(id) => (filtro = id)} />
   </header>
   <div class="stage">
@@ -71,9 +73,13 @@
       />
     {/if}
   </div>
-  {#if store.sinSenal}
-    <p class="aviso">{copy.avisoSenal}</p>
-  {/if}
+  <footer class="cierre">
+    {#if store.sinSenal}
+      <p class="aviso">{copy.avisoSenal}</p>
+    {/if}
+    <p>{copy.cierre}</p>
+    <button type="button" onclick={() => navigate("/archivo")}>{copy.ctaAnio}</button>
+  </footer>
 </section>
 
 <style>
@@ -88,4 +94,23 @@
   header { display: grid; gap: 8px; position: relative; z-index: 2; }
   .stage { position: relative; min-height: 0; }
   .aviso { font-size: 12px; color: var(--ink-mute); text-align: center; }
+  .bajada { max-width: 46ch; font-size: 14px; line-height: 1.4; color: var(--ink-soft); }
+  .cierre {
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .cierre button {
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 </style>

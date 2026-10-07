@@ -168,7 +168,7 @@
     top: auto;
     width: auto;
     opacity: 1;
-    transform: rotate(calc((var(--i) - 7.5) * 0.6deg));
+    transform: rotate(calc((var(--i) - 8) * 0.6deg));
     will-change: auto;
   }
   :global(.home.is-quieto) .label {
@@ -197,7 +197,7 @@
       top: auto;
       width: auto;
       opacity: 1;
-      transform: rotate(calc((var(--i) - 7.5) * 0.6deg));
+      transform: rotate(calc((var(--i) - 8) * 0.6deg));
       will-change: auto;
     }
     .label {

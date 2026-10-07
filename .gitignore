@@ -31,3 +31,5 @@ raw/
 *.njsproj
 *.sln
 *.sw?
+
+docs/

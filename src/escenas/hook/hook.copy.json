@@ -1,43 +1,47 @@
 {
   "brand": "PLAYWORLD",
   "paso": "{n} / {total}",
-  "atras": "Atrás",
+  "atras": "Volver",
   "cta": "Continuar",
   "kicker": "Antes de entrar",
+  "bajada": "Seis tipos de almas recorren el festival. Tres momentos para saber cuál es la tuya. No hay respuestas correctas.",
   "revealEyebrow": "Tu año",
   "questions": [
     {
-      "id": "distancia",
-      "text": "¿Te quedas o te vas al frente?",
+      "id": "llegas",
+      "etiqueta": "Llegas",
+      "text": "¿Vienes por lo que no conoces o por lo que te recuerda algo?",
       "options": [
-        { "id": "quedas", "label": "Te quedas", "year": 2011 },
-        { "id": "frente", "label": "Al frente", "year": 2026 }
+        { "id": "noConozco", "label": "Lo que no conozco", "alma": "exploradora", "year": 2016 },
+        { "id": "recuerda", "label": "Lo que me recuerda algo", "alma": "nostalgica", "year": 2011 }
       ]
     },
     {
-      "id": "gesto",
-      "text": "¿Lloras o empujas?",
+      "id": "show",
+      "etiqueta": "Empieza el show",
+      "text": "¿Te quedas con tu gente o te vas al frente?",
       "options": [
-        { "id": "lloras", "label": "Lloras", "year": 2019 },
-        { "id": "empujas", "label": "Empujas", "year": 2022 }
+        { "id": "gente", "label": "Me quedo con mi gente", "alma": "colectiva", "year": 2014 },
+        { "id": "frente", "label": "Me voy al frente", "alma": "intensa", "year": 2022 }
       ]
     },
     {
-      "id": "busqueda",
-      "text": "¿Buscas lo que no conoces?",
+      "id": "madrugada",
+      "etiqueta": "2 a.m.",
+      "text": "Suena la última canción. ¿Bailas o lloras?",
       "options": [
-        { "id": "desconocido", "label": "Lo que no conozco", "year": 2015 },
-        { "id": "conocido", "label": "Lo que ya era", "year": 2013 }
+        { "id": "bailo", "label": "Bailo como si apenas empezara", "alma": "noctambula", "year": 2026 },
+        { "id": "lloro", "label": "Lloro, pero feliz", "alma": "melancolica", "year": 2019 }
       ]
     }
   ],
   "pesos": {
-    "quedas": { "2011": 2, "2019": 2 },
+    "gente": { "2011": 2, "2019": 2 },
     "frente": { "2022": 2, "2026": 2 },
-    "lloras": { "2011": 1, "2019": 1 },
-    "empujas": { "2022": 1, "2026": 1 },
-    "desconocido": { "2019": 2, "2026": 2 },
-    "conocido": { "2011": 2, "2022": 2 }
+    "lloro": { "2011": 1, "2019": 1 },
+    "bailo": { "2022": 1, "2026": 1 },
+    "noConozco": { "2019": 2, "2026": 2 },
+    "recuerda": { "2011": 2, "2022": 2 }
   },
   "desempate": [2011, 2019, 2022, 2026],
   "revelados": {

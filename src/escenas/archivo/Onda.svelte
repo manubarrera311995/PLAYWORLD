@@ -1,47 +1,50 @@
 <script lang="ts">
   import { ensureGsap } from "../../motion/gsap";
   import { reduce as reduceMotion } from "../../motion/reducedMotion";
-  import { ONDA_VB, focoDe, ondaDe, panDe } from "./onda";
+  import { focoDe, origenRespiro, panDe, velosDeOnda, type VeloOnda } from "./onda";
 
   type Props = { year: number; years?: number[] };
   let { year, years = [] }: Props = $props();
 
   const reduce = $derived($reduceMotion);
   const fid = $props.id();
-  const velos = ondaDe();
+  const velos = velosDeOnda();
+  const origen = origenRespiro();
 
   function montar(root: HTMLElement) {
     const gsap = ensureGsap();
-    const ctx = gsap.context(() => undefined, root);
-    const capa = root.querySelector<SVGGElement>("[data-onda]");
-    if (!capa) return () => ctx.revert();
+    const capa = root.querySelector<HTMLElement>("[data-onda]");
+    const breathEl = root.querySelector<HTMLElement>("[data-breath]");
+    const ecoEl = root.querySelector<HTMLElement>("[data-eco]");
 
     $effect(() => {
+      if (!capa) return;
       const x = panDe(focoDe(year, years));
-      if (reduce) {
-        gsap.set(capa, { x });
-        return;
-      }
-      gsap.to(capa, {
-        x,
-        duration: 0.95,
-        ease: "sine.inOut",
-        overwrite: "auto",
-      });
+      const tween = reduce
+        ? gsap.set(capa, { x })
+        : gsap.to(capa, {
+            x,
+            duration: 0.95,
+            ease: "sine.inOut",
+            overwrite: "auto",
+          });
+      return () => {
+        tween.kill();
+      };
     });
 
     $effect(() => {
-      if (reduce) return;
-      const breath = gsap.to("[data-breath]", {
+      if (reduce || !breathEl || !ecoEl) return;
+      const breath = gsap.to(breathEl, {
         scaleY: 1.04,
         y: 6,
-        transformOrigin: "50% 55%",
+        transformOrigin: `${origen.x}px ${origen.y}px`,
         duration: 9,
         ease: "sine.inOut",
         yoyo: true,
         repeat: -1,
       });
-      const eco = gsap.to("[data-eco]", {
+      const eco = gsap.to(ecoEl, {
         y: -8,
         duration: 11,
         ease: "sine.inOut",
@@ -54,14 +57,28 @@
       };
     });
 
-    return () => ctx.revert();
+    return () => {
+      if (capa) gsap.killTweensOf(capa);
+      if (breathEl) gsap.killTweensOf(breathEl);
+      if (ecoEl) gsap.killTweensOf(ecoEl);
+    };
   }
 </script>
 
-<div class="onda" aria-hidden="true" {@attach montar}>
-  <svg viewBox="0 0 {ONDA_VB.w} {ONDA_VB.h}" preserveAspectRatio="none">
+{#snippet velo(capa: VeloOnda, nombre: string)}
+  <svg
+    class="ink"
+    viewBox="{capa.minX} {capa.minY} {capa.w} {capa.h}"
+    preserveAspectRatio="none"
+    style:left="{capa.minX}px"
+    style:top="{capa.minY}px"
+    style:width="{capa.w}px"
+    style:height="{capa.h}px"
+    style:opacity={capa.opacidad}
+    style:filter="blur({capa.sigma}px)"
+  >
     <defs>
-      <linearGradient id="{fid}-seda" x1="0" y1="0" x2="1" y2="0">
+      <linearGradient id="{fid}-{nombre}" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0" stop-color="#fff6ef" stop-opacity="0" />
         <stop offset="0.1" stop-color="#fff6ef" stop-opacity="0" />
         <stop offset="0.22" stop-color="#fff6ef" stop-opacity="0.28" />
@@ -72,66 +89,35 @@
         <stop offset="0.9" stop-color="#ffb0cc" stop-opacity="0" />
         <stop offset="1" stop-color="#ffb0cc" stop-opacity="0" />
       </linearGradient>
-      <filter
-        id="{fid}-niebla"
-        x="-1400"
-        y="-180"
-        width="4000"
-        height="760"
-        filterUnits="userSpaceOnUse"
-        primitiveUnits="userSpaceOnUse"
-      >
-        <feGaussianBlur stdDeviation="8" />
-      </filter>
-      <filter
-        id="{fid}-suave"
-        x="-1400"
-        y="-160"
-        width="4000"
-        height="720"
-        filterUnits="userSpaceOnUse"
-        primitiveUnits="userSpaceOnUse"
-      >
-        <feGaussianBlur stdDeviation="4.5" />
-      </filter>
     </defs>
-    <g data-onda>
-      <g data-eco>
-        <path
-          class="onda__lejos"
-          d={velos.lejos}
-          fill="none"
-          stroke="url(#{fid}-seda)"
-          stroke-width="90"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          filter="url(#{fid}-niebla)"
-        />
-      </g>
-      <g data-breath>
-        <path
-          class="onda__medio"
-          d={velos.medio}
-          fill="none"
-          stroke="url(#{fid}-seda)"
-          stroke-width="64"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          filter="url(#{fid}-niebla)"
-        />
-        <path
-          class="onda__cerca"
-          d={velos.cerca}
-          fill="none"
-          stroke="url(#{fid}-seda)"
-          stroke-width="28"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          filter="url(#{fid}-suave)"
-        />
-      </g>
-    </g>
+    <path
+      d={capa.d}
+      fill="none"
+      stroke="url(#{fid}-{nombre})"
+      stroke-width={capa.stroke}
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
   </svg>
+{/snippet}
+
+<div class="onda" aria-hidden="true" {@attach montar}>
+  <!--
+    1 unidad del viewBox = 1 px. El blur es el mismo kernel de antes
+    (stdDeviation 8 y 4.5) y queda quieto. El encaje al hueco y el
+    movimiento van en los padres, así el desenfoque no se recalcula.
+  -->
+  <div class="onda__fit">
+    <div class="onda__pan" data-onda>
+      <div class="onda__eco" data-eco>
+        {@render velo(velos.lejos, "lejos")}
+      </div>
+      <div class="onda__breath" data-breath>
+        {@render velo(velos.medio, "medio")}
+        {@render velo(velos.cerca, "cerca")}
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -146,6 +132,7 @@
     transform: translateY(-50%);
     overflow: hidden;
     pointer-events: none;
+    container-type: size;
     mask-image: linear-gradient(
       90deg,
       transparent 0%,
@@ -170,26 +157,27 @@
     -webkit-mask-repeat: no-repeat;
   }
 
-  .onda svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
+  .onda__fit {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1200px;
+    height: 400px;
+    transform-origin: 0 0;
+    transform: scale(calc(100cqw / 1200px), calc(100cqh / 400px));
   }
 
-  .onda__lejos {
-    opacity: 0.38;
-  }
-
-  .onda__medio {
-    opacity: 0.72;
-  }
-
-  .onda__cerca {
-    opacity: 0.48;
-  }
-
-  g[data-onda] {
+  .onda__pan,
+  .onda__eco,
+  .onda__breath {
+    position: absolute;
+    inset: 0;
     will-change: transform;
+  }
+
+  .ink {
+    position: absolute;
+    display: block;
+    overflow: hidden;
   }
 </style>

@@ -2,127 +2,93 @@
   "brand": "PLAYWORLD",
   "cartel": "EL CARTEL",
   "back": "Archivo",
-  "cta": "Ahora es tu momento",
+  "cta": "¿Y tú qué te habrías llevado de {year}?",
   "loading": "Cargando el clima de la edición…",
   "emptyTitle": "Memoria en construcción",
   "emptyBody": "Esta edición todavía no tiene el clima de las canciones en el archivo. Sintoniza otro año.",
-  "songEmpty": "Elige un punto. El overlay muestra su desvío respecto a la mediana de la edición.",
-  "songEyebrow": "CANCIÓN CONTRA EL AÑO",
-  "polesTitle": "Dos polos",
-  "polesIntro": "Partimos las canciones por energía. Debajo de 50 van al polo suave; de 50 en adelante, al intenso. Las cifras son el valor típico de cada grupo.",
-  "poleSoft": "Polo suave",
-  "poleHot": "Polo intenso",
-  "polePull": "{low} es el artista más suave. {high} es el más intenso.",
-  "legendMinor": "Menor",
-  "legendMajor": "Mayor",
-  "legendHot": "Artista enfocado",
-  "mapNote": "{n} puntos · {hot} sobre energy 50 · ejes fijos 0–100",
-  "mapNoteAct": "Filtro: {artist} · {n} canciones encendidas, el resto baja",
-  "mapAria": "Canciones según relajación y energía",
-  "mapX": "RELAXED (0–100) →",
-  "mapY": "ENERGY (0–100) →",
-  "mapIntense": "INTENSO",
-  "mapSoft": "SUAVE",
-  "fpY": "RASGO ↑",
-  "fpX": "VALOR (0–100) →",
-  "legendMedian": "Valor típico",
-  "legendIqr": "Mitad de las canciones",
-  "legendWide": "Se abren",
-  "legendSong": "Canción elegida",
-  "deltaHint": "Cero = mediana de {year}. Durazno = por encima. Rosa = por debajo.",
-  "actsEyebrow": "REPARTO DEL CLIMA",
-  "actsShare": "artistas en el clima del año",
-  "actsShareOf": "de {total}",
-  "actsCenters": "Centros del año: {songs} contando canciones, {acts} dando un voto a cada artista.",
-  "actsHint": "Cada fila es un artista, de mayor a menor mediana. La línea vertical es la mediana del año, y «cerca del clima» son 10 puntos o menos de distancia. Pasa por una fila para ver su mitad central; púlsala para filtrar el mapa.",
-  "legendActSong": "Canción",
-  "legendActMedian": "Mediana del artista",
-  "legendActIqr": "Mitad central (al señalar)",
-  "actsRefYear": "MEDIANA DEL AÑO",
-  "actsRefActs": "MEDIANA DE ARTISTAS",
-  "actsTip": "{n} canciones · mediana {v}",
-  "actsTipDelta": "{sign}{d} vs. el año",
-  "actsTipThin": "Pocas canciones: la mediana dice poco",
-  "actsSame": "Las dos coinciden: el clima no depende del tamaño de los repertorios.",
-  "actsDiff": "Contando canciones el centro queda {n} puntos {dir}: pesan más los repertorios grandes.",
-  "above": "por encima",
-  "below": "por debajo",
-  "lineupNote": "{n} artistas. Elige una portada para filtrar el mapa, el fingerprint y la lista.",
-  "lineupNoteAct": "{artist}: {n} canciones en el mapa. Vuelve a pulsar la portada para ver todo el cartel.",
-  "foot": "Clima de las canciones · agrupadas por artista",
+  "songClear": "Quitar",
+  "actsCols": {
+    "artist": "Artista",
+    "songs": "Canciones"
+  },
+  "lineupNote": "{n} artistas. Elige una portada para ver sus canciones en la lista.",
+  "lineupNoteAct": "{artist}: {n} canciones. Vuelve a pulsar la portada para cerrar.",
+  "foot": "Leído con Audio DNA. Una lectura posible del archivo, no la única.",
   "jump": [
-    { "id": "tesis", "label": "01 Tesis" },
-    { "id": "campo", "label": "02 Campo" },
+    { "id": "clima", "label": "01 El clima" },
+    { "id": "tonalidades", "label": "02 Tonalidades" },
     { "id": "actos", "label": "03 Artistas" }
   ],
   "chapters": {
-    "tesis": {
+    "clima": {
       "n": "01",
-      "eyebrow": "CARÁCTER",
-      "title": "El clima del año",
-      "question": "¿Cuál es el clima de esta edición, y dónde se abre de verdad?",
-      "unit": "valor típico + amplitud · 0–100"
+      "eyebrow": "MEDIANA",
+      "title": "El clima",
+      "question": "¿Cómo se compara la mediana de cada emoción?",
+      "unit": "0–100"
     },
-    "campo": {
+    "tonalidades": {
       "n": "02",
-      "eyebrow": "TERRITORIO",
-      "title": "Dos cuerpos",
-      "question": "¿El año es un solo clima o dos nubes?",
-      "unit": "X = relaxed · Y = energy"
+      "eyebrow": "NOTAS",
+      "title": "Tonalidades",
+      "question": "¿En qué notas está el año?",
+      "unit": "canciones por nota"
     },
     "actos": {
       "n": "03",
-      "eyebrow": "AUTORÍA",
-      "title": "Quién sostiene el clima",
-      "question": "¿El clima lo pone todo el cartel o unos pocos artistas?",
-      "unit": "1 fila = 1 artista · marcas = canciones"
+      "eyebrow": "CARTEL",
+      "title": "Artistas",
+      "question": "¿El valor del año lo comparte el cartel o lo arrastran unos pocos?",
+      "unit": "1 fila = 1 artista"
     }
   },
   "moods": {
-    "happy": "Happy",
-    "danceability": "Danceability",
-    "engagement": "Engagement",
+    "happy": "Ánimo",
+    "sad": "Tristeza",
+    "danceability": "Baile",
+    "engagement": "Enganche",
+    "approachability": "Cercanía",
     "nostalgia": "Nostalgia",
     "oscuridad": "Oscuridad",
-    "energy": "Energy",
-    "relaxed": "Relaxed",
-    "aggressive": "Aggressive"
+    "energy": "Energía",
+    "relaxed": "Calma",
+    "aggressive": "Agresividad",
+    "spectralFlatness": "Textura"
+  },
+  "rasgos": {
+    "method": "Mediana de cada emoción, de 0 a 100. La barra marcada ordena a los artistas.",
+    "aria": "Mediana de cada rasgo, de 0 a 100",
+    "tempo": "Tempo",
+    "tempoNote": "La mediana del tempo es {med} bpm.",
+    "keys": "Tonalidades",
+    "keysAria": "Cuántas canciones hay en cada nota"
+  },
+  "forma": {
+    "half": "La mitad de las canciones cae entre {lo} y {hi}. El valor típico es {med}.",
+    "bajo": "por debajo de 50",
+    "alto": "de 50 en adelante",
+    "poleSoft": "polo suave, por debajo de 50",
+    "poleHot": "polo intenso, de 50 en adelante",
+    "pull": "{low} queda más abajo. {high} queda más arriba.",
+    "pullEnergy": "{low} es el artista más suave. {high} es el más intenso.",
+    "count": "{n} canciones con este rasgo.",
+    "aria": "Canciones de {trait} por tramos"
   },
   "stats": {
     "songs": "Canciones",
     "minor": "En tono menor",
-    "happy": "Ánimo",
-    "aggressive": "Agresividad",
+    "acts": "Artistas",
+    "tempo": "Tempo, bpm",
     "spread": {
       "pareja": "Se parecen",
       "media": "Se parecen un poco",
       "abierta": "Se diferencian"
     }
   },
-  "statsHint": "En menor es el tono más oscuro. Se parecen: las canciones son parecidas en eso. Se diferencian: hay más de un polo.",
-  "character": {
-    "partida": "partida en dos",
-    "intensa": "intensa",
-    "contenida": "contenida",
-    "tension": "en tensión"
-  },
-  "tesis": {
-    "partida": "Una edición partida en dos: el ánimo es compartido, la energía no.",
-    "simple": "Una edición {character}: la energía típica está en {energyMedian}."
-  },
-  "tesisLead": {
-    "partida": "Las canciones se parecen en ánimo, pero se diferencian en energía y calma.",
-    "simple": "En energía, las canciones {diff}."
-  },
-  "tesisLeadDiff": {
-    "pareja": "se parecen",
-    "media": "se parecen un poco",
-    "abierta": "se diferencian"
-  },
   "method": "{n} canciones · {acts} artistas · {minor}% en modo menor. Oscuridad {oscuridad}, nostalgia {nostalgia}. Los centros usan medianas.",
   "generos": {
-    "kicker": "GÉNERO DEL CARTEL",
-    "mixed": "Cartel mezclado",
+    "kicker": "De qué estaba hecho el cartel",
+    "mixed": "Un cartel mezclado",
     "incomplete": "Sin predominio",
     "empty": "Sin género",
     "resto": "Resto",
@@ -131,6 +97,7 @@
     "notePluralSolo": "{pct}% de las etiquetadas",
     "noteMixed": "{parts} de las etiquetadas",
     "noteIncomplete": "Solo {labeled}% del catálogo tiene género",
-    "noteEmpty": "Esta edición no tiene géneros en el archivo."
+    "noteEmpty": "Esta edición no tiene géneros en el archivo.",
+    "bajoBarras": "Porcentajes sobre las canciones con género identificado."
   }
 }

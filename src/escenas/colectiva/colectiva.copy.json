@@ -1,14 +1,18 @@
 {
   "brand": "PLAYWORLD",
-  "title": "Los iPods del Picnic",
-  "kicker": "Otras curadurías",
+  "title": "Los iPods de un mundo distinto",
+  "kicker": "Lo que se llevaron los demás",
+  "bajada": "Nadie vivió el mismo festival, pero todos reposan en el mismo lugar. Cada punto es alguien que eligió sus cinco canciones. Toca uno.",
   "filtroTodas": "Todas",
-  "filtroMia": "los de la mía",
+  "filtroMia": "Almas como la mía",
   "filtroOtras": "los de otras",
   "tu": "Tú",
   "tuAntes": "Tú (antes)",
   "alguien": "alguien",
   "comparten": "comparten",
-  "avisoSenal": "el archivo está sin señal · tu rastro quedó guardado aquí",
+  "avisoSenal": "Sin señal, como adentro del festival. Tu iPod quedó guardado y se suma al mundo distinto cuando vuelva la conexión.",
+  "cierre": "Los escenarios se desmontan. Las pulseras se guardan en un cajón. Las canciones se quedan.",
+  "ctaAnio": "Volver a entrar con otro año",
+  "seLlevo": "Se llevó:",
   "ctaCreacion": "Tu creación"
 }

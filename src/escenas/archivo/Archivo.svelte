@@ -26,11 +26,11 @@
   const years = copy.years;
   const yearFoco = get(recorrido).yearHint;
   const idx = $derived.by(() => {
-    const y = (ruta && ruta.name === "archivo" && ruta.year) || rec.yearHint || 2011;
+    const y = (ruta && ruta.name === "archivo" && ruta.year) || rec.yearHint || years[0];
     const i = years.indexOf(y);
     return i >= 0 ? i : 0;
   });
-  const year = $derived(years[idx] ?? 2011);
+  const year = $derived(years[idx] ?? years[0]);
   const ed = $derived(ediciones.find((e) => e.year === year));
   const conteos = $derived(
     Object.fromEntries(ediciones.map((e) => [e.year, e.conteo])) as Record<number, number>,

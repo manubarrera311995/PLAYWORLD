@@ -7,6 +7,7 @@ export type Recorrido = {
   edicionAbierta: number | null;
   seleccion: Seleccion | null;
   alma: { principal: AlmaId; eco: AlmaId; puntajes: Record<AlmaId, number> } | null;
+  almasFila: AlmaId[] | null;
   rastroPropio: Rastro | null;
 };
 
@@ -17,6 +18,7 @@ const vacio = (): Recorrido => ({
   edicionAbierta: null,
   seleccion: null,
   alma: null,
+  almasFila: null,
   rastroPropio: null,
 });
 

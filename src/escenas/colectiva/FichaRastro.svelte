@@ -30,6 +30,10 @@
   <button type="button" class="x" onclick={oncerrar} aria-label="Cerrar">×</button>
   <p class="eyebrow">{propio ? copy.tu : rastro.alias ?? copy.alguien}</p>
   <h2>{almas[rastro.almaId].nombre}</h2>
+  <p class="frase">{almas[rastro.almaId].frase}</p>
+  {#if tracks.length}
+    <p class="se-llevo">{copy.seLlevo}</p>
+  {/if}
   <ul>
     {#each tracks as t (t.id)}
       <li>{t.artist} — {t.track}</li>
@@ -72,7 +76,16 @@
     font-size: 22px;
     cursor: pointer;
   }
-  h2 { font-family: Anton, Impact, sans-serif; font-size: 28px; margin: 6px 0 12px; }
+  h2 { font-family: Anton, Impact, sans-serif; font-size: 28px; margin: 6px 0 8px; }
+  .frase { margin: 0 0 12px; font-size: 14px; line-height: 1.35; color: var(--ink-soft); }
+  .se-llevo {
+    margin: 0 0 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
   li { font-size: 13px; margin: 4px 0; }
   .comp { margin-top: 10px; font-size: 13px; color: var(--ink-soft); }
 </style>

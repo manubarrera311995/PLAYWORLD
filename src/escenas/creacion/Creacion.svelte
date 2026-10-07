@@ -21,6 +21,12 @@
   const rec = $derived($recorrido);
   const alma = $derived(rec.alma ? almas[rec.alma.principal] : null);
   const eco = $derived(rec.alma ? almas[rec.alma.eco] : null);
+  const fila = $derived.by(() => {
+    const ids = rec.almasFila ?? [];
+    const nombres = ids.map((id) => almas[id].corto);
+    if (nombres.length < 2) return nombres[0] ?? "";
+    return `${nombres.slice(0, -1).join(", ")} y ${nombres[nombres.length - 1]}`;
+  });
   const titulo = $derived.by(() => {
     if (!alma) return [];
     let i = 0;
@@ -89,9 +95,12 @@
           {/each}
         </h1>
         {#if eco}
-          <p class="tipo-eco tinta">con algo de {eco.corto}</p>
+          <p class="tipo-eco tinta">con un borde {eco.borde}</p>
         {/if}
         <p class="tipo-cuerpo">{alma.texto}</p>
+        {#if fila}
+          <p class="tipo-cuerpo">En la fila dijiste {fila}. Tus canciones dicen {alma.corto}.</p>
+        {/if}
       {/if}
     </header>
     {#if rec.alma}
@@ -107,7 +116,7 @@
           {#if meta}
             <p class="meta">{meta}</p>
           {/if}
-          <Boton onclick={() => navigate("/colectiva")}>Ver la colectiva</Boton>
+          <Boton onclick={() => navigate("/colectiva")}>Mira qué se llevaron los demás</Boton>
         </footer>
       </article>
     {/if}

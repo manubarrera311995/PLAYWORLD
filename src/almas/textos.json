@@ -2,31 +2,43 @@
   "noctambula": {
     "nombre": "Alma Noctámbula",
     "corto": "Noctámbula",
-    "texto": "Vive para la noche. La música le suena mejor a las 2 a.m. El festival empieza cuando se apaga el sol."
+    "borde": "noctámbulo",
+    "frase": "El festival empieza cuando el sol se va.",
+    "texto": "Para ti, el festival empieza cuando el sol se va. Vives por la madrugada, las luces de neón y todo lo que suena mejor a las 2 a.m., con los pies adoloridos y la energía intacta. Perderte los primeros shows no es perderte nada."
   },
   "melancolica": {
     "nombre": "Alma Melancólica Feliz",
-    "corto": "Melancólica",
-    "texto": "Llora en los conciertos y lo considera lo mejor de la vida. Sale vacía y llena al mismo tiempo."
+    "corto": "Melancólica Feliz",
+    "borde": "melancólico",
+    "frase": "Lloras en los conciertos, y te encanta.",
+    "texto": "Lloras en los conciertos y los consideras la mejor experiencia de tu vida. La música le llega a lugares que no sabías que tenías. Sales del festival con el corazón vacío y completamente lleno al mismo tiempo."
   },
   "intensa": {
     "nombre": "Alma Intensa",
     "corto": "Intensa",
-    "texto": "Siempre primera fila. Aguanta el sol y el empujón. Sale sin voz y conforme."
+    "borde": "intenso",
+    "frase": "Siempre en primera fila. Siempre.",
+    "texto": "Llegas horas antes, aguantas el sol y los empujones, y cuando empieza el show desapareces por completo. Sales sin voz, con la ropa empapada y la satisfacción de haberlo dado todo. Para ti, un festival que no duele un poco no se vivió lo suficiente."
   },
   "nostalgica": {
     "nombre": "Alma Nostálgica",
     "corto": "Nostálgica",
-    "texto": "Cada canción abre una puerta que creía cerrada. Se va más quieta, convencida de que valió la pena."
+    "borde": "nostálgico",
+    "frase": "Cada canción te recuerda algo.",
+    "texto": "Llegas al festival cargando una historia (o varias) y dejas que la música abra puertas que creías cerradas. Sales con más calma de la que traías, con algo resuelto o algo pendiente, pero con la certeza de que valió la pena."
   },
   "colectiva": {
     "nombre": "Alma Colectiva",
     "corto": "Colectiva",
-    "texto": "Le importan tanto las filas y las conversaciones como el headliner. La música es el fondo de la gente."
+    "borde": "colectivo",
+    "frase": "Vas tanto por la gente como por la música.",
+    "texto": "Disfrutas los shows, pero también lo que pasa entre ellos: la fila, la búsqueda de comida, la conversación que se alarga mientras suena una banda de fondo. La música es el escenario donde sucede algo más importante: el encuentro al azar, el parche, los amigos."
   },
   "exploradora": {
     "nombre": "Alma Exploradora",
     "corto": "Exploradora",
-    "texto": "Llega sin horario. Busca tarimas chicas y artistas que no conoce. Se va con playlist nueva."
+    "borde": "explorador",
+    "frase": "Llegas con la agenda en blanco, a propósito.",
+    "texto": "Te interesan los nombres pequeños del cartel, los horarios de apertura y las propuestas que nadie comenta. Sales de cada edición con una playlist nueva y la sensación de haber encontrado algo completamente propio."
   }
 }

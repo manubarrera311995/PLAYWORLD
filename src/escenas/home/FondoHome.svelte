@@ -1,7 +1,7 @@
 <script lang="ts">
   /**
-   * Capas del `Fondo_Home`: la fotografía existente más las tres overlays
-   * decorativas (onda, ecualizador y halo). Nodos puramente decorativos:
+   * Capas del `Fondo_Home`: las tres overlays decorativas (onda, ecualizador
+   * y halo) sobre el degradado del cielo. Nodos puramente decorativos:
    * `aria-hidden="true"`, `pointer-events: none`, cero elementos enfocables y
    * cero assets nuevos en `public/` (Req 2.1, 2.2, 2.9, 6.8).
    *
@@ -14,8 +14,6 @@
 </script>
 
 <div class="home__fondo" aria-hidden="true">
-  <img class="home__fondo-foto" src="/assets/home/fondo.jpeg" alt="" />
-
   <svg
     class="home__fondo-onda"
     data-fondo-capa="onda"
@@ -59,15 +57,6 @@
     overflow: hidden;
     pointer-events: none;
   }
-  .home__fondo-foto {
-    position: relative;
-    z-index: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-  }
-
   /* Capa 1 · onda: solo trazo, sin relleno ni imagen. */
   .home__fondo-onda {
     position: absolute;

@@ -8,6 +8,7 @@
   import Boton from "../../ui/Boton.svelte";
   import { navigate } from "../director/router";
   import { parcheRecorrido } from "../../estado/recorrido";
+  import type { AlmaId } from "../../almas/almas";
   import { reduce } from "../../motion/reducedMotion";
   import type { RutaParsed } from "../director/router";
 
@@ -69,7 +70,11 @@
       }
       const next = resolverPuerta(respuestas, copy.pesos, copy.desempate, copy.revelados);
       puerta = next;
-      parcheRecorrido({ yearHint: next.year });
+      const almasFila = respuestas.flatMap((id, i) => {
+        const alma = copy.questions[i]?.options.find((o) => o.id === id)?.alma;
+        return alma ? [alma as AlmaId] : [];
+      });
+      parcheRecorrido({ yearHint: next.year, almasFila });
     }, wait);
   }
 
@@ -152,6 +157,10 @@
         <div class="hook__paso" {@attach entrarPaso}>
           <div class="hook__kicker">
             <Eyebrow texto={copy.kicker} />
+            <p class="hook__etiqueta">{pregunta.etiqueta}</p>
+            {#if paso === 0}
+              <p class="hook__bajada">{copy.bajada}</p>
+            {/if}
           </div>
           <h1 class="tipo-pregunta" id="hook-q">{pregunta.text}</h1>
           <div class="hook__manos" role="radiogroup" aria-labelledby="hook-q">
@@ -289,6 +298,21 @@
   }
   .hook__tick.is-on {
     background: rgba(255, 246, 239, 0.88);
+  }
+  .hook__etiqueta {
+    margin: 8px 0 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .hook__bajada {
+    max-width: 42ch;
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--ink-soft);
   }
   .hook__main {
     display: flex;

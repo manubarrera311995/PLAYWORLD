@@ -29,12 +29,17 @@ export type AlmaDef = {
   nombre: string;
   corto: string;
   texto: string;
+  frase: string;
+  borde: string;
   paleta: Paleta;
   grano: { densidad: number; velocidad: number };
   puntuar: (m: MediaDNA, ctx: ContextoSeleccion) => number;
 };
 
-const T = textos as Record<AlmaId, { nombre: string; corto: string; texto: string }>;
+const T = textos as Record<
+  AlmaId,
+  { nombre: string; corto: string; texto: string; frase: string; borde: string }
+>;
 
 function clip(n: number): number {
   return Math.max(0, Math.min(100, n));

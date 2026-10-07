@@ -10,7 +10,7 @@
  * Requirements: 2.1, 2.2, 2.3, 2.9, 2.10, 6.8, 10.6, 12.5
  */
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
@@ -20,7 +20,6 @@ import { MEZCLAS_PERMITIDAS, Z_GRAIN, Z_OVERLAYS } from "../src/escenas/home/fon
 const rutaComponente = fileURLToPath(
   new URL("../src/escenas/home/FondoHome.svelte", import.meta.url),
 );
-const rutaFoto = fileURLToPath(new URL("../public/assets/home/fondo.jpeg", import.meta.url));
 const fuente = readFileSync(rutaComponente, "utf8");
 
 /** Devuelve el cuerpo de la primera regla CSS cuyo selector coincide exactamente. */
@@ -44,17 +43,16 @@ const OVERLAYS: readonly { capa: keyof typeof Z_OVERLAYS; selector: string }[] =
 ];
 
 describe("FondoHome.svelte · markup de las cuatro capas", () => {
-  it("renderiza la foto existente y las tres overlays, en ese orden en el DOM", () => {
+  it("renderiza las tres overlays dentro del fondo, sin la foto", () => {
     expect(fuente).toContain('<div class="home__fondo" aria-hidden="true">');
-    expect(fuente).toContain('class="home__fondo-foto"');
-    expect(fuente).toContain('src="/assets/home/fondo.jpeg"');
-    expect(fuente).toContain('alt=""');
+    expect(fuente).not.toContain("fondo.jpeg");
+    expect(fuente).not.toContain("home__fondo-foto");
 
-    const posFoto = fuente.indexOf('class="home__fondo-foto"');
+    const posFondo = fuente.indexOf('class="home__fondo"');
     const capas = [...fuente.matchAll(/data-fondo-capa="(onda|eq|halo)"/g)];
     expect(capas.map((c) => c[1])).toEqual(["onda", "eq", "halo"]);
     for (const capa of capas) {
-      expect(capa.index as number).toBeGreaterThan(posFoto);
+      expect(capa.index as number).toBeGreaterThan(posFondo);
     }
   });
 
@@ -78,7 +76,7 @@ describe("FondoHome.svelte · markup de las cuatro capas", () => {
     expect(fuente).toContain('focusable="false"');
     // El halo y las barras son gradientes puros: ni imágenes ni vídeos nuevos.
     expect(fuente).not.toContain("url(");
-    expect(existsSync(rutaFoto)).toBe(true);
+    expect(fuente).not.toContain("fondo.jpeg");
   });
 });
 
@@ -92,14 +90,6 @@ describe("FondoHome.svelte · CSS de las capas", () => {
     expect(declaracion(cuerpo, "isolation")).toBeNull();
     expect(declaracion(cuerpo, "filter")).toBeNull();
     expect(declaracion(cuerpo, "backdrop-filter")).toBeNull();
-    expect(declaracion(cuerpo, "opacity")).toBeNull();
-  });
-
-  it("deja la foto visible con su `src` y su encuadre intactos", () => {
-    const cuerpo = bloque(".home__fondo-foto");
-    expect(declaracion(cuerpo, "object-fit")).toBe("cover");
-    expect(declaracion(cuerpo, "display")).toBeNull();
-    expect(declaracion(cuerpo, "visibility")).toBeNull();
     expect(declaracion(cuerpo, "opacity")).toBeNull();
   });
 

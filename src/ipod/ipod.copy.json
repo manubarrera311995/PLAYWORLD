@@ -1,11 +1,11 @@
 {
-  "momento": "Ahora es tu momento",
-  "subtitle": "No preguntamos quién eres. El archivo lee lo que te llevas.",
-  "instruccion": "Elige 5 canciones de {year}.",
+  "momento": "Haz tu propio recorrido",
+  "subtitle": "Ahora que conoces un poco más del archivo, elige tus canciones y deja que el Playworld interprete tu alma musical. Puedes escoger las que recuerdas, las que conoces o las que nunca habías escuchado. No hay una forma correcta de escuchar el archivo. Hay miles.",
+  "instruccion": "Como en un iPod viejo: en tu playlist solo caben cinco. Selecciona las que querrías volver a oír.",
   "sinAnio": "Vuelve a una edición para llenar este iPod.",
   "capacity": 5,
   "ctaClose": "Cerrar el iPod",
-  "boot": "PLAYWORLD ✱ · Ahora es tu momento",
+  "boot": "PLAYWORLD ✱ · Haz tu propio recorrido",
   "menu": {
     "songs": "Canciones",
     "mine": "Mi iPod",
