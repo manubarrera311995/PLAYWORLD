@@ -13,6 +13,10 @@ export function bindTeclado(emit: (e: EntradaIpod) => void): () => void {
     } else if (ev.key === "Enter") {
       ev.preventDefault();
       emit({ tipo: "select" });
+    } else if (ev.key === " ") {
+      if (t && (t.tagName === "BUTTON" || t.tagName === "A")) return;
+      ev.preventDefault();
+      emit({ tipo: "play" });
     } else if (ev.key === "Escape" || ev.key === "Backspace") {
       ev.preventDefault();
       emit({ tipo: "back" });

@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PLAYWORLD — 2022</title>
+  <style>
+    @font-face {
+      font-family: Anton;
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("../public/fonts/anton-latin-400-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("../public/fonts/inter-latin-400-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url("../public/fonts/inter-latin-500-normal.woff2") format("woff2");
+    }
+
+    :root {
+      --ink: #fff6ef;
+      --ink-soft: rgba(255, 246, 239, 0.78);
+      --ink-mute: rgba(255, 246, 239, 0.58);
+      --line: rgba(255, 246, 239, 0.16);
+      --rosa: #e85a86;
+      --azul: #7eb0ff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: #10060c;
+      color: var(--ink);
+      font-family: Inter, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      overflow: hidden;
+      background:
+        repeating-radial-gradient(circle at -6% 42%, transparent 0 26px, rgba(255, 246, 239, 0.045) 27px 28px, transparent 29px 58px),
+        repeating-radial-gradient(circle at 112% 8%, transparent 0 20px, rgba(255, 246, 239, 0.04) 21px 22px, transparent 23px 48px),
+        radial-gradient(ellipse at 18% 0%, rgba(196, 42, 72, 0.55), transparent 46%),
+        radial-gradient(ellipse at 88% 100%, rgba(48, 16, 72, 0.45), transparent 42%),
+        linear-gradient(165deg, #6a1c36 0%, #4a1428 22%, #2a0c18 52%, #12080f 78%, #0c0810 100%);
+    }
+
+    button, input, select { font-family: inherit; color: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, select:focus-visible, input:focus-visible {
+      outline: 1px solid rgba(255, 246, 239, 0.7);
+      outline-offset: 2px;
+    }
+
+    .app {
+      width: 1440px;
+      height: 900px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 14px;
+      padding: 22px 28px 14px;
+      transform-origin: center center;
+    }
+
+    .top {
+      display: grid;
+      grid-template-columns: minmax(240px, 0.82fr) minmax(460px, 1.18fr);
+      align-items: end;
+      gap: 12px 28px;
+    }
+
+    h1 {
+      font-family: Anton, Impact, sans-serif;
+      font-size: clamp(108px, 13vw, 176px);
+      font-weight: 400;
+      line-height: 0.76;
+      letter-spacing: -0.045em;
+    }
+
+    .frase {
+      max-width: 16em;
+      font-size: clamp(28px, 2.7vw, 40px);
+      font-weight: 500;
+      letter-spacing: -0.034em;
+      line-height: 1.05;
+    }
+
+    .tesis {
+      margin-top: 8px;
+      color: var(--ink-soft);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .relato-btn {
+      margin-top: 8px;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--ink-mute);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .relato-btn:hover { color: var(--ink); }
+
+    .stats {
+      display: flex;
+      gap: 0;
+      margin-top: 18px;
+    }
+    .stat { padding: 0 16px; border-left: 1px solid rgba(255, 246, 239, 0.28); }
+    .stat:first-child { padding-left: 0; border: 0; }
+    .stat b {
+      display: block;
+      font-family: Anton, Impact, sans-serif;
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .stat span {
+      display: block;
+      margin-top: 5px;
+      color: var(--ink-mute);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .main {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr) 272px;
+      gap: 16px;
+    }
+
+    .panel {
+      min-height: 0;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(42, 12, 26, 0.5), rgba(12, 6, 12, 0.62));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 18px 40px rgba(0, 0, 0, 0.18);
+    }
+
+    #rail, #ficha {
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    .busca { position: relative; display: block; }
+    .busca span {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-54%);
+      color: var(--ink-mute);
+      font-size: 14px;
+      pointer-events: none;
+    }
+    #q {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 246, 239, 0.04);
+      padding: 8px 12px 8px 30px;
+      font-size: 13px;
+    }
+    #q::placeholder { color: var(--ink-mute); }
+
+    .seccion {
+      margin: 14px 0 8px;
+      color: var(--ink-soft);
+      font-size: 12px;
+    }
+
+    #chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: transparent;
+      font-size: 12px;
+    }
+    .chip i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: block;
+    }
+    .chip.is-on {
+      background: rgba(255, 246, 239, 0.14);
+      border-color: rgba(255, 246, 239, 0.4);
+    }
+
+    #artistas {
+      min-height: 0;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-right: -6px;
+      padding-right: 4px;
+    }
+    #artistas::-webkit-scrollbar, #ficha .cuerpo::-webkit-scrollbar, .rejilla::-webkit-scrollbar, .lista::-webkit-scrollbar { width: 8px; }
+    #artistas::-webkit-scrollbar-thumb, #ficha .cuerpo::-webkit-scrollbar-thumb, .rejilla::-webkit-scrollbar-thumb, .lista::-webkit-scrollbar-thumb {
+      background: rgba(255, 246, 239, 0.18);
+      border-radius: 8px;
+    }
+
+    .acto-mini {
+      display: grid;
+      grid-template-columns: 22px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+      padding: 5px 6px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      text-align: left;
+    }
+    .acto-mini:hover, .acto-mini.is-on { background: rgba(255, 246, 239, 0.08); }
+    .avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #5a2438;
+      display: grid;
+      place-items: center;
+      font-size: 9px;
+      letter-spacing: 0.04em;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .acto-mini .nm {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+    .acto-mini .ct { color: var(--ink-mute); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+    #limpiar {
+      margin-top: 8px;
+      align-self: flex-start;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--ink-mute);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    #limpiar:hover { color: var(--ink); }
+
+    #stage {
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .eje-controles {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--ink-mute);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .eje-controles select {
+      margin-left: 6px;
+      border: 0;
+      background: transparent;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .plot { flex: 1; min-height: 0; position: relative; }
+    .plot svg { width: 100%; height: 100%; display: block; overflow: visible; }
+    .dot { cursor: pointer; }
+    .dot.is-off { opacity: 0.05; pointer-events: none; }
+    .dot.is-dim { opacity: 0.22; }
+
+    #tip {
+      position: fixed;
+      z-index: 5;
+      transform: translate(-50%, -120%);
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(18, 28, 22, 0.92);
+      border: 1px solid rgba(255, 246, 239, 0.12);
+      font-size: 12px;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .vista-intro {
+      color: var(--ink-mute);
+      font-size: 12px;
+      letter-spacing: 0.01em;
+    }
+
+    .rejilla {
+      min-height: 0;
+      overflow: auto;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      align-content: start;
+    }
+    .rasgo {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto 46px;
+      gap: 4px 10px;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(20, 8, 16, 0.35);
+      text-align: left;
+    }
+    .rasgo.is-on { border-color: rgba(255, 246, 239, 0.55); }
+    .rn { font-size: 12px; color: var(--ink-soft); }
+    .rm {
+      font-family: Anton, Impact, sans-serif;
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .spark { grid-column: 1 / -1; display: flex; align-items: end; gap: 3px; height: 46px; }
+    .spark i {
+      flex: 1;
+      display: block;
+      border-radius: 2px 2px 0 0;
+      background: rgba(255, 246, 239, 0.78);
+      min-height: 2px;
+    }
+    .rasgo.is-on .spark i { background: var(--rosa); }
+
+    .lista { min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 7px; }
+    .nota, .acto {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .nota span:first-child, .acto .nm { font-size: 13px; }
+    .pista {
+      height: 8px;
+      border-radius: 99px;
+      background: rgba(255, 246, 239, 0.08);
+      overflow: hidden;
+      display: flex;
+    }
+    .pista i { display: block; height: 100%; }
+    .menor { background: var(--rosa); }
+    .mayor { background: var(--azul); }
+    .leyenda { display: flex; gap: 14px; color: var(--ink-mute); font-size: 11px; }
+    .leyenda b { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+    .leyenda .rosa { background: var(--rosa); }
+    .leyenda .azul { background: var(--azul); }
+
+    .acto {
+      width: 100%;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 12px;
+      background: rgba(20, 8, 16, 0.28);
+      text-align: left;
+      grid-template-columns: minmax(0, 1.1fr) 36px minmax(80px, 1fr) 28px;
+    }
+    .acto.is-on { background: rgba(255, 246, 239, 0.08); }
+    .regla { position: relative; height: 8px; border-radius: 99px; background: rgba(255, 246, 239, 0.08); }
+    .regla .ano {
+      position: absolute;
+      top: -3px;
+      width: 1px;
+      height: 14px;
+      background: rgba(255, 246, 239, 0.45);
+    }
+    .regla .marca {
+      position: absolute;
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--rosa);
+      transform: translate(-50%, -50%);
+    }
+    .canciones { display: grid; gap: 2px; padding: 0 8px 8px 12px; }
+    .cancion {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      padding: 4px 6px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+    .cancion:hover, .cancion.is-on { background: rgba(255, 246, 239, 0.08); color: var(--ink); }
+
+    #ficha .cabeza { text-align: center; padding-bottom: 8px; }
+    #ficha .quien { font-size: 13px; color: var(--ink-soft); }
+    #ficha .tema {
+      margin-top: 2px;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+    #ficha .meta { margin-top: 4px; color: var(--ink-mute); font-size: 12px; }
+    .tapa {
+      width: 74px;
+      height: 74px;
+      margin: 4px auto 10px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: radial-gradient(circle at 40% 35%, #ffb15a, #d3263e 58%, #3a0a16);
+    }
+    .tapa img { width: 100%; height: 100%; object-fit: cover; }
+    #ficha .cuerpo { min-height: 0; overflow: auto; padding-right: 4px; }
+    .barra {
+      display: grid;
+      grid-template-columns: 88px 1fr 28px;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+      margin: 3px 0;
+      padding: 2px 0;
+      border: 0;
+      background: transparent;
+      text-align: left;
+    }
+    .barra .nombre { font-size: 11px; color: var(--ink-soft); }
+    .barra.is-on .nombre { color: var(--ink); }
+    .surco {
+      height: 4px;
+      border-radius: 99px;
+      background: rgba(255, 246, 239, 0.12);
+      overflow: hidden;
+    }
+    .surco i { display: block; height: 100%; background: rgba(255, 246, 239, 0.82); }
+    .barra.is-on .surco i { background: #fff; }
+    .barra .num { font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; }
+    .tempo-linea {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      color: var(--ink-soft);
+      font-size: 12px;
+    }
+    .hist {
+      position: relative;
+      display: flex;
+      align-items: end;
+      gap: 3px;
+      height: 64px;
+      margin-top: 14px;
+    }
+    .hist i {
+      flex: 1;
+      display: block;
+      background: rgba(255, 246, 239, 0.8);
+      border-radius: 2px 2px 0 0;
+      min-height: 2px;
+    }
+    .hist .aguja {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--rosa);
+      transform: translateX(-1px);
+    }
+    .hist-ley {
+      margin-top: 6px;
+      color: var(--ink-mute);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .foot {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      align-items: baseline;
+      color: var(--ink-mute);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+    .foot button {
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--ink-mute);
+      letter-spacing: 0.04em;
+    }
+    .foot button.is-on, .foot button:hover { color: var(--ink); }
+
+    #velo {
+      position: fixed;
+      inset: 0;
+      z-index: 6;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(8, 4, 8, 0.62);
+    }
+    #velo[hidden] { display: none; }
+    #velo article {
+      width: min(560px, 100%);
+      padding: 28px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: #241018;
+    }
+    #velo h2 {
+      font-family: Anton, Impact, sans-serif;
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+    }
+    #velo p { margin-top: 14px; color: var(--ink-soft); font-size: 15px; line-height: 1.5; }
+    #cerrar {
+      margin-top: 18px;
+      padding: 0;
+      border: 0;
+      background: none;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: 11px;
+      color: var(--ink-mute);
+    }
+
+    .vacio {
+      color: var(--ink-mute);
+      font-size: 14px;
+    }
+    .plot .vacio {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+    }
+    .plot .vacio[hidden] { display: none; }
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <h1 id="anio">2022</h1>
+      <div class="lede">
+        <p class="frase" id="frase"></p>
+        <p class="tesis" id="tesis"></p>
+        <button class="relato-btn" id="abrir-relato" type="button">El relato</button>
+        <div class="stats" id="stats"></div>
+      </div>
+    </header>
+
+    <div class="main">
+      <aside class="panel" id="rail">
+        <label class="busca">
+          <span aria-hidden="true">⌕</span>
+          <input id="q" type="search" placeholder="Buscar artista o canción" autocomplete="off" />
+        </label>
+        <p class="seccion">Filtrar por género</p>
+        <div id="chips"></div>
+        <p class="seccion">Artistas</p>
+        <div id="artistas"></div>
+        <button id="limpiar" type="button" hidden>Quitar filtros</button>
+      </aside>
+
+      <section id="stage"></section>
+
+      <aside class="panel" id="ficha">
+        <div class="cabeza" id="cabeza"></div>
+        <div class="cuerpo" id="cuerpo"></div>
+      </aside>
+    </div>
+
+    <footer class="foot" id="foot"></footer>
+  </div>
+
+  <div id="tip" hidden></div>
+
+  <div id="velo" hidden>
+    <article>
+      <h2 id="relato-titulo"></h2>
+      <div id="relato-cuerpo"></div>
+      <button id="cerrar" type="button">Cerrar</button>
+    </article>
+  </div>
+
+  <script src="ficha-anio.data.js"></script>
+  <script>
+    const LABEL = {
+      energy: "Energía",
+      oscuridad: "Oscuridad",
+      happy: "Ánimo",
+      sad: "Tristeza",
+      danceability: "Baile",
+      relaxed: "Calma",
+      aggressive: "Agresividad",
+      nostalgia: "Nostalgia",
+      engagement: "Enganche",
+      approachability: "Cercanía",
+      spectralFlatness: "Textura",
+    };
+    const COLOR = {
+      Latin: "#e85a86",
+      Electrónica: "#6aa4ff",
+      Rock: "#b388ff",
+      "Hip-Hop": "#f0a04b",
+      Folk: "#e6c98a",
+      Pop: "#f3c7d8",
+      Metal: "#d6455d",
+      "R&B": "#d98ad0",
+      Otro: "#9aa4b8",
+      "Sin género": "#a07888",
+    };
+    const NOTAS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    const VISTAS = [
+      ["nube", "01 Nube"],
+      ["rasgos", "02 Rasgos"],
+      ["notas", "03 Notas"],
+      ["cartel", "04 Cartel"],
+    ];
+    const VB = { w: 640, h: 460, l: 46, r: 16, t: 16, b: 36 };
+
+    const songs = window.ANIO.songs;
+    const traits = window.ANIO.traits;
+    const traitAt = Object.fromEntries(traits.map((key, index) => [key, index]));
+
+    let view = "nube";
+    let q = "";
+    let genres = new Set();
+    let artist = null;
+    let song = null;
+    let xKey = "energy";
+    let yKey = "oscuridad";
+    let hoverArtist = null;
+    let built = null;
+
+    const stage = document.getElementById("stage");
+    const tip = document.getElementById("tip");
+
+    function esc(value) {
+      return String(value).replace(/[&<>"']/g, (ch) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+      }[ch]));
+    }
+
+    function generoDe(row) {
+      return row[2] || "Sin género";
+    }
+
+    function traitDe(row, key) {
+      return row[7 + traitAt[key]];
+    }
+
+    function median(nums) {
+      if (!nums.length) return null;
+      const ordered = [...nums].sort((a, b) => a - b);
+      const mid = Math.floor(ordered.length / 2);
+      return ordered.length % 2 ? ordered[mid] : Math.round((ordered[mid - 1] + ordered[mid]) / 2);
+    }
+
+    function jitter(index, key) {
+      const n = Math.sin(index * 12.9898 + key.length * 78.233) * 43758.5453;
+      return (n - Math.floor(n) - 0.5) * 1.4;
+    }
+
+    function match(row, skipArtist = false) {
+      if (q && !`${row[0]} ${row[1]}`.toLowerCase().includes(q)) return false;
+      if (genres.size && !genres.has(generoDe(row))) return false;
+      if (!skipArtist && artist && row[0] !== artist) return false;
+      return true;
+    }
+
+    function visibles() {
+      const out = [];
+      songs.forEach((row, index) => {
+        if (match(row)) out.push(index);
+      });
+      return out;
+    }
+
+    function binsDe(values) {
+      const bins = Array(10).fill(0);
+      for (const value of values) {
+        const index = value >= 100 ? 9 : Math.max(0, Math.min(9, Math.floor(value / 10)));
+        bins[index] += 1;
+      }
+      return bins;
+    }
+
+    function spark(values) {
+      const bins = binsDe(values);
+      const max = Math.max(...bins, 1);
+      return bins.map((count) => `<i style="height:${Math.max(4, Math.round((count / max) * 100))}%"></i>`).join("");
+    }
+
+    function colorDe(name) {
+      return COLOR[name] || COLOR["Sin género"];
+    }
+
+    function pintarCabecera() {
+      const data = window.ANIO;
+      document.getElementById("anio").textContent = data.year;
+      document.getElementById("frase").textContent = data.frase;
+      document.getElementById("tesis").textContent = data.tesis.join(" ");
+      const artistas = new Set(songs.map((row) => row[0])).size;
+      const menor = Math.round((100 * songs.filter((row) => row[4]).length) / songs.length);
+      const tempo = median(songs.map((row) => row[3]));
+      const cifras = [
+        [songs.length, "Canciones"],
+        [artistas, "Artistas"],
+        [`${menor}%`, "Tono menor"],
+        [`${tempo} BPM`, "Mediano"],
+      ];
+      document.getElementById("stats").innerHTML = cifras
+        .map(([n, label]) => `<div class="stat"><b>${n}</b><span>${label}</span></div>`)
+        .join("");
+      document.getElementById("relato-titulo").textContent = data.frase;
+      document.getElementById("relato-cuerpo").innerHTML = data.relato.map((p) => `<p>${esc(p)}</p>`).join("");
+    }
+
+    function pintarChips() {
+      const counts = new Map();
+      songs.forEach((row) => {
+        if (q && !`${row[0]} ${row[1]}`.toLowerCase().includes(q)) return;
+        if (artist && row[0] !== artist) return;
+        const name = generoDe(row);
+        counts.set(name, (counts.get(name) || 0) + 1);
+      });
+      const names = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"));
+      document.getElementById("chips").innerHTML = names
+        .map(([name]) => {
+          const on = genres.has(name) ? " is-on" : "";
+          return `<button type="button" class="chip${on}" data-g="${esc(name)}"><i style="background:${colorDe(name)}"></i>${esc(name)}</button>`;
+        })
+        .join("");
+    }
+
+    function pintarArtistas() {
+      const grupos = new Map();
+      songs.forEach((row, index) => {
+        if (q && !`${row[0]} ${row[1]}`.toLowerCase().includes(q)) return;
+        if (genres.size && !genres.has(generoDe(row))) return;
+        const name = row[0];
+        if (!grupos.has(name)) grupos.set(name, { n: 0, art: "", genre: generoDe(row) });
+        const grupo = grupos.get(name);
+        grupo.n += 1;
+        if (!grupo.art && row[6]) grupo.art = row[6];
+        grupo.index = index;
+      });
+      const filas = [...grupos.entries()].sort((a, b) => b[1].n - a[1].n || a[0].localeCompare(b[0], "es"));
+      document.getElementById("artistas").innerHTML = filas
+        .map(([name, grupo]) => {
+          const on = artist === name ? " is-on" : "";
+          const avatar = grupo.art
+            ? `<img alt="" src="${esc(grupo.art)}" />`
+            : esc(name.slice(0, 1));
+          return `<button type="button" class="acto-mini${on}" data-a="${esc(name)}"><span class="avatar">${avatar}</span><span class="nm">${esc(name)}</span><span class="ct">${grupo.n}</span></button>`;
+        })
+        .join("");
+      document.getElementById("limpiar").hidden = !(q || genres.size || artist);
+    }
+
+    function xy(row, index) {
+      const vx = Math.max(0, Math.min(100, traitDe(row, xKey) + jitter(index, xKey)));
+      const vy = Math.max(0, Math.min(100, traitDe(row, yKey) + jitter(index, yKey)));
+      const x = VB.l + (vx / 100) * (VB.w - VB.l - VB.r);
+      const y = VB.t + (1 - vy / 100) * (VB.h - VB.t - VB.b);
+      return [x, y];
+    }
+
+    function pintarPuntos() {
+      const grupo = document.getElementById("puntos");
+      if (!grupo) return;
+      const medios = visibles();
+      if (!medios.length) {
+        grupo.innerHTML = "";
+        const vacio = document.getElementById("vacio");
+        if (vacio) vacio.hidden = false;
+        return;
+      }
+      const vacio = document.getElementById("vacio");
+      if (vacio) vacio.hidden = true;
+      const orden = songs.map((_, index) => index).sort((a, b) => {
+        const rank = (index) => (index === song ? 3 : hoverArtist && songs[index][0] === hoverArtist ? 2 : match(songs[index]) ? 1 : 0);
+        return rank(a) - rank(b);
+      });
+      grupo.innerHTML = orden
+        .map((index) => {
+          const row = songs[index];
+          const [x, y] = xy(row, index);
+          const on = match(row);
+          const classes = ["dot"];
+          if (!on) classes.push("is-off");
+          else if (hoverArtist && row[0] !== hoverArtist) classes.push("is-dim");
+          if (index === song) classes.push("is-sel");
+          const radio = index === song ? 7 : 4.2;
+          const stroke = index === song ? ' stroke="#fff6ef" stroke-width="1.8"' : "";
+          return `<circle class="${classes.join(" ")}" data-i="${index}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${radio}" fill="${colorDe(generoDe(row))}"${stroke} />`;
+        })
+        .join("");
+
+      const cruce = document.getElementById("cruce");
+      if (!cruce || !medios.length) return;
+      const mx = median(medios.map((index) => traitDe(songs[index], xKey)));
+      const my = median(medios.map((index) => traitDe(songs[index], yKey)));
+      const x = VB.l + (mx / 100) * (VB.w - VB.l - VB.r);
+      const y = VB.t + (1 - my / 100) * (VB.h - VB.t - VB.b);
+      cruce.setAttribute("x1", x);
+      cruce.setAttribute("x2", x);
+      cruce.setAttribute("y1", VB.t);
+      cruce.setAttribute("y2", VB.h - VB.b);
+      const cruza = document.getElementById("cruza");
+      cruza.setAttribute("y1", y);
+      cruza.setAttribute("y2", y);
+      cruza.setAttribute("x1", VB.l);
+      cruza.setAttribute("x2", VB.w - VB.r);
+    }
+
+    function malla() {
+      const lineas = [];
+      const textos = [];
+      for (let tick = 0; tick <= 100; tick += 20) {
+        const x = VB.l + (tick / 100) * (VB.w - VB.l - VB.r);
+        const y = VB.t + (1 - tick / 100) * (VB.h - VB.t - VB.b);
+        lineas.push(`<line x1="${VB.l}" x2="${VB.w - VB.r}" y1="${y}" y2="${y}" stroke="rgba(255,246,239,0.08)" />`);
+        lineas.push(`<line y1="${VB.t}" y2="${VB.h - VB.b}" x1="${x}" x2="${x}" stroke="rgba(255,246,239,0.05)" />`);
+        textos.push(`<text x="${x}" y="${VB.h - 12}" fill="rgba(255,246,239,0.55)" font-size="11" text-anchor="middle">${tick}</text>`);
+        textos.push(`<text x="${VB.l - 8}" y="${y + 4}" fill="rgba(255,246,239,0.55)" font-size="11" text-anchor="end">${tick}</text>`);
+      }
+      return lineas.join("") + textos.join("");
+    }
+
+    function opciones(selected) {
+      return traits
+        .map((key) => `<option value="${key}"${key === selected ? " selected" : ""}>${LABEL[key]}</option>`)
+        .join("");
+    }
+
+    function pintarEscenario() {
+      if (built !== view) {
+        built = view;
+        if (view === "nube") {
+          stage.innerHTML = `
+            <div class="eje-controles">
+              <label>Arriba <select id="eje-y">${opciones(yKey)}</select></label>
+              <label>Abajo <select id="eje-x">${opciones(xKey)}</select></label>
+            </div>
+            <div class="plot">
+              <svg viewBox="0 0 ${VB.w} ${VB.h}" role="img" aria-label="Cada punto es una canción">
+                ${malla()}
+                <line id="cruce" stroke="rgba(255,246,239,0.28)" stroke-dasharray="3 4" />
+                <line id="cruza" stroke="rgba(255,246,239,0.28)" stroke-dasharray="3 4" />
+                <g id="puntos"></g>
+              </svg>
+              <p class="vacio" id="vacio" hidden>Ninguna canción con este filtro.</p>
+            </div>`;
+          document.getElementById("eje-x").addEventListener("change", (event) => {
+            xKey = event.target.value;
+            pintarPuntos();
+            pintarFicha();
+          });
+          document.getElementById("eje-y").addEventListener("change", (event) => {
+            yKey = event.target.value;
+            pintarPuntos();
+            pintarFicha();
+          });
+        }
+      }
+      if (view === "nube") {
+        const ejeX = document.getElementById("eje-x");
+        const ejeY = document.getElementById("eje-y");
+        if (ejeX) ejeX.value = xKey;
+        if (ejeY) ejeY.value = yKey;
+        pintarPuntos();
+        return;
+      }
+      const indices = visibles();
+      const rows = indices.map((index) => songs[index]);
+      if (!rows.length) {
+        stage.innerHTML = `<p class="vacio">Ninguna canción con este filtro.</p>`;
+        built = null;
+        return;
+      }
+      if (view === "rasgos") {
+        const cards = traits
+          .map((key) => {
+            const values = rows.map((row) => traitDe(row, key));
+            return `<button type="button" class="rasgo${key === yKey ? " is-on" : ""}" data-trait="${key}"><span class="rn">${LABEL[key]}</span><span class="rm">${median(values)}</span><span class="spark">${spark(values)}</span></button>`;
+          })
+          .join("");
+        const tempos = rows.map((row) => row[3]);
+        stage.innerHTML = `
+          <p class="vista-intro">Pulsa una emoción para ponerla en el eje vertical de la nube.</p>
+          <div class="rejilla">${cards}<div class="rasgo"><span class="rn">Tempo</span><span class="rm">${median(tempos)}</span><span class="spark">${spark(tempos.map((value) => ((value - 60) / 140) * 100))}</span></div></div>`;
+        built = null;
+        return;
+      }
+      if (view === "notas") {
+        const cuentas = new Map(NOTAS.map((note) => [note, { menor: 0, mayor: 0 }]));
+        for (const row of rows) {
+          const note = cuentas.get(row[5]);
+          if (!note) continue;
+          if (row[4]) note.menor += 1;
+          else note.mayor += 1;
+        }
+        const max = Math.max(...[...cuentas.values()].map((item) => item.menor + item.mayor), 1);
+        const barras = NOTAS.map((note) => {
+          const item = cuentas.get(note);
+          const menor = (item.menor / max) * 100;
+          const mayor = (item.mayor / max) * 100;
+          return `<div class="nota"><span>${note}</span><span class="pista"><i class="menor" style="width:${menor}%"></i><i class="mayor" style="width:${mayor}%"></i></span><span>${item.menor + item.mayor}</span></div>`;
+        }).join("");
+        stage.innerHTML = `
+          <p class="leyenda"><span><b class="rosa"></b>Menor</span><span><b class="azul"></b>Mayor</span></p>
+          <div class="lista">${barras}</div>`;
+        built = null;
+        return;
+      }
+      const grupos = new Map();
+      indices.forEach((index) => {
+        const row = songs[index];
+        if (!grupos.has(row[0])) grupos.set(row[0], []);
+        grupos.get(row[0]).push(index);
+      });
+      const ano = median(rows.map((row) => traitDe(row, yKey)));
+      const filas = [...grupos.entries()]
+        .map(([name, indexes]) => ({
+          name,
+          indexes,
+          center: median(indexes.map((index) => traitDe(songs[index], yKey))),
+        }))
+        .sort((a, b) => b.center - a.center || a.name.localeCompare(b.name, "es"));
+      stage.innerHTML = `
+        <p class="vista-intro">Cada marca es la mediana de ${LABEL[yKey].toLowerCase()} de un artista. La línea es la del año.</p>
+        <div class="lista">${filas
+          .map((fila) => {
+            const abierto = artist === fila.name;
+            const canciones = abierto
+              ? `<div class="canciones">${fila.indexes
+                  .slice()
+                  .sort((a, b) => traitDe(songs[b], yKey) - traitDe(songs[a], yKey))
+                  .map((index) => `<button type="button" class="cancion${index === song ? " is-on" : ""}" data-i="${index}"><span>${esc(songs[index][1])}</span><span>${traitDe(songs[index], yKey)}</span></button>`)
+                  .join("")}</div>`
+              : "";
+            return `<div><button type="button" class="acto${abierto ? " is-on" : ""}" data-a="${esc(fila.name)}"><span class="nm">${esc(fila.name)}</span><span class="ct">${fila.indexes.length}</span><span class="regla"><i class="ano" style="left:${ano}%"></i><i class="marca" style="left:${fila.center}%"></i></span><span>${fila.center}</span></button>${canciones}</div>`;
+          })
+          .join("")}</div>`;
+      built = null;
+    }
+
+    function pintarFicha() {
+      const cabeza = document.getElementById("cabeza");
+      const cuerpo = document.getElementById("cuerpo");
+      const indices = visibles();
+      const rows = indices.map((index) => songs[index]);
+      const elegido = song != null ? songs[song] : null;
+      if (elegido) {
+        const tapa = elegido[6] ? `<img alt="" src="${esc(elegido[6])}" />` : "";
+        cabeza.innerHTML = `<div class="tapa">${tapa}</div><p class="quien">${esc(elegido[0])}</p><p class="tema">‘${esc(elegido[1])}’</p><p class="meta">${elegido[4] ? "Menor" : "Mayor"} · ${esc(elegido[5])}</p>`;
+      } else {
+        const titulo = indices.length === songs.length ? "El año" : indices.length === 1 ? "1 canción" : `${indices.length} canciones`;
+        cabeza.innerHTML = `<p class="quien">${titulo}</p><p class="tema">Mediana de cada emoción</p>`;
+      }
+      const valores = traits.map((key) => {
+        const numero = elegido ? traitDe(elegido, key) : median(rows.map((row) => traitDe(row, key)));
+        return { key, numero: numero ?? 0 };
+      });
+      const tempo = elegido ? elegido[3] : median(rows.map((row) => row[3]));
+      const menor = elegido
+        ? ""
+        : `<div class="tempo-linea"><span>Tono menor</span><span>${rows.length ? Math.round((100 * rows.filter((row) => row[4]).length) / rows.length) : 0}%</span></div>`;
+      const histValues = rows.map((row) => traitDe(row, yKey));
+      const bins = binsDe(histValues);
+      const max = Math.max(...bins, 1);
+      const aguja = elegido ? `<i class="aguja" style="left:${traitDe(elegido, yKey)}%"></i>` : "";
+      cuerpo.innerHTML = `
+        ${valores
+          .map((item) => `<button type="button" class="barra${item.key === yKey ? " is-on" : ""}" data-trait="${item.key}"><span class="nombre">${LABEL[item.key]}</span><span class="surco"><i style="width:${item.numero}%"></i></span><span class="num">${item.numero}</span></button>`)
+          .join("")}
+        <div class="tempo-linea"><span>Tempo</span><span>${tempo ?? "—"} bpm</span></div>
+        ${menor}
+        <div class="hist">${bins.map((count) => `<i style="height:${Math.max(4, Math.round((count / max) * 100))}%"></i>`).join("")}${aguja}</div>
+        <p class="hist-ley">${LABEL[yKey]} en el filtro</p>`;
+    }
+
+    function pintarPie() {
+      document.getElementById("foot").innerHTML = `<span>Vistas</span>${VISTAS.map(
+        ([id, label]) => `<button type="button" data-v="${id}" class="${view === id ? "is-on" : ""}">${label}</button>`,
+      ).join("")}`;
+    }
+
+    function render() {
+      if (song != null && !match(songs[song])) song = null;
+      pintarChips();
+      pintarArtistas();
+      pintarEscenario();
+      pintarFicha();
+      pintarPie();
+    }
+
+    document.getElementById("q").addEventListener("input", (event) => {
+      q = event.target.value.trim().toLowerCase();
+      render();
+    });
+    document.getElementById("chips").addEventListener("click", (event) => {
+      const chip = event.target.closest("[data-g]");
+      if (!chip) return;
+      const name = chip.dataset.g;
+      if (genres.has(name)) genres.delete(name);
+      else genres.add(name);
+      render();
+    });
+    document.getElementById("artistas").addEventListener("click", (event) => {
+      const row = event.target.closest("[data-a]");
+      if (!row) return;
+      artist = artist === row.dataset.a ? null : row.dataset.a;
+      hoverArtist = null;
+      render();
+    });
+    document.getElementById("artistas").addEventListener("pointerover", (event) => {
+      const row = event.target.closest("[data-a]");
+      const next = row ? row.dataset.a : null;
+      if (next === hoverArtist) return;
+      hoverArtist = next;
+      if (view === "nube") pintarPuntos();
+    });
+    document.getElementById("artistas").addEventListener("pointerleave", () => {
+      hoverArtist = null;
+      if (view === "nube") pintarPuntos();
+    });
+    document.getElementById("limpiar").addEventListener("click", () => {
+      q = "";
+      document.getElementById("q").value = "";
+      genres.clear();
+      artist = null;
+      render();
+    });
+    stage.addEventListener("click", (event) => {
+      const punto = event.target.closest("[data-i]");
+      if (punto) {
+        const index = Number(punto.dataset.i);
+        song = song === index ? null : index;
+        render();
+        return;
+      }
+      const emocion = event.target.closest("[data-trait]");
+      if (emocion) {
+        yKey = emocion.dataset.trait;
+        render();
+        return;
+      }
+      const acto = event.target.closest(".acto[data-a]");
+      if (acto) {
+        artist = artist === acto.dataset.a ? null : acto.dataset.a;
+        render();
+      }
+    });
+    stage.addEventListener("pointermove", (event) => {
+      const punto = event.target.closest?.(".dot");
+      if (!punto || punto.classList.contains("is-off")) {
+        tip.hidden = true;
+        return;
+      }
+      const row = songs[Number(punto.dataset.i)];
+      tip.hidden = false;
+      tip.textContent = `“${row[1]}” — ${row[0]}`;
+      const rect = punto.getBoundingClientRect();
+      tip.style.left = `${rect.left + rect.width / 2}px`;
+      tip.style.top = `${rect.top}px`;
+    });
+    stage.addEventListener("pointerleave", () => {
+      tip.hidden = true;
+    });
+    document.getElementById("cuerpo").addEventListener("click", (event) => {
+      const barra = event.target.closest("[data-trait]");
+      if (!barra) return;
+      yKey = barra.dataset.trait;
+      render();
+    });
+    document.getElementById("foot").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-v]");
+      if (!button || button.dataset.v === view) return;
+      view = button.dataset.v;
+      built = null;
+      tip.hidden = true;
+      render();
+    });
+    document.getElementById("abrir-relato").addEventListener("click", () => {
+      document.getElementById("velo").hidden = false;
+    });
+    document.getElementById("cerrar").addEventListener("click", () => {
+      document.getElementById("velo").hidden = true;
+    });
+    document.getElementById("velo").addEventListener("click", (event) => {
+      if (event.target.id === "velo") event.currentTarget.hidden = true;
+    });
+    window.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      document.getElementById("velo").hidden = true;
+      if (song != null) {
+        song = null;
+        render();
+      }
+    });
+
+    function encajar() {
+      const marco = document.querySelector(".app");
+      const escala = Math.min(window.innerWidth / 1440, window.innerHeight / 900);
+      marco.style.transform = `translate(-50%, -50%) scale(${escala})`;
+    }
+
+    pintarCabecera();
+    render();
+    encajar();
+    window.addEventListener("resize", encajar);
+  </script>
+</body>
+</html>

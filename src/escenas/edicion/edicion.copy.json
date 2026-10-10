@@ -19,6 +19,34 @@
     { "id": "tonalidades", "label": "02 Tonalidades" },
     { "id": "actos", "label": "03 Artistas" }
   ],
+  "vistas": [
+    { "id": "nube", "label": "01 Nube" },
+    { "id": "rasgos", "label": "02 Rasgos" },
+    { "id": "notas", "label": "03 Notas" },
+    { "id": "cartel", "label": "04 Cartel" }
+  ],
+  "tablero": {
+    "vistas": "Vistas",
+    "search": "Buscar artista o canción",
+    "genres": "Filtrar por género",
+    "artists": "Artistas",
+    "clear": "Quitar filtros",
+    "up": "Arriba",
+    "down": "Abajo",
+    "empty": "Ninguna canción con este filtro.",
+    "year": "El año",
+    "one": "1 canción",
+    "many": "{n} canciones",
+    "medians": "Mediana de cada emoción",
+    "unlabeled": "Sin género",
+    "rasgosHint": "Pulsa una emoción para ponerla en el eje vertical de la nube.",
+    "menor": "Menor",
+    "mayor": "Mayor",
+    "cartelHint": "Cada marca es la mediana de {trait} de un artista. La línea es la del año.",
+    "hist": "{trait} en el filtro",
+    "plot": "Cada punto es una canción",
+    "tempo": "Tempo"
+  },
   "chapters": {
     "clima": {
       "n": "01",

@@ -6,6 +6,7 @@
   import FondoHome from "./FondoHome.svelte";
   import CueDesliza from "../../ui/CueDesliza.svelte";
   import { montarOrbita } from "./orbita";
+  import { montarPrimera } from "./primera";
   import { montarFondoHome } from "./fondo";
   import { navigate } from "../director/router";
   import type { RutaParsed } from "../director/router";
@@ -15,12 +16,10 @@
 </script>
 
 <!--
-  Dos contextos hermanos e independientes sobre el mismo `<section>`: la órbita
-  primero (intacta, diff cero en `orbita.ts`) y el fondo después. Cada attach
-  devuelve su propia limpieza, así que Svelte las invoca por separado y ninguna
-  puede arrastrar a la otra (Req 6.1, 6.2, 6.4, 14.4, 14.5).
+  Tres attaches sobre el mismo `<section>`: la órbita, los fragmentos en el
+  hueco del círculo y el fondo. Los tres recorren el mismo scroll.
 -->
-<section class="home" {@attach montarOrbita} {@attach montarFondoHome}>
+<section class="home" {@attach montarOrbita} {@attach montarPrimera} {@attach montarFondoHome}>
   <div class="home__pin">
     <FondoHome />
     <header class="home__top">
@@ -37,10 +36,21 @@
         <Collage cards={copy.cards} />
       </div>
       <span class="home__play-destello" aria-hidden="true"></span>
+      <div class="home__relato" aria-label="{copy.primera.indice}. {copy.primera.lugar}">
+        {#each copy.primera.pasos as paso (paso.nombre)}
+          <div class="home__beat">
+            {#if paso.img}
+              <img class="home__pieza home__pieza--{paso.clase}" src={paso.img} alt={paso.alt} />
+            {/if}
+            <p class="home__frase">{paso.frase}</p>
+          </div>
+        {/each}
+      </div>
       <button
         class="home__play"
         type="button"
         aria-label={copy.cta}
+        data-fila={copy.fila}
         onclick={() => navigate("/hook")}
       >
         <span class="home__play-aura" aria-hidden="true"></span>
@@ -85,7 +95,9 @@
 
 <style>
   .home {
-    height: 920vh;
+    --entrada: 920;
+    --relato: 1480;
+    height: calc((var(--entrada) + var(--relato)) * 1vh);
   }
   .home__pin {
     position: sticky;
@@ -346,6 +358,51 @@
     pointer-events: none;
     opacity: 0;
   }
+  .home__relato {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 3;
+    width: min(var(--hueco, 420px), 640px);
+    height: min(var(--hueco-alto, 240px), 420px);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    container-type: inline-size;
+  }
+  .home__beat {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.6vmin;
+    padding: 8px 12px;
+    text-align: center;
+    opacity: 0;
+  }
+  .home__frase {
+    margin: 0;
+    width: 100%;
+    font-size: clamp(20px, 4.6cqi, 28px);
+    line-height: 1.28;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+  .home__beat:has(.home__pieza) .home__frase {
+    font-size: clamp(18px, 4cqi, 24px);
+  }
+  .home__pieza {
+    display: block;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+  .home__pieza--manilla { width: 78%; }
+  .home__pieza--flyer,
+  .home__pieza--boleta {
+    width: 42%;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+  }
   .home__cue {
     position: relative;
     z-index: 5;
@@ -423,10 +480,41 @@
     position: static;
     opacity: 1;
   }
+  .home:global(.is-quieto) .home__relato {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: min(40rem, 100%);
+    height: auto;
+    transform: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+    margin-top: 28px;
+    text-align: left;
+  }
+  .home:global(.is-quieto) .home__beat {
+    position: static;
+    opacity: 1;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .home:global(.is-quieto) .home__pieza,
+  .home:global(.is-quieto) .home__pieza--flyer,
+  .home:global(.is-quieto) .home__pieza--boleta,
+  .home:global(.is-quieto) .home__pieza--manilla {
+    width: min(100%, 420px);
+    height: auto;
+  }
+  .home:global(.is-quieto) .home__frase,
+  .home:global(.is-quieto) .home__beat:has(.home__pieza) .home__frase {
+    font-size: 22px;
+  }
 
   @media (max-width: 767px) {
     .home {
-      height: 760vh;
+      --entrada: 760;
     }
     .tipo-hero {
       font-size: clamp(56px, 19vw, 92px);
@@ -481,6 +569,37 @@
     .home__foot {
       position: static;
       opacity: 1;
+    }
+    .home__relato {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: min(40rem, 100%);
+      height: auto;
+      transform: none;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 28px;
+      margin-top: 28px;
+      text-align: left;
+    }
+    .home__beat {
+      position: static;
+      opacity: 1;
+      align-items: flex-start;
+      text-align: left;
+    }
+    .home__pieza,
+    .home__pieza--flyer,
+    .home__pieza--boleta,
+    .home__pieza--manilla {
+      width: min(100%, 420px);
+      height: auto;
+    }
+    .home__frase,
+    .home__beat:has(.home__pieza) .home__frase {
+      font-size: 22px;
     }
     .home__play:global(.is-vivo) .home__play-ring,
     .home__play-ring,

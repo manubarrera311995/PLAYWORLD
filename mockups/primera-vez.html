@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PLAYWORLD — 02 Mi primera vez</title>
+  <style>
+    @font-face {
+      font-family: Anton;
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("../public/fonts/anton-latin-400-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("../public/fonts/inter-latin-400-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url("../public/fonts/inter-latin-500-normal.woff2") format("woff2");
+    }
+
+    :root {
+      --ink: #fff6ef;
+      --ink-soft: rgba(255, 245, 236, 0.9);
+      --ink-mute: rgba(255, 246, 239, 0.62);
+      --bg: #100a12;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: #07050a;
+      color: var(--ink);
+      font-family: Inter, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    #marco {
+      width: 1440px;
+      height: 900px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      display: grid;
+      grid-template-rows: 52px 1fr;
+      overflow: hidden;
+      background: #07050a;
+      transform-origin: center center;
+    }
+
+    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+    .chrome {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding: 10px 22px;
+      border-bottom: 1px solid rgba(255, 246, 239, 0.12);
+      background: #07050a;
+    }
+
+    .vias { display: flex; gap: 4px; }
+
+    .vias button,
+    .navegar button {
+      padding: 6px 10px;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    .vias button.activa { color: var(--ink); }
+
+    .ayuda {
+      flex: 1;
+      font-size: 13px;
+      color: var(--ink-mute);
+    }
+
+    .navegar { display: flex; align-items: center; gap: 8px; }
+    .navegar .cuenta {
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      color: var(--ink-mute);
+      min-width: 9ch;
+      text-align: center;
+    }
+
+    .escenario { position: relative; min-height: 0; }
+
+    .via, .material {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .via[hidden], .material[hidden] { display: none; }
+
+    .fondo {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(8, 6, 14, 0.25) 0%, rgba(8, 6, 14, 0.15) 42%, rgba(8, 6, 14, 0.72) 100%),
+        url("../docs/FONDOS/gradientes_1920x1080_COMPLETO/08_azul_noche_ambar_1920x1080.png") center / cover no-repeat;
+    }
+
+    .lugar, .beat {
+      position: absolute;
+      z-index: 4;
+      top: 36px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    .lugar { left: 48px; }
+    .lugar span { display: block; letter-spacing: 0.2em; margin-bottom: 6px; color: var(--ink); }
+    .beat { right: 48px; }
+
+    .repisa {
+      position: absolute;
+      z-index: 2;
+      left: 0;
+      right: 0;
+      top: 46%;
+      height: 470px;
+      transform: translateY(-50%);
+      overflow: hidden;
+    }
+
+    .riel {
+      display: flex;
+      align-items: flex-end;
+      height: 100%;
+      gap: 72px;
+      will-change: transform;
+      transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .pieza {
+      flex: none;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      opacity: 0.55;
+      transition: opacity 0.45s ease;
+    }
+
+    .pieza.en-foco { opacity: 1; }
+
+    .pieza img { display: block; object-fit: cover; }
+    .pieza.flyer img { height: 340px; width: auto; aspect-ratio: 5 / 4; }
+    .pieza.manilla img { height: 132px; width: 620px; object-position: center; }
+    .pieza.foto img { height: 380px; width: auto; aspect-ratio: 3 / 4; object-position: center 20%; }
+    .pieza.boleta img { height: 360px; width: auto; aspect-ratio: 3 / 4; object-position: center; }
+
+    .pieza figcaption {
+      margin-top: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    .leyenda {
+      position: absolute;
+      z-index: 4;
+      left: 48px;
+      bottom: 44px;
+      max-width: 20em;
+      font-size: 20px;
+      line-height: 1.35;
+      color: var(--ink-soft);
+    }
+
+    .hueco {
+      position: absolute;
+      z-index: 2;
+      left: 50%;
+      top: 42%;
+      width: 0;
+      height: 0;
+    }
+
+    .hueco img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      object-fit: cover;
+      transition: opacity 0.45s ease;
+    }
+
+    .hueco img.visible { opacity: 1; }
+    .hueco img.flyer { height: 500px; width: auto; aspect-ratio: 5 / 4; }
+    .hueco img.manilla { height: 168px; width: 1080px; object-position: center; }
+    .hueco img.foto { height: 540px; width: auto; aspect-ratio: 3 / 4; object-position: center 18%; }
+    .hueco img.boleta { height: 520px; width: auto; aspect-ratio: 3 / 4; }
+
+    .voz {
+      position: absolute;
+      z-index: 4;
+      left: 48px;
+      bottom: 48px;
+      width: 640px;
+      font-size: 40px;
+      line-height: 1.12;
+      letter-spacing: -0.025em;
+      text-wrap: balance;
+    }
+
+    .material { overflow: auto; }
+    .material .fondo { position: fixed; }
+
+    .hoja {
+      position: relative;
+      z-index: 1;
+      padding: 28px 40px 20px;
+      max-width: 1280px;
+    }
+
+    .hoja h1 {
+      margin: 14px 0 0;
+      font-size: 26px;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      max-width: 22em;
+    }
+
+    .bloque { margin-top: 22px; }
+    .bloque h2 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 10px;
+    }
+    .bloque p {
+      max-width: 42em;
+      font-size: 16px;
+      line-height: 1.45;
+      color: var(--ink-soft);
+      margin-bottom: 18px;
+    }
+
+    .anos, .caras {
+      display: flex;
+      gap: 22px;
+      align-items: flex-start;
+    }
+
+    .anos figure, .caras figure { flex: none; }
+    .anos img { height: 112px; width: auto; display: block; object-fit: cover; }
+    .anos .manilla img { height: 58px; width: 240px; object-position: center; }
+    .anos b, .caras b {
+      display: block;
+      margin-bottom: 8px;
+      font-family: Anton, Impact, sans-serif;
+      font-weight: 400;
+      font-size: 28px;
+      letter-spacing: 0.02em;
+    }
+    .anos span, .caras span {
+      display: block;
+      margin-top: 8px;
+      max-width: 18em;
+      font-size: 12px;
+      line-height: 1.35;
+      color: var(--ink-mute);
+    }
+    .caras img { height: 148px; width: auto; display: block; object-fit: cover; }
+    .caras .retrato img { aspect-ratio: 1; object-position: center 20%; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .riel, .pieza, .hueco img { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="marco">
+  <header class="chrome">
+    <nav class="vias" aria-label="Vías">
+      <button type="button" data-via="b" class="activa">B · La vitrina</button>
+      <button type="button" data-via="c">C · El cuaderno</button>
+      <button type="button" data-via="m">El material</button>
+    </nav>
+    <p class="ayuda" id="ayuda"></p>
+    <div class="navegar">
+      <button type="button" id="atras" aria-label="Anterior">←</button>
+      <span class="cuenta" id="cuenta"></span>
+      <button type="button" id="sigue" aria-label="Siguiente">→</button>
+    </div>
+  </header>
+
+  <main class="escenario">
+    <section class="via via-b" id="via-b" aria-label="La vitrina">
+      <div class="fondo"></div>
+      <p class="lugar"><span>02</span> Mi primera vez</p>
+      <p class="beat" id="b-beat"></p>
+      <div class="repisa">
+        <div class="riel" id="riel"></div>
+      </div>
+      <p class="leyenda" id="b-frase"></p>
+    </section>
+
+    <section class="via via-c" id="via-c" hidden aria-label="El cuaderno">
+      <div class="fondo"></div>
+      <p class="lugar"><span>02</span> Mi primera vez</p>
+      <p class="beat" id="c-beat"></p>
+      <div class="hueco" id="hueco">
+        <img alt="" />
+        <img alt="" />
+      </div>
+      <p class="voz" id="c-frase"></p>
+    </section>
+
+    <section class="material" id="via-m" hidden aria-label="El material">
+      <div class="fondo"></div>
+      <div class="hoja">
+        <p class="lugar" style="position: static;"><span>02</span> Antes de elegir el marco</p>
+        <h1>Estas son las piezas de la carpeta. El texto habla de un solo sábado.</h1>
+
+        <div class="bloque">
+          <h2>Un sábado, o varios años</h2>
+          <p>
+            «Mi primera vez» es abril de 2016. El flyer de esa edición dice 10, 11 y 12 de marzo.
+            La manilla es de 2019, una boleta de 2017 y otra de 2025. Si van juntas en la repisa,
+            la pantalla cuenta varios festivales. Si entra solo el flyer, cuenta ese sábado.
+          </p>
+          <div class="anos">
+            <figure>
+              <b>2016</b>
+              <img alt="Carátula del flyer de 2016" src="../docs/ARTÍCULOS Y FOTOS PERSONALES_ MI PRIMERA VEZ/Flyer_FEP_2016/Flyer FEP 2016_001.JPG" style="aspect-ratio: 5/4" />
+              <span>Flyer. Dice marzo, no abril.</span>
+            </figure>
+            <figure>
+              <b>2017</b>
+              <img alt="Boleta de 2017" src="../docs/ARTÍCULOS Y FOTOS PERSONALES_ MI PRIMERA VEZ/Boleta_FEP_2017.JPG" style="aspect-ratio: 4/3" />
+              <span>Boleta. Día 3, Escenario 222.</span>
+            </figure>
+            <figure class="manilla">
+              <b>2019</b>
+              <img alt="Manilla de 2019" src="../docs/ARTÍCULOS Y FOTOS PERSONALES_ MI PRIMERA VEZ/Manilla_FEP_2019.JPG" />
+              <span>Manilla. Tres días, abril.</span>
+            </figure>
+            <figure>
+              <b>2025</b>
+              <img alt="Boleta de 2025" src="../docs/ARTÍCULOS Y FOTOS PERSONALES_ MI PRIMERA VEZ/Boleta_FEP_2025.JPG" style="aspect-ratio: 3/4" />
+              <span>Otra boleta, ocho años después.</span>
+            </figure>
+          </div>
+        </div>
+
+        <div class="bloque">
+          <h2>Caras, o papel</h2>
+          <p>
+            Hay tres fotos de personas en el festival. El resto de la carpeta es papel:
+            flyers, boletas y la manilla. Si la foto entra al marco, se ven las caras.
+            Si no, la pantalla se queda con los objetos.
+          </p>
+          <div class="caras">
+            <figure class="retrato">
+              <b>Caras</b>
+              <img alt="Retrato de dos personas en el festival" src="../docs/ARTÍCULOS Y FOTOS PERSONALES_ MI PRIMERA VEZ/IMG_4966.jpg" />
+              <span>Una de tres fotos de personas.</span>
+            </figure>
+            <figure>
+              <b>Papel</b>
+              <img alt="Carátula del flyer" src="../docs/ARTÍCULOS Y FOTOS PERSONALES_ MI PRIMERA VEZ/Flyer_FEP_2016/Flyer FEP 2016_001.JPG" style="aspect-ratio: 5/4" />
+              <span>Flyer, boletas y manilla.</span>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  </div>
+
+  <script>
+    const carpeta = "../docs/ARTÍCULOS Y FOTOS PERSONALES_ MI PRIMERA VEZ/";
+    const piezas = [
+      { clase: "flyer", anio: "2016", nombre: "Flyer", src: carpeta + "Flyer_FEP_2016/Flyer FEP 2016_001.JPG", alt: "Flyer del Festival Estéreo Picnic, marzo de 2016" },
+      { clase: "manilla", anio: "2019", nombre: "Manilla", src: carpeta + "Manilla_FEP_2019.JPG", alt: "Manilla del festival, 2019" },
+      { clase: "foto", anio: "Foto", nombre: "En el festival", src: carpeta + "IMG_4960.jpg", alt: "Foto de noche en el festival" },
+      { clase: "boleta", anio: "2017", nombre: "Boleta", src: carpeta + "Boleta_FEP_2017.JPG", alt: "Boleta del festival, 2017" },
+    ];
+
+    const beats = [
+      {
+        nombre: "La pregunta",
+        b: "¿Sabes cuándo vives algo por primera vez y sientes que te cambió la vida?",
+        c: "¿Sabes cuándo vives algo por primera vez y, casi sin darte cuenta, sientes que te cambió la vida?",
+        foco: null,
+        parque: "inicio",
+      },
+      {
+        nombre: "El portal",
+        b: "Abril de 2016. La señal desapareció. Sentí que cruzaba un portal.",
+        c: "Abril de 2016. Un sábado lluvioso, la señal desapareció y sentí que cruzaba un portal.",
+        foco: 0,
+      },
+      {
+        nombre: "Lo que quedó",
+        b: "De cada edición quedan fotos, pulseras y boletas.",
+        c: "De cada edición quedan fotos, pulseras y boletas.",
+        foco: 2,
+      },
+      {
+        nombre: "La fila",
+        b: "Empieza en la fila.",
+        c: "Esta no es la historia del festival. Empieza en la fila.",
+        foco: null,
+        parque: "fin",
+      },
+    ];
+
+    const ayudas = {
+      b: "La repisa corre. Se ven las piezas de al lado. La frase es un pie.",
+      c: "El marco no se mueve. Entra una sola pieza y la frase ocupa el bajo.",
+      m: "Esto no es la pantalla. Es para ver de qué año es cada cosa, y si hay caras.",
+    };
+
+    const riel = document.getElementById("riel");
+    piezas.forEach((p) => {
+      const fig = document.createElement("figure");
+      fig.className = "pieza " + p.clase;
+      fig.innerHTML = "<img alt='" + p.alt + "'><figcaption></figcaption>";
+      fig.querySelector("img").src = p.src;
+      fig.querySelector("figcaption").textContent = p.anio + "  ·  " + p.nombre;
+      riel.appendChild(fig);
+    });
+
+    let via = "b";
+    let paso = 0;
+    let frente = 0;
+
+    function colocar() {
+      const beat = beats[paso];
+      const repisa = riel.parentElement;
+      const figs = [...riel.children];
+      const ancho = repisa.clientWidth;
+      let dx;
+      if (beat.foco != null) {
+        const el = figs[beat.foco];
+        dx = ancho / 2 - (el.offsetLeft + el.offsetWidth / 2);
+      } else if (beat.parque === "inicio") {
+        dx = ancho * 0.8 - figs[0].offsetLeft;
+      } else {
+        const ultimo = figs[figs.length - 1];
+        dx = ancho * 0.14 - (ultimo.offsetLeft + ultimo.offsetWidth);
+      }
+      riel.style.transform = "translateX(" + dx + "px)";
+      figs.forEach((fig, i) => fig.classList.toggle("en-foco", i === beat.foco));
+    }
+
+    function pintarC() {
+      const beat = beats[paso];
+      const imgs = document.querySelectorAll("#hueco img");
+      const siguiente = imgs[1 - frente];
+      const actual = imgs[frente];
+      const pieza = beat.foco == null ? null : piezas[beat.foco];
+      if (!pieza) {
+        actual.classList.remove("visible");
+        siguiente.classList.remove("visible");
+      } else {
+        siguiente.alt = pieza.alt;
+        siguiente.src = pieza.src;
+        siguiente.className = "visible " + pieza.clase;
+        actual.classList.remove("visible");
+        frente = 1 - frente;
+      }
+      document.getElementById("c-frase").textContent = beat.c;
+      document.getElementById("c-beat").textContent = beat.nombre;
+    }
+
+    function pintar() {
+      const beat = beats[paso];
+      document.getElementById("b-frase").textContent = beat.b;
+      document.getElementById("b-beat").textContent = beat.nombre;
+      document.getElementById("cuenta").textContent = via === "m" ? "" : (paso + 1) + "  /  " + beats.length;
+      document.getElementById("ayuda").textContent = ayudas[via];
+      document.getElementById("atras").hidden = via === "m";
+      document.getElementById("sigue").hidden = via === "m";
+      document.getElementById("cuenta").hidden = via === "m";
+      colocar();
+      pintarC();
+    }
+
+    function irVia(nombre) {
+      via = nombre;
+      document.querySelectorAll(".vias button").forEach((b) => {
+        b.classList.toggle("activa", b.dataset.via === nombre);
+      });
+      document.getElementById("via-b").hidden = nombre !== "b";
+      document.getElementById("via-c").hidden = nombre !== "c";
+      document.getElementById("via-m").hidden = nombre !== "m";
+      pintar();
+    }
+
+    document.querySelector(".vias").addEventListener("click", (e) => {
+      const boton = e.target.closest("button");
+      if (boton) irVia(boton.dataset.via);
+    });
+
+    function mover(delta) {
+      if (via === "m") return;
+      paso = Math.min(beats.length - 1, Math.max(0, paso + delta));
+      pintar();
+    }
+
+    document.getElementById("atras").addEventListener("click", () => mover(-1));
+    document.getElementById("sigue").addEventListener("click", () => mover(1));
+    addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") mover(1);
+      if (e.key === "ArrowLeft") mover(-1);
+      if (e.key === "b" || e.key === "B") irVia("b");
+      if (e.key === "c" || e.key === "C") irVia("c");
+      if (e.key === "m" || e.key === "M") irVia("m");
+    });
+    function encajar() {
+      const s = Math.min(innerWidth / 1440, innerHeight / 900);
+      document.getElementById("marco").style.transform = "translate(-50%, -50%) scale(" + s + ")";
+      colocar();
+    }
+
+    addEventListener("resize", encajar);
+
+    function listo() {
+      encajar();
+      pintar();
+    }
+    if (document.readyState === "complete") listo();
+    else addEventListener("load", listo);
+  </script>
+</body>
+</html>

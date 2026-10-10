@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { aplicar, estadoInicial, meterOQuitar, visible } from "../src/ipod/maquina";
+import { NOMBRES } from "../src/ipod/alias";
+import { aplicar, atrasDe, estadoInicial, meterOQuitar, visible } from "../src/ipod/maquina";
 import type { Track } from "../src/datos/tipos";
 
 function t(id: string): Track {
@@ -23,8 +24,22 @@ const pool = [t("a"), t("b"), t("c"), t("d"), t("e"), t("f")];
 const ctx = { pool, yearHint: 2013 };
 
 describe("máquina iPod", () => {
-  it("boot abre el listado del año", () => {
-    const e = aplicar(estadoInicial(), { tipo: "select" }, ctx);
+  it("el boot guarda el nombre y, si queda vacío, asigna uno", () => {
+    const escrito = aplicar(estadoInicial(), { tipo: "select", alias: "  Vera  " }, ctx);
+    expect(visible(escrito).kind).toBe("menu");
+    expect(escrito.alias).toBe("Vera");
+
+    const largo = aplicar(estadoInicial(), { tipo: "select", alias: "abcdefghijklmno" }, ctx);
+    expect(largo.alias).toBe("abcdefghijkl");
+
+    const vacio = aplicar(estadoInicial(), { tipo: "select", alias: "   " }, ctx);
+    expect(NOMBRES).toContain(vacio.alias);
+  });
+
+  it("boot abre el menú y de ahí el listado del año", () => {
+    const menu = aplicar(estadoInicial(), { tipo: "select" }, ctx);
+    expect(visible(menu).kind).toBe("menu");
+    const e = aplicar(menu, { tipo: "select" }, ctx);
     const v = visible(e);
     expect(v.kind).toBe("lista");
     if (v.kind === "lista") expect(v.titulo).toBe("2013");
@@ -62,6 +77,7 @@ describe("máquina iPod", () => {
     const otro = { ...t("z"), year: 1999 };
     const mix = { pool: [...pool, otro], yearHint: 2013 };
     let e = aplicar(estadoInicial(), { tipo: "select" }, mix);
+    e = aplicar(e, { tipo: "select" }, mix);
     const lista = visible(e);
     expect(lista.kind).toBe("lista");
     if (lista.kind === "lista") {
@@ -85,16 +101,97 @@ describe("máquina iPod", () => {
       ],
       yearHint: 2013,
     };
-    const e = aplicar(estadoInicial(), { tipo: "select" }, mix);
+    const e = aplicar(aplicar(estadoInicial(), { tipo: "select" }, mix), { tipo: "select" }, mix);
     const v = visible(e);
     expect(v.kind).toBe("lista");
     if (v.kind === "lista") expect(v.tracks.map((tr) => tr.id)).toEqual(["c", "a", "b"]);
   });
 
   it("sin año el listado queda vacío", () => {
-    const e = aplicar(estadoInicial(), { tipo: "select" }, { pool, yearHint: null });
+    const e = aplicar(
+      aplicar(estadoInicial(), { tipo: "select" }, { pool, yearHint: null }),
+      { tipo: "select" },
+      { pool, yearHint: null },
+    );
     const v = visible(e);
     expect(v.kind).toBe("lista");
     if (v.kind === "lista") expect(v.tracks).toHaveLength(0);
+  });
+
+  it("meter vuelve a la lista en la misma canción", () => {
+    let e = aplicar(estadoInicial(), { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "saltar", a: 2 }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    expect(visible(e).kind).toBe("cancion");
+    e = aplicar(e, { tipo: "select" }, ctx);
+    expect(visible(e).kind).toBe("lista");
+    expect(e.cursor).toBe(2);
+    expect(e.seleccion.map((tr) => tr.id)).toEqual(["c"]);
+  });
+
+  it("quitar se queda en la canción y el centro no la saca", () => {
+    let e = aplicar(estadoInicial(), { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    expect(visible(e).kind).toBe("cancion");
+    expect(e.seleccion).toHaveLength(1);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    expect(visible(e).kind).toBe("cancion");
+    expect(e.seleccion).toHaveLength(1);
+    const pantalla = visible(e);
+    if (pantalla.kind !== "cancion") return;
+    e = meterOQuitar(e, pantalla.track);
+    expect(visible(e).kind).toBe("cancion");
+    expect(e.seleccion).toHaveLength(0);
+  });
+
+  it("volver conserva el lugar", () => {
+    let e = aplicar(estadoInicial(), { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "paso", delta: 1 }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "back" }, ctx);
+    expect(visible(e).kind).toBe("menu");
+    expect(e.cursor).toBe(1);
+
+    e = aplicar(e, { tipo: "paso", delta: -1 }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "saltar", a: 4 }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "back" }, ctx);
+    expect(visible(e).kind).toBe("lista");
+    expect(e.cursor).toBe(4);
+    e = aplicar(e, { tipo: "back" }, ctx);
+    expect(visible(e).kind).toBe("menu");
+    expect(e.cursor).toBe(0);
+  });
+
+  it("el play en la ficha no mete la canción", () => {
+    let e = aplicar(estadoInicial(), { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    expect(visible(e).kind).toBe("cancion");
+    e = aplicar(e, { tipo: "play" }, ctx);
+    expect(visible(e).kind).toBe("cancion");
+    expect(e.seleccion).toHaveLength(0);
+  });
+
+  it("el play en la lista abre la canción sin meterla", () => {
+    let e = aplicar(estadoInicial(), { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "play" }, ctx);
+    expect(visible(e).kind).toBe("cancion");
+    expect(e.seleccion).toHaveLength(0);
+  });
+
+  it("atrás nombra la pantalla anterior", () => {
+    let e = aplicar(estadoInicial(), { tipo: "select" }, ctx);
+    expect(atrasDe(e)).toBeNull();
+    e = aplicar(e, { tipo: "select" }, ctx);
+    expect(atrasDe(e)).toBe("iPod");
+    e = aplicar(e, { tipo: "select" }, ctx);
+    expect(atrasDe(e)).toBe("2013");
   });
 });

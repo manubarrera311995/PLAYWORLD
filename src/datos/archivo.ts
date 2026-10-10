@@ -23,6 +23,32 @@ export async function cargarTracks(year: number): Promise<Track[]> {
   return list;
 }
 
+/** Resuelve ids del archivo. Si el mismo id vive en varios años, gana el año más antiguo: un hilo compartido nombra una sola canción. */
+export async function tracksPorIds(ids: string[]): Promise<Track[]> {
+  const want = new Set(ids);
+  if (!want.size) return [];
+  const mejor = new Map<string, Track>();
+  const tomar = (lista: Track[]) => {
+    for (const t of lista) {
+      if (!want.has(t.id)) continue;
+      const prev = mejor.get(t.id);
+      if (!prev || t.year < prev.year) mejor.set(t.id, t);
+    }
+  };
+  const eds = await cargarEdiciones();
+  for (const year of eds.filter((e) => e.hasDNA).map((e) => e.year)) {
+    tomar(await cargarTracks(year));
+  }
+  if (mejor.size < want.size) {
+    const { cargarPool } = await import("./pool");
+    tomar(await cargarPool());
+  }
+  return ids.flatMap((id) => {
+    const t = mejor.get(id);
+    return t ? [t] : [];
+  });
+}
+
 export async function edicionDe(year: number): Promise<Edicion | undefined> {
   const all = await cargarEdiciones();
   return all.find((e) => e.year === year);

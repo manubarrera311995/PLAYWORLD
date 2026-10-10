@@ -5,20 +5,33 @@
 
   type Props = {
     titulo: string;
+    atras: string | null;
     n: number;
     capacidad: number;
     onentrada: (e: EntradaIpod) => void;
     children?: Snippet;
   };
 
-  let { titulo, n, capacidad, onentrada, children }: Props = $props();
+  let { titulo, atras, n, capacidad, onentrada, children }: Props = $props();
 
   const cuerpo = (el: HTMLElement) => swipeBack(el, onentrada);
 </script>
 
 <div class="lcd">
   <div class="lcd__bar">
-    <span class="lcd__eq" aria-hidden="true"></span>
+    {#if atras}
+      <button
+        class="lcd__back"
+        type="button"
+        aria-label={`Volver a ${atras}`}
+        onclick={() => onentrada({ tipo: "back" })}
+      >
+        <span class="lcd__chev" aria-hidden="true">‹</span>
+        {atras}
+      </button>
+    {:else}
+      <span class="lcd__eq" aria-hidden="true"></span>
+    {/if}
     <span class="lcd__titulo">{titulo}</span>
     <span class="lcd__count">{n}/{capacidad}</span>
   </div>
@@ -31,6 +44,8 @@
 <style>
   .lcd {
     position: relative;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
     min-width: 0;
@@ -56,8 +71,38 @@
     font-weight: 500;
     letter-spacing: 0.04em;
   }
+  .lcd__back {
+    justify-self: start;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    max-width: 100%;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: #1a1a1a;
+    font: inherit;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .lcd__chev {
+    flex: none;
+    color: #1c62d6;
+    font-size: 16px;
+    line-height: 1;
+  }
+  .lcd__back:focus-visible {
+    outline: 2px solid #1c62d6;
+    outline-offset: 1px;
+  }
   .lcd__titulo {
-    max-width: 18ch;
+    max-width: 22ch;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -72,7 +117,8 @@
   .lcd__body {
     position: relative;
     z-index: 1;
-    height: calc(100% - 28px);
+    flex: 1;
+    min-height: 0;
     min-width: 0;
     overflow: auto;
     padding: 0 0 8px;

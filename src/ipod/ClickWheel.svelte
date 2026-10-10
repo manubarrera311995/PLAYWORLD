@@ -3,14 +3,17 @@
   import { bindToque } from "./entrada/toque";
   import type { EntradaIpod } from "./maquina";
 
+  type Leyenda = { menu: string; prev: string; next: string; centro: string; play: string };
+
   type Props = {
     modo: "rueda" | "toque";
     indice: number;
     total: number;
     onentrada: (e: EntradaIpod) => void;
+    leyenda: Leyenda;
   };
 
-  let { modo, indice, total, onentrada }: Props = $props();
+  let { modo, indice, total, onentrada, leyenda }: Props = $props();
 
   const anillo = (el: HTMLElement) =>
     modo === "toque" ? bindToque(el, onentrada) : bindRueda(el, onentrada);
@@ -27,25 +30,57 @@
     aria-valuenow={indice}
     aria-label="Click wheel"
   ></div>
-  <button class="wheel__btn wheel__menu" type="button" onclick={() => onentrada({ tipo: "back" })}>MENU</button>
-  <button class="wheel__btn wheel__prev" type="button" onclick={() => onentrada({ tipo: "paso", delta: -1 })} aria-label="Anterior">
+  <button
+    class="wheel__btn wheel__menu"
+    type="button"
+    aria-label={`MENU, ${leyenda.menu}`}
+    onclick={() => onentrada({ tipo: "back" })}
+  >
+    MENU
+    <span class="flota" aria-hidden="true">{leyenda.menu}</span>
+  </button>
+  <button
+    class="wheel__btn wheel__prev"
+    type="button"
+    aria-label={leyenda.prev}
+    onclick={() => onentrada({ tipo: "paso", delta: -1 })}
+  >
     <span aria-hidden="true">◄◄</span>
+    <span class="flota" aria-hidden="true">{leyenda.prev}</span>
   </button>
-  <button class="wheel__btn wheel__next" type="button" onclick={() => onentrada({ tipo: "paso", delta: 1 })} aria-label="Siguiente">
+  <button
+    class="wheel__btn wheel__next"
+    type="button"
+    aria-label={leyenda.next}
+    onclick={() => onentrada({ tipo: "paso", delta: 1 })}
+  >
     <span aria-hidden="true">►►</span>
+    <span class="flota" aria-hidden="true">{leyenda.next}</span>
   </button>
-  <button class="wheel__btn wheel__play" type="button" onclick={() => onentrada({ tipo: "select" })} aria-label="Reproducir">
+  <button
+    class="wheel__btn wheel__play"
+    type="button"
+    aria-label={leyenda.play}
+    onclick={() => onentrada({ tipo: "play" })}
+  >
     <span aria-hidden="true">▶❚</span>
+    <span class="flota" aria-hidden="true">{leyenda.play}</span>
   </button>
-  <button class="wheel__center" type="button" onclick={() => onentrada({ tipo: "select" })} aria-label="Seleccionar"></button>
+  <button
+    class="wheel__center"
+    type="button"
+    aria-label={leyenda.centro}
+    onclick={() => onentrada({ tipo: "select" })}
+  >
+    <span class="flota" aria-hidden="true">{leyenda.centro}</span>
+  </button>
 </div>
 
 <style>
   .wheel {
     position: relative;
-    height: 90%;
-    width: auto;
-    max-width: 78%;
+    width: min(78cqw, 90cqh);
+    height: min(78cqw, 90cqh);
     aspect-ratio: 1;
     border-radius: 50%;
     background:
@@ -112,6 +147,9 @@
     line-height: 1;
   }
   .wheel__btn:active { color: #5c5956; }
+  @media (hover: hover) and (pointer: fine) {
+    .wheel__btn:hover { color: #3a3836; }
+  }
   .wheel__menu { top: 7%; left: 50%; transform: translateX(-50%); font-size: 9px; }
   .wheel__play { bottom: 7%; left: 50%; transform: translateX(-50%); letter-spacing: 0; font-size: 11px; }
   .wheel__prev { left: 6%; top: 50%; transform: translateY(-50%); letter-spacing: -0.08em; }
@@ -121,5 +159,83 @@
   .wheel__ring:focus-visible {
     outline: 2px solid #1c62d6;
     outline-offset: 2px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .wheel__center:hover {
+      box-shadow:
+        inset 0 2px 3px rgba(255, 255, 255, 0.9),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.14),
+        0 0 0 1px rgba(28, 98, 214, 0.35);
+    }
+  }
+  .flota {
+    position: absolute;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0;
+    padding: 4px 8px 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.96);
+    color: #2c2a28;
+    font-family: Inter, Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    white-space: nowrap;
+    box-shadow:
+      0 8px 18px rgba(16, 10, 24, 0.12),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+    transition: opacity 0.16s ease;
+  }
+  .flota::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: #1c62d6;
+    transform: translateY(-1px);
+  }
+  .wheel__menu .flota {
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .wheel__prev .flota {
+    left: 0;
+    bottom: calc(100% + 6px);
+    top: auto;
+    transform: none;
+  }
+  .wheel__next .flota {
+    right: 0;
+    bottom: calc(100% + 6px);
+    top: auto;
+    transform: none;
+  }
+  .wheel__play .flota {
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .wheel__center .flota {
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .wheel__btn:focus-visible .flota,
+  .wheel__center:focus-visible .flota {
+    opacity: 1;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .wheel__btn:hover .flota,
+    .wheel__center:hover .flota {
+      opacity: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flota { transition: none; }
   }
 </style>

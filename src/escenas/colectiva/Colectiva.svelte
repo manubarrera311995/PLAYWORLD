@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import copy from "./colectiva.copy.json";
   import Marca from "../../ui/Marca.svelte";
-  import FiltroAlmas from "./FiltroAlmas.svelte";
+  import Asterisco from "../../ui/Asterisco.svelte";
   import Grafo from "./Grafo.svelte";
   import FichaRastro from "./FichaRastro.svelte";
   import { hidratar, rastros, reintentarPendientes } from "../../rastros/store";
@@ -10,7 +10,6 @@
   import type { AlmaId } from "../../almas/almas";
   import type { RutaParsed } from "../director/router";
   import { navigate } from "../director/router";
-  import { cargarPool } from "../../datos/pool";
 
   type Props = { ruta?: RutaParsed };
   let { ruta: _ruta }: Props = $props();
@@ -19,22 +18,20 @@
   const store = $derived($rastros);
   let filtro = $state<AlmaId | "all">("all");
   let foco = $state<string | null>(null);
-  let nombres = $state<Record<string, string>>({});
 
+  const mia = $derived(rec.alma?.principal ?? null);
   const ficha = $derived(store.items.find((r) => r.id === foco) ?? null);
-  const compartidos = $derived.by(() => {
-    if (!ficha || !rec.seleccion) return [];
-    const ids = ficha.trackIds.filter((id) => rec.seleccion?.trackIds.includes(id));
-    return ids.map((id) => nombres[id] ?? id);
-  });
+  const propioId = $derived(store.propio?.id ?? rec.rastroPropio?.id ?? null);
+  const cierreLineas = copy.cierre.split(/(?<=\.)\s+/);
+
+  function ponerFiltro(id: AlmaId | "all"): void {
+    filtro = filtro === id ? "all" : id;
+    if (filtro !== "all" && ficha && ficha.almaId !== filtro) foco = null;
+  }
 
   onMount(() => {
-    if (rec.alma) filtro = rec.alma.principal;
     void hidratar();
     void reintentarPendientes();
-    void cargarPool().then((pool) => {
-      nombres = Object.fromEntries(pool.map((t) => [t.id, `${t.track}`]));
-    });
     const tick = setInterval(() => {
       if (document.visibilityState === "visible") void hidratar();
     }, 30_000);
@@ -50,67 +47,168 @@
 </script>
 
 <section class="colectiva">
-  <header>
-    <Marca texto={copy.brand} />
-    <h1 class="tipo-seccion">{copy.title}</h1>
-    <p class="eyebrow">{copy.kicker}</p>
-    <p class="bajada">{copy.bajada}</p>
-    <FiltroAlmas actual={filtro} mia={rec.alma?.principal ?? null} onchange={(id) => (filtro = id)} />
-  </header>
-  <div class="stage">
+  <div class="cielo">
     <Grafo
       rastros={store.items}
-      propioId={store.propio?.id ?? rec.rastroPropio?.id ?? null}
+      {propioId}
       {filtro}
+      {foco}
       onrastro={(id) => (foco = id)}
+      onfiltro={ponerFiltro}
     />
-    {#if ficha}
-      <FichaRastro
-        rastro={ficha}
-        propio={ficha.id === (store.propio?.id ?? rec.rastroPropio?.id)}
-        {compartidos}
-        oncerrar={() => (foco = null)}
-      />
-    {/if}
   </div>
-  <footer class="cierre">
+
+  <header>
+    <div class="tope">
+      <Marca texto={copy.brand} />
+      <Asterisco />
+    </div>
+    <p class="eyebrow">{copy.parada}</p>
+    <p class="eyebrow">{copy.kicker}</p>
+    <h1 class="tipo-seccion">{copy.title}</h1>
+    <p class="bajada">{copy.bajada}</p>
+    <div class="filtros">
+      {#if mia}
+        <button type="button" class={["filtro", filtro === mia && "is-on"]} onclick={() => ponerFiltro(mia)}>
+          {copy.filtroMia}
+        </button>
+      {/if}
+      {#if filtro !== "all"}
+        <button type="button" onclick={() => (filtro = "all")}>{copy.filtroTodas}</button>
+      {/if}
+    </div>
     {#if store.sinSenal}
       <p class="aviso">{copy.avisoSenal}</p>
     {/if}
-    <p>{copy.cierre}</p>
+  </header>
+
+  {#if ficha}
+    <FichaRastro
+      rastro={ficha}
+      propio={ficha.id === propioId}
+      oncerrar={() => (foco = null)}
+    />
+  {/if}
+
+  <footer>
+    <p class="cierre">
+      {#each cierreLineas as linea (linea)}
+        {linea}<br />
+      {/each}
+    </p>
     <button type="button" onclick={() => navigate("/archivo")}>{copy.ctaAnio}</button>
   </footer>
 </section>
 
 <style>
   .colectiva {
+    position: relative;
     height: 100%;
     min-height: 100dvh;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    padding: var(--pad-y) var(--pad-x) 12px;
-    gap: 8px;
+    overflow: hidden;
   }
-  header { display: grid; gap: 8px; position: relative; z-index: 2; }
-  .stage { position: relative; min-height: 0; }
-  .aviso { font-size: 12px; color: var(--ink-mute); text-align: center; }
-  .bajada { max-width: 46ch; font-size: 14px; line-height: 1.4; color: var(--ink-soft); }
-  .cierre {
+  .cielo {
+    position: absolute;
+    inset: 0;
+  }
+  header {
+    position: absolute;
+    z-index: 2;
+    left: var(--pad-x);
+    top: 16px;
+    width: min(280px, 52vw);
+    max-height: calc(100% - 148px);
+    overflow: auto;
     display: grid;
-    gap: 8px;
-    justify-items: center;
-    text-align: center;
-    font-size: 13px;
+    gap: 6px;
+    pointer-events: auto;
+  }
+  .tope { display: flex; align-items: center; gap: 10px; }
+  h1 {
+    max-width: 10ch;
+    font-size: clamp(28px, 5vw, 44px);
+  }
+  .bajada {
+    max-width: 34ch;
+    font-size: 15px;
+    line-height: 1.4;
     color: var(--ink-soft);
   }
-  .cierre button {
+  .filtros { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+  .filtros button {
+    pointer-events: auto;
     border: 0;
     background: transparent;
-    color: var(--ink);
-    font: inherit;
-    letter-spacing: 0.04em;
-    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-soft);
     text-decoration: underline;
     text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .filtros button.is-on { color: var(--ink-title); }
+  .aviso {
+    max-width: 36ch;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--ink-mute);
+  }
+  footer {
+    position: absolute;
+    z-index: 2;
+    left: var(--pad-x);
+    bottom: 16px;
+    width: min(280px, 52vw);
+    display: grid;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .cierre {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1.7;
+    color: rgba(255, 246, 239, 0.78);
+  }
+  footer button {
+    pointer-events: auto;
+    justify-self: start;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+
+  @media (min-width: 1024px) {
+    .colectiva { display: block; }
+    .cielo { position: absolute; inset: 0; min-height: 0; }
+    header {
+      top: var(--pad-y);
+      width: min(300px, 28vw);
+      max-height: none;
+      gap: 12px;
+      overflow: visible;
+      pointer-events: none;
+    }
+    h1 {
+      max-width: 9ch;
+      font-size: clamp(28px, 5vw, 56px);
+    }
+    footer {
+      position: absolute;
+      left: var(--pad-x);
+      bottom: 28px;
+      width: min(360px, 32vw);
+      gap: 14px;
+      padding: 0;
+    }
   }
 </style>

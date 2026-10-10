@@ -5,7 +5,7 @@
   "sinAnio": "Vuelve a una edición para llenar este iPod.",
   "capacity": 5,
   "ctaClose": "Cerrar el iPod",
-  "boot": "PLAYWORLD ✱ · Haz tu propio recorrido",
+  "aliasDe": "iPod de",
   "menu": {
     "songs": "Canciones",
     "mine": "Mi iPod",
@@ -13,5 +13,23 @@
   },
   "meter": "Meter al iPod",
   "quitar": "Quitar",
-  "lleno": "Ya hay 5"
+  "lleno": "Ya hay 5",
+  "sinPreview": "Esta canción no está en Spotify",
+  "previewFallo": "No se pudo abrir el preview",
+  "teclas": {
+    "menu": "Volver",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "play": "Oír",
+    "sinAudio": "Sin audio",
+    "centro": {
+      "boot": "Listo",
+      "menu": "Entrar",
+      "lista": "Abrir",
+      "miIpod": "Ver",
+      "cancion": "Meter",
+      "metida": "En tu iPod",
+      "llena": "Ya hay 5"
+    }
+  }
 }

@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PLAYWORLD — Cartografía de las almas</title>
+  <style>
+    @font-face {
+      font-family: Anton;
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("../public/fonts/anton-latin-400-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("../public/fonts/inter-latin-400-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url("../public/fonts/inter-latin-500-normal.woff2") format("woff2");
+    }
+
+    :root {
+      --ink: #fff6ef;
+      --ink-soft: rgba(255, 245, 236, 0.9);
+      --ink-mute: rgba(255, 246, 239, 0.72);
+      --bg-deep: #100a12;
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg-deep);
+      color: var(--ink);
+      font-family: Inter, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      width: 100vw;
+      height: 100dvh;
+      overflow: hidden;
+      cursor: url("../public/assets/ui/asterisco-cursor.svg") 16 16, auto;
+    }
+
+    button { font-family: inherit; color: inherit; cursor: pointer; }
+
+    .marco {
+      width: 1440px;
+      height: 900px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      overflow: hidden;
+      background: linear-gradient(
+        162deg,
+        #f27a51 0%,
+        #d24a72 24%,
+        #8d4494 52%,
+        #3a4a9e 78%,
+        #182761 100%
+      );
+      transform-origin: center center;
+    }
+
+    .velo {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(70% 80% at 50% 35%, rgba(255, 255, 255, 0.1), transparent 65%),
+        radial-gradient(100% 100% at 50% 50%, transparent 40%, rgba(18, 0, 36, 0.32) 100%);
+      pointer-events: none;
+    }
+
+    .mapa {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .grano {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.28;
+      mix-blend-mode: soft-light;
+    }
+
+    .columna {
+      position: absolute;
+      z-index: 2;
+      left: 52px;
+      top: 44px;
+      width: 320px;
+      display: grid;
+      gap: 14px;
+      pointer-events: none;
+    }
+
+    .marca {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.44em;
+      text-indent: 0.44em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    .asterisco {
+      text-indent: 0;
+      letter-spacing: 0;
+      font-size: 16px;
+      color: rgba(255, 248, 242, 0.85);
+    }
+
+    .kicker {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255, 246, 239, 0.78);
+    }
+
+    h1 {
+      font-family: Anton, Impact, sans-serif;
+      font-weight: 400;
+      font-size: 54px;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      color: #fff8f1;
+      text-wrap: balance;
+    }
+
+    .parada {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255, 246, 239, 0.78);
+    }
+
+    .bajada {
+      max-width: 34ch;
+      font-size: 15px;
+      line-height: 1.4;
+      color: var(--ink-soft);
+    }
+
+    .cuenta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink-soft);
+    }
+
+    .cuenta button {
+      pointer-events: auto;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--ink-soft);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .cuenta button.is-on {
+      color: #fff8f1;
+    }
+
+    .suelo {
+      position: absolute;
+      z-index: 2;
+      left: 52px;
+      bottom: 40px;
+      display: grid;
+      gap: 14px;
+      width: 340px;
+    }
+
+    .cierre {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      line-height: 1.7;
+      color: rgba(255, 246, 239, 0.78);
+    }
+
+    .cta {
+      justify-self: start;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .ficha {
+      position: absolute;
+      z-index: 3;
+      top: 50%;
+      right: 48px;
+      width: 320px;
+      max-height: 760px;
+      transform: translateY(-50%);
+      border-radius: 18px;
+      border: 1.5px solid rgba(255, 255, 255, 0.45);
+      background: linear-gradient(
+        150deg,
+        rgba(255, 255, 255, 0.22) 0%,
+        rgba(255, 255, 255, 0.08) 45%,
+        rgba(255, 255, 255, 0.04) 100%
+      );
+      box-shadow:
+        0 16px 36px rgba(20, 0, 40, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.42);
+      backdrop-filter: blur(16px) saturate(1.15);
+      color: var(--ink);
+      padding: 22px 22px 20px 26px;
+      overflow: auto;
+    }
+
+    .ficha[hidden] { display: none; }
+
+    .ficha::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      top: 22px;
+      bottom: 22px;
+      width: 2px;
+      border-radius: 2px;
+      background: var(--alma, #fff6ef);
+    }
+
+    .cerrar {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--ink-mute);
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .cerrar:hover { color: var(--ink); }
+
+    .quien {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    .ficha h2 {
+      font-family: Anton, Impact, sans-serif;
+      font-weight: 400;
+      font-size: 34px;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      margin: 8px 0 10px;
+      max-width: 12ch;
+    }
+
+    .frase {
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--ink-soft);
+      max-width: 28ch;
+    }
+
+    .se-llevo {
+      margin: 18px 0 4px;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    .tema {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      column-gap: 8px;
+      row-gap: 1px;
+      padding: 8px 0 7px;
+      border-top: 1px solid rgba(255, 246, 239, 0.14);
+    }
+
+    .tema .num {
+      grid-row: span 2;
+      padding-top: 3px;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: rgba(255, 246, 239, 0.55);
+    }
+
+    .tema .artista {
+      font-size: 11px;
+      color: var(--ink-mute);
+    }
+
+    .tema .titulo {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    .tema.comun .titulo { color: #fff8f1; }
+
+    .comp {
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 246, 239, 0.2);
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--ink-soft);
+    }
+
+    .comp strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    .etiqueta {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      fill: rgba(255, 246, 239, 0.78);
+      cursor: pointer;
+    }
+
+    .etiqueta.tuya { fill: #fff8f1; }
+
+    .sub {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      fill: rgba(255, 248, 241, 0.8);
+    }
+
+    .tu-nombre {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.34em;
+      fill: #fff8f1;
+    }
+
+    @keyframes halo {
+      0%, 100% { opacity: 0.28; }
+      50% { opacity: 0.9; }
+    }
+
+    .halo { animation: halo 4.8s var(--ease-out) infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .halo { animation: none; opacity: 0.7; }
+    }
+  </style>
+</head>
+<body>
+  <div class="marco" id="marco">
+    <div class="velo"></div>
+    <svg class="mapa" id="mapa" viewBox="0 0 1440 900" role="img" aria-label="Los iPods de un mundo distinto. Cada punto es alguien que eligió sus cinco canciones."></svg>
+    <svg class="grano" aria-hidden="true">
+      <filter id="ruido">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" />
+        <feColorMatrix type="saturate" values="0" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#ruido)" />
+    </svg>
+
+    <header class="columna">
+      <p class="marca">Playworld <span class="asterisco" aria-hidden="true">✱</span></p>
+      <p class="parada">07 — Cartografía</p>
+      <p class="kicker">Lo que se llevaron los demás</p>
+      <h1>Los iPods<br />de un mundo<br />distinto</h1>
+      <p class="bajada">Nadie vivió el mismo festival, pero todos reposan en el mismo lugar. Cada punto es alguien que eligió sus cinco canciones. Toca uno.</p>
+      <p class="cuenta" id="cuenta"></p>
+    </header>
+
+    <footer class="suelo">
+      <p class="cierre">
+        Los escenarios se desmontan.<br />
+        Las pulseras se guardan en un cajón.<br />
+        Las canciones se quedan.
+      </p>
+      <button class="cta" type="button">Volver a entrar con otro año →</button>
+    </footer>
+
+    <aside class="ficha" id="ficha" hidden></aside>
+  </div>
+
+  <script>
+    const ALMAS = {
+      noctambula: {
+        corto: "Noctámbula",
+        nombre: "Alma Noctámbula",
+        frase: "El festival empieza cuando el sol se va.",
+        color: "#e0086a",
+      },
+      melancolica: {
+        corto: "Melancólica Feliz",
+        nombre: "Alma Melancólica Feliz",
+        frase: "Lloras en los conciertos, y te encanta.",
+        color: "#ff8c18",
+      },
+      exploradora: {
+        corto: "Exploradora",
+        nombre: "Alma Exploradora",
+        frase: "Llegas con la agenda en blanco, a propósito.",
+        color: "#f07810",
+      },
+      colectiva: {
+        corto: "Colectiva",
+        nombre: "Alma Colectiva",
+        frase: "Vas tanto por la gente como por la música.",
+        color: "#ffc56a",
+        tuya: true,
+      },
+      intensa: {
+        corto: "Intensa",
+        nombre: "Alma Intensa",
+        frase: "Siempre en primera fila. Siempre.",
+        color: "#ff4b2b",
+      },
+      nostalgica: {
+        corto: "Nostálgica",
+        nombre: "Alma Nostálgica",
+        frase: "Cada canción te recuerda algo.",
+        color: "#e45aa8",
+      },
+    };
+
+    const CANTO = {
+      planeando: ["Elsa y Elmar", "Planeando el Tiempo"],
+      peces: ["Las Ligas Menores", "Peces en el Mar"],
+      melollevo: ["La Chiva Gantiva", "Me Lo Llevo"],
+      crystal: ["The xx", "Crystalised"],
+      ciegos: ["TELEBIT, LosPetitFellas", "Ciegos Corazones"],
+      comoes: ["Carla Morrison", "Cómo Es"],
+      viento: ["Caifanes", "Viento"],
+      amanecer: ["Dorian", "Verte Amanecer"],
+      meencanta: ["Carla Morrison", "Me Encanta"],
+      summer: ["Lana Del Rey", "Summertime Sadness"],
+      girl: ["The National", "I Need My Girl"],
+      ave: ["Caifanes", "Ayer Me Dijo un Ave"],
+      flaca: ["Andrés Calamaro", "Flaca"],
+      gliding: ["Four Tet", "Gliding Through Everything"],
+      beach: ["Arcade Fire, Owen Pallett", "Song on the Beach"],
+      beso: ["Alci Acosta", "El Último Beso"],
+      morir: ["Caifanes", "Hasta Morir"],
+      agua: ["Quique Neira", "Agua de la Fuente"],
+      tarmac: ["Tarmac", "Nadie Quiere Cultivar"],
+      bonobo: ["Bonobo", "We Could Forever"],
+      jungle: ["Jungle", "What D'You Know About Me?"],
+      passout: ["Tinie Tempah", "Pass Out"],
+      dafonk: ["Mochakk, Joni", "Da Fonk"],
+      benadryl: ["SOFI TUKKER", "Benadryl"],
+      suka: ["Brutalismus 3000", "SUKA SUKA"],
+      left: ["CSS", "Left Behind"],
+      supersonic: ["Bad Religion", "Supersonic"],
+      spider: ["Cage The Elephant", "Spiderhead"],
+      right: ["Red Hot Chili Peppers", "Right on Time"],
+      girls: ["AFI", "Girl's Not Grey"],
+      jeans: ["2hollis", "jeans"],
+      broken: ["St. Vincent", "Broken Man"],
+      canela: ["PETERBLUE", "CANELATON"],
+      youstupid: ["girl in red", "You Stupid Bitch"],
+      somos: ["Alerta Kamarada", "Somos Uno"],
+      respirar: ["Rap Bang Club, Delfina Dib", "Respirar"],
+      julieta: ["LATIN MAFIA", "Julieta"],
+      olvidar: ["Diamante Eléctrico", "Olvidar Es Divino"],
+      extranos: ["Frankie Ha Muerto", "Extraños en Este Pais"],
+      paloma: ["Andrés Calamaro", "Paloma"],
+      estadio: ["Andrés Calamaro", "Estadio Azteca"],
+      touch: ["Albert Hammond Jr", "Touché"],
+      gods: ["Nothing But Thieves", "Gods"],
+      epa: ["Danny Ocean", "Epa Wei"],
+      brujeria: ["Radio Rebelde Soundsystem", "Brujeria"],
+      viernes: ["Armenia", "Viernes"],
+      peso: ["Rhye, Poolside", "Feel Your Weight"],
+      encounter: ["The 1975", "An Encounter"],
+      dream: ["Future Islands", "A Dream of You and Me"],
+      golden: ["TV On The Radio", "Golden Age"],
+      alcohol: ["CSS", "Alcohol"],
+      uno: ["Frankie Ha Muerto", "Uno No Muere, Solo Enloquece"],
+    };
+
+    const banco = Object.values(CANTO);
+
+    const centros = {
+      melancolica: [568, 196],
+      noctambula: [868, 172],
+      exploradora: [488, 448],
+      colectiva: [724, 392],
+      intensa: [900, 470],
+      nostalgica: [736, 630],
+    };
+
+    const etiquetas = {
+      melancolica: [568, 118],
+      noctambula: [868, 96],
+      exploradora: [430, 520],
+      colectiva: [628, 348],
+      intensa: [900, 560],
+      nostalgica: [736, 718],
+    };
+
+    const offsets = [
+      [0, 0],
+      [-46, -18],
+      [40, -26],
+      [-28, 36],
+      [44, 30],
+      [8, 52],
+    ];
+
+    const nombres = {
+      melancolica: ["Sofi", "Mar", "Elena", "Teo", "Alba", "Ro"],
+      noctambula: ["Nico", "Luna", "Iker", "Rita", "Gael", "Noa"],
+      exploradora: ["Vale", "Tomás", "Cata", "Omar", "Vera", "Sol"],
+      colectiva: ["Tú", "Lina", "Paz", "Ana", "Leo", "Mia"],
+      intensa: ["Mateo", "Juana", "Bruno", "Diego", "Kenji", "Andrés"],
+      nostalgica: ["Renata", "Sara", "Camilo", "Inés", "Nube", "Pia"],
+    };
+
+    const puentes = {
+      "colectiva-0": ["planeando", "peces", "melollevo", "crystal", "ciegos"],
+      "colectiva-1": ["planeando", "melollevo", "comoes", "viento", "amanecer"],
+      "colectiva-2": ["peces", "agua", "tarmac", "bonobo", "somos"],
+      "intensa-1": ["melollevo", "supersonic", "spider", "right", "girls"],
+      "nostalgica-0": ["crystal", "gliding", "beach", "beso", "morir"],
+      "exploradora-1": ["crystal", "jeans", "broken", "canela", "gliding"],
+      "noctambula-2": ["ciegos", "passout", "dafonk", "benadryl", "suka"],
+    };
+
+    const himnos = {
+      noctambula: ["passout", "dafonk"],
+      melancolica: ["meencanta", "summer"],
+      exploradora: ["jeans", "broken"],
+      colectiva: ["somos", "respirar"],
+      intensa: ["supersonic", "spider"],
+      nostalgica: ["flaca", "beso"],
+    };
+
+    function temasDe(alma, i, idClave) {
+      if (puentes[idClave]) return puentes[idClave].map((k) => CANTO[k]);
+      const himno = himnos[alma][i < 3 ? 0 : 1];
+      const usados = new Set([CANTO[himno][1]]);
+      const out = [CANTO[himno]];
+      let n = 0;
+      while (out.length < 5 && n < 40) {
+        const c = banco[(i * 5 + n * 3 + alma.length * 2) % banco.length];
+        const puente = Object.values(puentes).some((lista) => lista.includes(
+          Object.keys(CANTO).find((k) => CANTO[k] === c),
+        ));
+        if (!usados.has(c[1]) && !puente) {
+          usados.add(c[1]);
+          out.push(c);
+        }
+        n += 1;
+      }
+      return out;
+    }
+
+    const orden = ["noctambula", "melancolica", "exploradora", "colectiva", "intensa", "nostalgica"];
+    const nodos = [];
+    for (const alma of orden) {
+      const [cx, cy] = centros[alma];
+      nombres[alma].forEach((alias, i) => {
+        const [dx, dy] = offsets[i];
+        const id = alma + "-" + i;
+        nodos.push({
+          id,
+          alma,
+          alias,
+          tu: id === "colectiva-0",
+          x: cx + dx,
+          y: cy + dy,
+          temas: temasDe(alma, i, id),
+        });
+      });
+    }
+
+    const porId = Object.fromEntries(nodos.map((n) => [n.id, n]));
+    const enlaces = [
+      ["colectiva-0", "colectiva-1", 2],
+      ["colectiva-0", "colectiva-2", 1],
+      ["colectiva-0", "intensa-1", 1],
+      ["colectiva-0", "nostalgica-0", 1],
+      ["colectiva-0", "noctambula-2", 1],
+      ["colectiva-1", "colectiva-3", 1],
+      ["colectiva-2", "colectiva-4", 1],
+      ["nostalgica-0", "exploradora-1", 1],
+      ["nostalgica-0", "nostalgica-3", 1],
+      ["exploradora-1", "exploradora-0", 1],
+      ["exploradora-0", "exploradora-4", 1],
+      ["noctambula-0", "noctambula-1", 1],
+      ["noctambula-2", "noctambula-4", 1],
+      ["melancolica-0", "melancolica-1", 1],
+      ["melancolica-0", "melancolica-2", 1],
+      ["intensa-0", "intensa-1", 1],
+      ["intensa-0", "intensa-2", 1],
+      ["nostalgica-1", "nostalgica-2", 1],
+    ];
+    const hilos = enlaces.map(([a, b, f]) => ({ a: porId[a], b: porId[b], f }));
+
+    const estado = { filtro: null, foco: "colectiva-1" };
+    const svg = document.getElementById("mapa");
+    const ficha = document.getElementById("ficha");
+    const cuenta = document.getElementById("cuenta");
+    const NS = "http://www.w3.org/2000/svg";
+
+    function el(nombre, attrs) {
+      const n = document.createElementNS(NS, nombre);
+      for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+      return n;
+    }
+
+    function giroDe(id) {
+      let h = 0;
+      for (let i = 0; i < id.length; i++) h = (h * 33 + id.charCodeAt(i)) % 360;
+      return (h * Math.PI) / 180;
+    }
+
+    function magnitudDe(nodo) {
+      const i = Number(nodo.id.split("-")[1]);
+      const escala = [1, 0.82, 0.94, 0.7, 0.88, 0.76][i] ?? 0.8;
+      return nodo.tu ? 22 : 13.5 * escala;
+    }
+
+    function caminoEstrella(x, y, r, picos, rot, alterna) {
+      const pts = [];
+      for (let i = 0; i < picos; i++) {
+        const a = rot + (Math.PI * 2 * i) / picos - Math.PI / 2;
+        const b = rot + (Math.PI * 2 * (i + 0.5)) / picos - Math.PI / 2;
+        const largo = alterna && i % 2 === 1 ? r * 0.58 : r;
+        pts.push((x + Math.cos(a) * largo).toFixed(2) + " " + (y + Math.sin(a) * largo).toFixed(2));
+        pts.push((x + Math.cos(b) * r * 0.1).toFixed(2) + " " + (y + Math.sin(b) * r * 0.1).toFixed(2));
+      }
+      return "M " + pts.join(" L ") + " Z";
+    }
+
+    const polvo = [];
+    {
+      let s = 41;
+      const azar = () => {
+        s = (s * 16807) % 2147483647;
+        return (s % 10000) / 10000;
+      };
+      for (let i = 0; i < 42; i++) {
+        polvo.push({
+          x: 400 + azar() * 680,
+          y: 60 + azar() * 780,
+          r: azar() > 0.82 ? 2.2 + azar() * 1.4 : 0.5 + azar() * 0.9,
+          o: 0.18 + azar() * 0.4,
+          estrella: azar() > 0.78,
+        });
+      }
+    }
+
+    function curva(a, b) {
+      const mx = (a.x + b.x) / 2;
+      const my = (a.y + b.y) / 2;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const bend = Math.min(22, len * 0.06);
+      return "M " + a.x + " " + a.y + " Q " + (mx - (dy / len) * bend) + " " + (my + (dx / len) * bend) + " " + b.x + " " + b.y;
+    }
+
+    function visible(nodo) {
+      return !estado.filtro || nodo.alma === estado.filtro;
+    }
+
+    function vecino(nodo) {
+      if (!estado.foco) return false;
+      if (nodo.id === estado.foco) return true;
+      return hilos.some((h) => (h.a.id === estado.foco && h.b.id === nodo.id) || (h.b.id === estado.foco && h.a.id === nodo.id));
+    }
+
+    function pintar() {
+      svg.replaceChildren();
+      const defs = el("defs", {});
+      for (const id of orden) {
+        const g = el("radialGradient", { id: "bruma-" + id, cx: "50%", cy: "50%", r: "50%" });
+        g.append(el("stop", { offset: "0%", "stop-color": ALMAS[id].color, "stop-opacity": "0.22" }));
+        g.append(el("stop", { offset: "70%", "stop-color": ALMAS[id].color, "stop-opacity": "0.08" }));
+        g.append(el("stop", { offset: "100%", "stop-color": ALMAS[id].color, "stop-opacity": "0" }));
+        defs.append(g);
+      }
+      svg.append(defs);
+
+      for (const id of orden) {
+        const [cx, cy] = centros[id];
+        const on = !estado.filtro || estado.filtro === id;
+        svg.append(el("ellipse", {
+          cx, cy, rx: 118, ry: 86,
+          fill: "url(#bruma-" + id + ")",
+          opacity: on ? 1 : 0.15,
+        }));
+      }
+
+      for (const p of polvo) {
+        if (p.estrella) {
+          svg.append(el("path", {
+            d: caminoEstrella(p.x, p.y, p.r, 4, 0.4, false),
+            fill: "#fff6ef",
+            opacity: p.o * 0.7,
+          }));
+        } else {
+          svg.append(el("circle", {
+            cx: p.x, cy: p.y, r: p.r, fill: "#fff6ef", opacity: p.o,
+          }));
+        }
+      }
+
+      for (const h of hilos) {
+        const on = visible(h.a) && visible(h.b);
+        const tocaFoco = estado.foco && (h.a.id === estado.foco || h.b.id === estado.foco);
+        const conTu = h.a.tu || h.b.tu;
+        let op = 0.16;
+        let w = 0.7;
+        if (!on) op = 0.03;
+        else if (tocaFoco) { op = 0.72; w = 1.15; }
+        else if (conTu) { op = estado.foco ? 0.26 : 0.38; w = 0.9; }
+        else if (estado.foco) op = 0.05;
+        svg.append(el("path", {
+          d: curva(h.a, h.b),
+          fill: "none",
+          stroke: "#fff6ef",
+          "stroke-width": w,
+          "stroke-linecap": "round",
+          opacity: op,
+        }));
+      }
+
+      for (const n of nodos) {
+        const on = visible(n);
+        const g = el("g", { class: "nodo", tabindex: "0", role: "button" });
+        g.dataset.id = n.id;
+        const dim = !on ? 0.12 : estado.foco && !vecino(n) ? 0.62 : 1;
+        g.setAttribute("opacity", dim);
+        const color = ALMAS[n.alma].color;
+        const r = magnitudDe(n);
+        const rot = giroDe(n.id);
+        const picos = n.tu ? 8 : 4;
+        g.append(el("circle", {
+          cx: n.x, cy: n.y, r: r * (n.tu ? 1.7 : 1.35),
+          fill: color,
+          opacity: n.tu ? 0.42 : 0.28,
+          class: n.tu ? "halo" : "",
+        }));
+        if (n.id === estado.foco && !n.tu) {
+          g.append(el("circle", {
+            cx: n.x, cy: n.y, r: r * 1.45,
+            fill: "none",
+            stroke: "#fff8f1",
+            "stroke-width": 0.75,
+            opacity: 0.75,
+          }));
+        }
+        g.append(el("path", {
+          d: caminoEstrella(n.x, n.y, r, picos, rot, n.tu),
+          fill: n.tu ? "#fff8f1" : color,
+        }));
+        if (!n.tu) {
+          g.append(el("path", {
+            d: caminoEstrella(n.x, n.y, r * 0.32, picos, rot, false),
+            fill: "#fff8f1",
+          }));
+        }
+        g.append(el("circle", { cx: n.x, cy: n.y, r: 18, fill: "transparent" }));
+        if (n.tu) {
+          const t = el("text", {
+            x: n.x, y: n.y + r + 18,
+            "text-anchor": "middle",
+            class: "tu-nombre",
+          });
+          t.textContent = "TÚ";
+          g.append(t);
+        }
+        svg.append(g);
+      }
+
+      for (const id of orden) {
+        const [x, y] = etiquetas[id];
+        const on = !estado.filtro || estado.filtro === id;
+        const g = el("g", { class: "etiqueta-hit", role: "button", tabindex: "0" });
+        g.dataset.alma = id;
+        g.setAttribute("opacity", on ? 1 : 0.28);
+        const ancla = id === "colectiva" ? "end" : "middle";
+        ALMAS[id].corto.split(" ").forEach((linea, i) => {
+          const t = el("text", {
+            x, y: y + i * 14,
+            "text-anchor": ancla,
+            class: "etiqueta" + (ALMAS[id].tuya ? " tuya" : ""),
+          });
+          t.textContent = linea;
+          g.append(t);
+        });
+        svg.append(g);
+      }
+
+      const foco = nodos.find((n) => n.id === estado.foco);
+      pintarFicha(foco);
+      pintarCuenta();
+    }
+
+    function pintarCuenta() {
+      cuenta.replaceChildren();
+      const mia = document.createElement("button");
+      mia.type = "button";
+      mia.textContent = "Almas como la mía";
+      if (estado.filtro === "colectiva") mia.className = "is-on";
+      mia.addEventListener("click", () => {
+        estado.filtro = estado.filtro === "colectiva" ? null : "colectiva";
+        if (estado.filtro && estado.foco) {
+          const abierto = nodos.find((n) => n.id === estado.foco);
+          if (abierto && abierto.alma !== estado.filtro) estado.foco = null;
+        }
+        pintar();
+      });
+      cuenta.append(mia);
+      if (estado.filtro) {
+        const todas = document.createElement("button");
+        todas.type = "button";
+        todas.textContent = "Todas";
+        todas.addEventListener("click", () => {
+          estado.filtro = null;
+          pintar();
+        });
+        cuenta.append(todas);
+      }
+    }
+
+    function pintarFicha(nodo) {
+      if (!nodo) {
+        ficha.hidden = true;
+        return;
+      }
+      const alma = ALMAS[nodo.alma];
+      ficha.hidden = false;
+      ficha.style.setProperty("--alma", alma.color);
+      const temas = nodo.temas.map((t, i) => {
+        return '<div class="tema"><span class="num">0' + (i + 1) + '</span><span class="artista">' + t[0] + '</span><span class="titulo">' + t[1] + "</span></div>";
+      }).join("");
+      ficha.innerHTML =
+        '<button class="cerrar" type="button" aria-label="Cerrar">×</button>' +
+        '<p class="quien">' + (nodo.tu ? "Tú" : nodo.alias) + "</p>" +
+        "<h2>" + alma.nombre + "</h2>" +
+        '<p class="frase">' + alma.frase + "</p>" +
+        '<p class="se-llevo">Se llevó:</p>' +
+        temas;
+      ficha.querySelector(".cerrar").addEventListener("click", () => {
+        estado.foco = null;
+        pintar();
+      });
+    }
+
+    svg.addEventListener("click", (ev) => {
+      const nodo = ev.target.closest(".nodo");
+      const etiqueta = ev.target.closest(".etiqueta-hit");
+      if (nodo) {
+        estado.foco = nodo.dataset.id;
+        pintar();
+        return;
+      }
+      if (etiqueta) {
+        const id = etiqueta.dataset.alma;
+        estado.filtro = estado.filtro === id ? null : id;
+        if (estado.filtro && estado.foco) {
+          const abierto = nodos.find((n) => n.id === estado.foco);
+          if (abierto && abierto.alma !== estado.filtro) estado.foco = null;
+        }
+        pintar();
+      }
+    });
+
+    function encajar() {
+      const s = Math.min(window.innerWidth / 1440, window.innerHeight / 900);
+      document.getElementById("marco").style.transform = "translate(-50%, -50%) scale(" + s + ")";
+    }
+    addEventListener("resize", encajar);
+    encajar();
+    pintar();
+  </script>
+</body>
+</html>

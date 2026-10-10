@@ -1,4 +1,5 @@
 import type { Track } from "../datos/tipos";
+import { resolverAlias } from "./alias";
 
 export type Pantalla =
   | { kind: "boot" }
@@ -9,13 +10,15 @@ export type Pantalla =
 
 export type EntradaIpod =
   | { tipo: "paso"; delta: 1 | -1 }
-  | { tipo: "select" }
+  | { tipo: "select"; alias?: string }
+  | { tipo: "play" }
   | { tipo: "back" }
   | { tipo: "saltar"; a: number };
 
 export type EstadoIpod = {
   pila: Pantalla[];
   cursor: number;
+  cursores: number[];
   seleccion: Track[];
   capacidad: 5;
   resaltada: Track | null;
@@ -32,6 +35,7 @@ export function estadoInicial(): EstadoIpod {
   return {
     pila: [{ kind: "boot" }],
     cursor: 0,
+    cursores: [0],
     seleccion: [],
     capacidad: CAPACIDAD,
     resaltada: null,
@@ -42,6 +46,22 @@ export function estadoInicial(): EstadoIpod {
 
 export function visible(e: EstadoIpod): Pantalla {
   return e.pila[e.pila.length - 1] ?? { kind: "boot" };
+}
+
+export function tituloDe(p: Pantalla): string {
+  if (p.kind === "boot") return "PLAYWORLD";
+  if (p.kind === "menu") return "iPod";
+  if (p.kind === "lista") return p.titulo;
+  if (p.kind === "miIpod") return "Mi iPod";
+  return p.track.track;
+}
+
+/** Nombre de la pantalla anterior. Null en el arranque y en el menú. */
+export function atrasDe(e: EstadoIpod): string | null {
+  const v = visible(e);
+  if (v.kind === "boot" || v.kind === "menu") return null;
+  if (e.pila.length >= 2) return tituloDe(e.pila[e.pila.length - 2]);
+  return "iPod";
 }
 
 export function tracksDelAnio(pool: Track[], yearHint: number | null): Track[] {
@@ -81,15 +101,34 @@ function top(e: EstadoIpod): Pantalla {
   return e.pila[e.pila.length - 1];
 }
 
+function conCursor(e: EstadoIpod, cursor: number): EstadoIpod {
+  const cursores = e.cursores.length > 0 ? [...e.cursores.slice(0, -1), cursor] : [cursor];
+  return { ...e, cursor, cursores };
+}
+
 function push(e: EstadoIpod, p: Pantalla): EstadoIpod {
-  const pila = [...e.pila, p].slice(-4);
-  return { ...e, pila, cursor: 0 };
+  const dejado = conCursor(e, e.cursor);
+  const pila = [...dejado.pila, p].slice(-4);
+  const cursores = [...dejado.cursores, 0].slice(-4);
+  return { ...dejado, pila, cursores, cursor: 0 };
+}
+
+function fijarCursor(e: EstadoIpod): EstadoIpod {
+  const n = contarItems(e);
+  const cursor = n <= 0 ? 0 : Math.min(e.cursor, n - 1);
+  return conCursor(e, cursor);
 }
 
 function pop(e: EstadoIpod): EstadoIpod {
   if (e.pila.length <= 1) return e;
   const pila = e.pila.slice(0, -1);
-  return { ...e, pila, cursor: 0 };
+  const cursores = e.cursores.slice(0, pila.length);
+  const cursor = cursores[cursores.length - 1] ?? 0;
+  return fijarCursor({ ...e, pila, cursores, cursor });
+}
+
+function irA(e: EstadoIpod, p: Pantalla): EstadoIpod {
+  return { ...e, pila: [p], cursores: [0], cursor: 0 };
 }
 
 function resaltarDe(e: EstadoIpod): Track | null {
@@ -137,25 +176,31 @@ export function aplicar(
 
   if (entrada.tipo === "paso") {
     if (v.kind === "boot" || v.kind === "cancion") return e;
-    return conResalte({ ...e, cursor: wrap(e.cursor + entrada.delta, n) });
+    return conResalte(conCursor(e, wrap(e.cursor + entrada.delta, n)));
   }
 
   if (entrada.tipo === "saltar") {
     if (v.kind === "boot" || v.kind === "cancion") return e;
-    return conResalte({ ...e, cursor: wrap(entrada.a, n) });
+    return conResalte(conCursor(e, wrap(entrada.a, n)));
   }
 
   if (entrada.tipo === "back") {
     if (v.kind === "boot" || v.kind === "menu") return e;
     if (v.kind === "lista" && e.pila.length === 1) {
-      return conResalte({ ...e, pila: [{ kind: "menu" }], cursor: 0 });
+      return conResalte(irA(e, { kind: "menu" }));
     }
     return conResalte(pop(e));
   }
 
+  if (entrada.tipo === "play") {
+    if (v.kind === "cancion") return e;
+    return aplicar(e, { tipo: "select" }, ctx);
+  }
+
   if (entrada.tipo === "select") {
     if (v.kind === "boot") {
-      return conResalte({ ...e, pila: [listaDelAnio(pool, yearHint)], cursor: 0 });
+      const alias = resolverAlias(entrada.alias ?? e.alias);
+      return conResalte(irA({ ...e, alias }, { kind: "menu" }));
     }
     if (v.kind === "menu") return selectMenu(e, pool, yearHint);
     if (v.kind === "lista") {
@@ -168,12 +213,17 @@ export function aplicar(
       if (!track) return e;
       return conResalte(push(e, { kind: "cancion", track }));
     }
-    if (v.kind === "cancion") {
-      return meterOQuitar(e, v.track);
-    }
+    if (v.kind === "cancion") return meterYSeguir(e, v.track);
   }
 
   return e;
+}
+
+function meterYSeguir(e: EstadoIpod, track: Track): EstadoIpod {
+  const has = e.seleccion.some((t) => t.id === track.id);
+  if (has || e.seleccion.length >= e.capacidad) return e;
+  const metida = { ...e, seleccion: [...e.seleccion, track] };
+  return conResalte(pop(metida));
 }
 
 export function meterOQuitar(e: EstadoIpod, track: Track): EstadoIpod {

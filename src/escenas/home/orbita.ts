@@ -9,68 +9,77 @@ type Marco = {
   cue: HTMLElement | null;
 };
 
-function distPolar(r1: number, a1: number, r2: number, a2: number): number {
-  return Math.hypot(
-    r1 * Math.cos(a1) - r2 * Math.cos(a2),
-    r1 * Math.sin(a1) - r2 * Math.sin(a2),
-  );
-}
+type Ejes = { rx: number; ry: number; card: number };
 
-function radioMax(m: Marco, card: number): number {
+/** El óvalo usa el ancho de la pantalla y queda más bajo que ancho. */
+function ejesDe(m: Marco): Ejes {
   const s = m.stage.getBoundingClientRect();
   const p = m.pin.getBoundingClientRect();
   const cx = s.left + s.width * 0.5;
   const cy = s.top + s.height * 0.5;
-  const margen = card * 0.5 + 8;
   const cueTop = m.cue?.getBoundingClientRect().top;
   const toBottom = (cueTop ?? p.bottom) - cy;
-  return Math.max(
-    48,
-    Math.min(cx - p.left, p.right - cx, cy - p.top, toBottom) - margen,
-  );
+  const cap = m.compacto ? 78 : 104;
+  const floor = m.compacto ? 48 : 68;
+  const card = Math.max(floor, Math.min(cap, Math.round(s.width * 0.072)));
+  const margen = card * 0.5 + 12;
+  const rx = Math.max(96, Math.min(cx - p.left, p.right - cx) - margen);
+  const ryTope = Math.max(72, Math.min(cy - p.top, toBottom) - margen);
+  const ry = Math.min(ryTope, rx * (m.compacto ? 0.7 : 0.56));
+  return { rx, ry, card };
 }
 
-function layoutDe(m: Marco) {
-  const playSize = m.play.offsetWidth || (m.compacto ? 88 : 128);
-  const pares = Math.max(Math.floor(m.n / 2), 3);
-  const paso = (Math.PI * 2) / pares;
-  const cuerda = 2 * Math.sin(Math.PI / pares);
-  const floor = m.compacto ? 56 : 84;
-  const cap = m.compacto ? 112 : 156;
-  const gapPlay = m.compacto ? 22 : 32;
-  let card = Math.min(cap, Math.round(playSize * 1.22));
-
-  for (let s = 0; s < 24; s += 1) {
-    const maxR = radioMax(m, card);
-    const minR = playSize * 0.5 + card * 0.5 + gapPlay;
-    const rNeed = (card * 1.06) / cuerda;
-    const rIn = Math.max(minR, rNeed);
-    const rOut = maxR;
-    const sepMin = card * 1.05;
-    const ok =
-      rOut > rIn + card * 0.38 &&
-      rIn * cuerda >= sepMin &&
-      rOut * cuerda >= sepMin &&
-      distPolar(rIn, 0, rOut, paso * 0.5) >= sepMin;
-    if (ok) return { rIn, rOut, card };
-    card = Math.max(floor, card - 4);
+/** Reparte los ángulos por arco, para que no se junten en las puntas del óvalo. */
+function fasesDe(n: number, rx: number, ry: number): number[] {
+  const pasos = 480;
+  const dist = new Array<number>(pasos);
+  let total = 0;
+  let px = rx;
+  let py = 0;
+  for (let i = 1; i <= pasos; i += 1) {
+    const a = (i / pasos) * Math.PI * 2;
+    const x = rx * Math.cos(a);
+    const y = ry * Math.sin(a);
+    total += Math.hypot(x - px, y - py);
+    dist[i - 1] = total;
+    px = x;
+    py = y;
   }
-
-  const maxR = radioMax(m, card);
-  const minR = playSize * 0.5 + card * 0.5 + gapPlay;
-  return { rIn: Math.max(minR, maxR * 0.62), rOut: maxR, card };
+  const out: number[] = [];
+  for (let k = 0; k < n; k += 1) {
+    const objetivo = (k / n) * total;
+    let a = 0;
+    for (let i = 0; i < pasos; i += 1) {
+      if (dist[i]! >= objetivo) {
+        a = ((i + 1) / pasos) * Math.PI * 2;
+        break;
+      }
+    }
+    out.push(a - Math.PI / 2);
+  }
+  return out;
 }
 
-/** Mitad de años en el anillo interno, mitad en el externo, desfasados para no montarse. */
-function poseDe(i: number, m: Marco) {
-  const { rIn, rOut } = layoutDe(m);
-  const pares = Math.max(Math.floor(m.n / 2), 3);
-  const paso = (Math.PI * 2) / pares;
-  const interior = i < pares;
-  const k = interior ? i : i - pares;
-  const a = k * paso + (interior ? 0 : paso * 0.5) - Math.PI / 2;
-  const r = interior ? rIn : rOut;
-  return { x: Math.cos(a) * r, y: Math.sin(a) * r, a };
+/** Rectángulo del centro que no toca las carátulas, sea cual sea el giro. */
+function huecoDe(ejes: Ejes): { w: number; h: number } {
+  const radio = ejes.card * 0.5 + 18;
+  let hh = Math.min(ejes.ry * 0.58, 168);
+  let hw = Math.min(ejes.rx * 0.62, 300);
+  const muestras = 180;
+  const choca = (w: number, h: number) => {
+    for (let i = 0; i < muestras; i += 1) {
+      const a = (i / muestras) * Math.PI * 2;
+      const cx = ejes.rx * Math.cos(a);
+      const cy = ejes.ry * Math.sin(a);
+      const nx = Math.max(-w, Math.min(w, cx));
+      const ny = Math.max(-h, Math.min(h, cy));
+      if (Math.hypot(cx - nx, cy - ny) < radio) return true;
+    }
+    return false;
+  };
+  while (hh > 72 && choca(hw, hh)) hh -= 6;
+  while (hw > 110 && choca(hw, hh)) hw -= 6;
+  return { w: Math.round(hw * 2), h: Math.round(hh * 2) };
 }
 
 /** El scroller es `.escena-capa`. Sin pin de GSAP: el marco va con sticky. */
@@ -125,9 +134,12 @@ export function montarOrbita(root: HTMLElement): () => void {
       if (core) gsap.set(core, { scale: 1, transformOrigin: "50% 50%" });
       if (icono) gsap.set(icono, { scale: 1, transformOrigin: "50% 50%" });
 
-      const CARD_INICIO = 0.32;
-      const CARD_STAGGER = 0.4;
-      const Y_ENTRADA = 20;
+      const CARD_INICIO = 0.18;
+      const CARD_STAGGER = 0.64;
+      /** El scroll de la entrada cabe en este largo. Lo de después son los ocho fragmentos. */
+      const DURACION = 2.4;
+      const alTiempo = (p: number) => p * DURACION;
+      let giroActual = 0;
 
       let destelloHecho = false;
       let destelloTl: gsap.core.Timeline | undefined;
@@ -214,12 +226,16 @@ export function montarOrbita(root: HTMLElement): () => void {
 
       const marco = (): Marco => ({ n, play, stage, pin, compacto, cue });
       const aplicarMedida = () => {
-        const { card } = layoutDe(marco());
+        const ejes = ejesDe(marco());
+        const fases = fasesDe(n, ejes.rx, ejes.ry);
+        const hueco = huecoDe(ejes);
+        stage.style.setProperty("--hueco", hueco.w + "px");
+        stage.style.setProperty("--hueco-alto", hueco.h + "px");
         gsap.set(cards, {
-          width: card,
-          height: card,
-          x: (i: number) => poseDe(i, marco()).x,
-          y: (i: number) => poseDe(i, marco()).y + (aparecidas.has(i) ? 0 : Y_ENTRADA),
+          width: ejes.card,
+          height: ejes.card,
+          x: (i: number) => Math.cos((fases[i] ?? 0) + giroActual) * ejes.rx,
+          y: (i: number) => Math.sin((fases[i] ?? 0) + giroActual) * ejes.ry,
         });
       };
 
@@ -233,7 +249,6 @@ export function montarOrbita(root: HTMLElement): () => void {
         tweens[i] = gsap.to(cards[i], {
           autoAlpha: 1,
           scale: 1,
-          y: () => poseDe(i, marco()).y,
           filter: "blur(0px)",
           duration: 0.9,
           ease: "power2.out",
@@ -248,8 +263,6 @@ export function montarOrbita(root: HTMLElement): () => void {
 
       aplicarMedida();
       gsap.set(cards, {
-        x: (i) => poseDe(i, marco()).x,
-        y: (i) => poseDe(i, marco()).y + Y_ENTRADA,
         rotation: 0,
         autoAlpha: 0,
         scale: 0.85,
@@ -276,12 +289,8 @@ export function montarOrbita(root: HTMLElement): () => void {
           invalidateOnRefresh: true,
           onRefresh: aplicarMedida,
           onUpdate: (self) => {
-            const vivo = self.progress >= 0.2;
-            play.classList.toggle("is-vivo", vivo);
-            if (vivo) play.removeAttribute("inert");
-            else play.setAttribute("inert", "");
-            if (vivo && self.direction >= 0) encenderDestello();
-            else if (!vivo) apagarDestello();
+            if (self.progress >= 0.92 && self.direction >= 0) encenderDestello();
+            else if (self.progress < 0.88) apagarDestello();
           },
         },
       });
@@ -303,11 +312,23 @@ export function montarOrbita(root: HTMLElement): () => void {
         tl.to(fragmentos, { autoAlpha: 0, duration: 0.28, ease: "power2.inOut" }, 0.06);
       }
 
-      if (foot) tl.to(foot, { autoAlpha: 1, duration: 0.12, ease: "power1.out" }, 0.62);
-
-      const giro = compacto ? 160 : 210;
-      tl.to(orbita, { rotation: giro, duration: 0.38, ease: "none" }, 0.74);
-      tl.to(cards, { rotation: -giro, duration: 0.38, ease: "none" }, 0.74);
+      const viaje = { a: 0 };
+      const giroInicio = alTiempo(0.18);
+      const giroFin = alTiempo(0.88);
+      tl.to(
+        viaje,
+        {
+          a: (compacto ? 110 : 150) * (Math.PI / 180),
+          duration: giroFin - giroInicio,
+          ease: "none",
+          onUpdate: () => {
+            giroActual = viaje.a;
+            aplicarMedida();
+          },
+        },
+        giroInicio,
+      );
+      tl.set({}, {}, DURACION);
 
       const denom = Math.max(n - 1, 1);
       cards.forEach((_, i) => {

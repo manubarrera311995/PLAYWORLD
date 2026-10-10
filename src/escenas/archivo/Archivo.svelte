@@ -5,6 +5,7 @@
   import copy from "./archivo.copy.json";
   import Sintonizador from "./Sintonizador.svelte";
   import PasoAnio from "./PasoAnio.svelte";
+  import Cartel from "./Cartel.svelte";
   import Marca from "../../ui/Marca.svelte";
   import Boton from "../../ui/Boton.svelte";
   import CueDesliza from "../../ui/CueDesliza.svelte";
@@ -164,6 +165,7 @@
   aria-label="{copy.brand} · {copy.title[0]} {copy.title[1]}. {copy.hint}"
   {@attach montar}
 >
+  <Cartel {year} />
   <div class="archivo__cielo" aria-hidden="true"></div>
 
   <header class="archivo__top" data-chrome>

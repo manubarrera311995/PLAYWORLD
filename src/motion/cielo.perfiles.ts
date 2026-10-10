@@ -142,7 +142,8 @@ export const PERFILES_AMPLIO: Readonly<Record<NombreEscena, PerfilCielo>> = {
   },
   ipod: {
     veloOpacidad: 0.56,
-    veloEscala: 0.9,
+    // 1 cubre el viewport. Por debajo, el velo recorta un rectángulo con sombra.
+    veloEscala: 1,
     cieloOpacidad: 1,
     cieloBrillo: 1,
     cieloEscala: 1,

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PLAYWORLD — La fila y las canciones</title>
+  <style>
+    @font-face {
+      font-family: Anton;
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("../public/fonts/anton-latin-400-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("../public/fonts/inter-latin-400-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url("../public/fonts/inter-latin-500-normal.woff2") format("woff2");
+    }
+
+    :root {
+      --ink: #fff6ef;
+      --ink-soft: rgba(255, 245, 236, 0.9);
+      --ink-mute: rgba(255, 246, 239, 0.68);
+      --bg-deep: #100a12;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg-deep);
+      color: var(--ink);
+      font-family: Inter, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      width: 100vw;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    button, a { font-family: inherit; color: inherit; }
+
+    .marco {
+      width: 1440px;
+      height: 900px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      overflow: hidden;
+      background: var(--bg-deep);
+      transform-origin: center center;
+    }
+
+    .diptico {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .lado {
+      position: relative;
+      min-width: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .fila {
+      background:
+        linear-gradient(180deg, rgba(16, 10, 18, 0.12) 0%, rgba(16, 10, 18, 0.38) 100%),
+        linear-gradient(90deg, #d06818 0%, #a83238 36%, #7a2060 68%, #3a1860 100%);
+    }
+
+    .canciones {
+      background:
+        linear-gradient(180deg, rgba(42, 12, 24, 0.42) 0%, rgba(42, 12, 24, 0) 26%),
+        linear-gradient(162deg, #ff8c18 0%, #d01662 44%, #7a1458 78%, #3a1848 100%);
+    }
+
+    .corte {
+      position: absolute;
+      z-index: 3;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: rgba(255, 246, 239, 0.72);
+      pointer-events: none;
+    }
+
+    .grano {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.22;
+      mix-blend-mode: soft-light;
+    }
+
+    .marca {
+      position: absolute;
+      z-index: 2;
+      top: 36px;
+      left: 40px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.44em;
+      text-indent: 0.44em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    .kicker {
+      position: absolute;
+      z-index: 2;
+      top: 72px;
+      left: 40px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.32em;
+      text-indent: 0.32em;
+      text-transform: uppercase;
+      color: rgba(255, 246, 239, 0.82);
+    }
+
+    .elegidas {
+      position: absolute;
+      z-index: 2;
+      left: 40px;
+      right: 36px;
+      top: 46%;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      column-gap: 28px;
+      transform: translateY(-50%);
+    }
+
+    .elegidas h2 {
+      font-family: Anton, Impact, sans-serif;
+      font-weight: 400;
+      font-size: 36px;
+      line-height: 0.9;
+      letter-spacing: -0.03em;
+      color: #fff8f1;
+    }
+
+    .marca-alma {
+      display: block;
+      width: 36px;
+      height: 3px;
+      margin: 14px 0 16px;
+      border: 0;
+    }
+
+    .exploradora .marca-alma { background: #f07810; }
+    .colectiva .marca-alma { background: #e83a28; }
+    .noctambula .marca-alma { background: #e0086a; }
+
+    .momento,
+    .dicho {
+      display: block;
+    }
+
+    .momento {
+      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    .dicho {
+      max-width: 16ch;
+      font-size: 15px;
+      line-height: 1.35;
+      color: var(--ink-soft);
+    }
+
+    .retrato {
+      position: absolute;
+      z-index: 2;
+      left: 48px;
+      right: 48px;
+      top: 46%;
+      transform: translateY(-58%);
+    }
+
+    .retrato h2 {
+      font-family: Anton, Impact, sans-serif;
+      font-weight: 400;
+      font-size: 92px;
+      line-height: 0.86;
+      letter-spacing: -0.03em;
+      color: #fff8f1;
+      text-wrap: balance;
+    }
+
+    .borde {
+      margin-top: 22px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #fff8f1;
+    }
+
+    .frase {
+      margin-top: 14px;
+      max-width: 22ch;
+      font-size: 22px;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      color: var(--ink-soft);
+    }
+
+    .piso {
+      position: absolute;
+      z-index: 2;
+      left: 48px;
+      right: 44px;
+      bottom: 40px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .temas {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 18px;
+      list-style: none;
+    }
+
+    .temas li { min-width: 0; }
+
+    .artista {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(255, 246, 239, 0.72);
+    }
+
+    .titulo {
+      display: block;
+      margin-top: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+
+    .cta {
+      justify-self: start;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      color: #fff8f1;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="marco" id="marco">
+    <div class="diptico">
+      <section class="lado fila" aria-label="En la fila">
+        <p class="marca">Playworld</p>
+        <p class="kicker">En la fila</p>
+        <div class="elegidas">
+          <article class="exploradora">
+            <p class="momento">Llegas</p>
+            <h2>Exploradora</h2>
+            <span class="marca-alma" aria-hidden="true"></span>
+            <p class="dicho">Lo que no conozco</p>
+          </article>
+          <article class="colectiva">
+            <p class="momento">Empieza el show</p>
+            <h2>Colectiva</h2>
+            <span class="marca-alma" aria-hidden="true"></span>
+            <p class="dicho">Me quedo con mi gente</p>
+          </article>
+          <article class="noctambula">
+            <p class="momento">2 a.m.</p>
+            <h2>Noctámbula</h2>
+            <span class="marca-alma" aria-hidden="true"></span>
+            <p class="dicho">Bailo como si apenas empezara</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="lado canciones" aria-label="Tus canciones">
+        <p class="kicker">Tus canciones</p>
+        <div class="retrato">
+          <h2>Melancólica<br />Feliz</h2>
+          <p class="borde">con un borde nostálgico</p>
+          <p class="frase">Lloras en los conciertos, y te encanta.</p>
+        </div>
+        <footer class="piso">
+          <ul class="temas">
+            <li>
+              <span class="artista">Carla Morrison</span>
+              <span class="titulo">Cómo Es</span>
+            </li>
+            <li>
+              <span class="artista">The National</span>
+              <span class="titulo">I Need My Girl</span>
+            </li>
+            <li>
+              <span class="artista">Lana Del Rey</span>
+              <span class="titulo">Summertime Sadness</span>
+            </li>
+            <li>
+              <span class="artista">Caifanes</span>
+              <span class="titulo">Viento</span>
+            </li>
+            <li>
+              <span class="artista">Andrés Calamaro</span>
+              <span class="titulo">Flaca</span>
+            </li>
+          </ul>
+          <a class="cta" href="#colectiva">Mira qué se llevaron los demás</a>
+        </footer>
+      </section>
+    </div>
+
+    <div class="corte" aria-hidden="true"></div>
+    <svg class="grano" aria-hidden="true">
+      <filter id="ruido">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" />
+        <feColorMatrix type="saturate" values="0" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#ruido)" />
+    </svg>
+  </div>
+
+  <script>
+    function encajar() {
+      const s = Math.min(window.innerWidth / 1440, window.innerHeight / 900);
+      document.getElementById("marco").style.transform = "translate(-50%, -50%) scale(" + s + ")";
+    }
+    addEventListener("resize", encajar);
+    encajar();
+  </script>
+</body>
+</html>

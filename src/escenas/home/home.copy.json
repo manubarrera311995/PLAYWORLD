@@ -9,7 +9,55 @@
   "sueloDer": ["La señal", "se va.", "La música", "se queda."],
   "footer": "15 ediciones · cerca de 9.000 canciones · un archivo emocional",
   "cta": "Desliza para entrar",
+  "fila": "Empieza en la fila",
   "scrollHint": "desliza para entrar",
+  "primera": {
+    "indice": "02",
+    "lugar": "Mi primera vez",
+    "pasos": [
+      {
+        "nombre": "La pregunta",
+        "frase": "¿Sabes cuándo vives algo por primera vez y, casi sin darte cuenta, sientes que te cambió la vida? Para mí, eso son los festivales de música."
+      },
+      {
+        "nombre": "La fan",
+        "frase": "Nunca aprendí a tocar un instrumento (ni siquiera la flauta dulce). Así que hice lo que mejor sabía hacer: convertirme en fan. Coleccioné CDs, llené mi iPod de canciones y guardé boletas de conciertos como si fueran reliquias.",
+        "img": "/assets/home/primera/manilla-2019.jpg",
+        "alt": "Manilla del Festival Estéreo Picnic, 2019",
+        "clase": "manilla"
+      },
+      {
+        "nombre": "El portal",
+        "frase": "Abril de 2016. Un sábado lluvioso, después de casi cuatro años convenciendo a mis papás, entré por primera vez al Festival Estéreo Picnic. La señal del celular desapareció casi de inmediato. Sentí que cruzaba un portal: adentro, el espacio y el tiempo obedecían otras reglas.",
+        "img": "/assets/home/primera/flyer-2016.jpg",
+        "alt": "Flyer del Festival Estéreo Picnic, marzo de 2016",
+        "clase": "flyer"
+      },
+      {
+        "nombre": "Lo que entendí",
+        "frase": "Ese día entendí que un festival no era solo un lugar para escuchar música. Era un espacio donde miles de personas aceptábamos una misma regla: suspender la vida cotidiana para compartir algo irrepetible. Un patio de juegos para adultos."
+      },
+      {
+        "nombre": "Las canciones",
+        "frase": "De cada edición quedan fotos, pulseras y boletas. Pero lo único que sobrevive a todas son las canciones: máquinas del tiempo capaces de devolvernos a un instante preciso, años después.",
+        "img": "/assets/home/primera/boleta-2017.jpg",
+        "alt": "Boleta del Festival Estéreo Picnic, 2017",
+        "clase": "boleta"
+      },
+      {
+        "nombre": "Lo que hice",
+        "frase": "Por eso reuní las cerca de 9.000 canciones que han sonado en las 15 ediciones del Festival Estéreo Picnic. Con Audio DNA, una herramienta que desarrollé, cada canción recibió una lectura emocional: alegría, melancolía, intensidad, nostalgia, oscuridad."
+      },
+      {
+        "nombre": "Por qué así",
+        "frase": "Las plataformas usan estos datos para decidir qué escuchas, sin mostrarte cómo. Aquí es al revés: el archivo te muestra sus relaciones para que encuentres tu propio camino. Los números no reemplazan lo que sentiste; son otra forma de volver a ello."
+      },
+      {
+        "nombre": "La fila",
+        "frase": "Esta no es la historia del festival. Es una manera de recorrerlo a través de la música que lo construyó. Y empieza como empiezan todos los festivales: en la fila."
+      }
+    ]
+  },
   "cards": [
     { "year": 2010, "className": "y2010", "art": "/assets/home/caratulas/2010.jpg", "label": "Lo diferente" },
     { "year": 2011, "className": "y2011", "art": "/assets/home/caratulas/2011.jpg", "label": "En la palma" },
