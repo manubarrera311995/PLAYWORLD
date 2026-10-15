@@ -397,13 +397,6 @@
     }
     .acto.is-on { background: rgba(255, 246, 239, 0.08); }
     .regla { position: relative; height: 8px; border-radius: 99px; background: rgba(255, 246, 239, 0.08); }
-    .regla .ano {
-      position: absolute;
-      top: -3px;
-      width: 1px;
-      height: 14px;
-      background: rgba(255, 246, 239, 0.45);
-    }
     .regla .marca {
       position: absolute;
       top: 50%;
@@ -959,7 +952,6 @@
         if (!grupos.has(row[0])) grupos.set(row[0], []);
         grupos.get(row[0]).push(index);
       });
-      const ano = median(rows.map((row) => traitDe(row, yKey)));
       const filas = [...grupos.entries()]
         .map(([name, indexes]) => ({
           name,
@@ -968,7 +960,7 @@
         }))
         .sort((a, b) => b.center - a.center || a.name.localeCompare(b.name, "es"));
       stage.innerHTML = `
-        <p class="vista-intro">Cada marca es la mediana de ${LABEL[yKey].toLowerCase()} de un artista. La línea es la del año.</p>
+        <p class="vista-intro">Cada marca es la mediana de ${LABEL[yKey].toLowerCase()} de un artista.</p>
         <div class="lista">${filas
           .map((fila) => {
             const abierto = artist === fila.name;
@@ -979,7 +971,7 @@
                   .map((index) => `<button type="button" class="cancion${index === song ? " is-on" : ""}" data-i="${index}"><span>${esc(songs[index][1])}</span><span>${traitDe(songs[index], yKey)}</span></button>`)
                   .join("")}</div>`
               : "";
-            return `<div><button type="button" class="acto${abierto ? " is-on" : ""}" data-a="${esc(fila.name)}"><span class="nm">${esc(fila.name)}</span><span class="ct">${fila.indexes.length}</span><span class="regla"><i class="ano" style="left:${ano}%"></i><i class="marca" style="left:${fila.center}%"></i></span><span>${fila.center}</span></button>${canciones}</div>`;
+            return `<div><button type="button" class="acto${abierto ? " is-on" : ""}" data-a="${esc(fila.name)}"><span class="nm">${esc(fila.name)}</span><span class="ct">${fila.indexes.length}</span><span class="regla"><i class="marca" style="left:${fila.center}%"></i></span><span>${fila.center}</span></button>${canciones}</div>`;
           })
           .join("")}</div>`;
       built = null;

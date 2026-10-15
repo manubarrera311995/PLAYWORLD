@@ -29,16 +29,17 @@
 
     :root {
       --ink: #fff6ef;
-      --ink-soft: rgba(255, 245, 236, 0.9);
-      --ink-mute: rgba(255, 246, 239, 0.68);
-      --bg-deep: #100a12;
+      --ink-soft: rgba(255, 246, 239, 0.86);
+      --ink-mute: rgba(255, 246, 239, 0.62);
+      --acento: #ff8c18;
+      --bg: #120a14;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
       height: 100%;
-      background: var(--bg-deep);
+      background: var(--bg);
       color: var(--ink);
       font-family: Inter, system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
@@ -50,7 +51,7 @@
       overflow: hidden;
     }
 
-    button, a { font-family: inherit; color: inherit; }
+    a { color: inherit; }
 
     .marco {
       width: 1440px;
@@ -59,63 +60,15 @@
       left: 50%;
       top: 50%;
       overflow: hidden;
-      background: var(--bg-deep);
+      background: linear-gradient(180deg, #1a1016 0%, #120a14 55%, #100a12 100%);
       transform-origin: center center;
-    }
-
-    .diptico {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .lado {
-      position: relative;
-      min-width: 0;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .fila {
-      background:
-        linear-gradient(180deg, rgba(16, 10, 18, 0.12) 0%, rgba(16, 10, 18, 0.38) 100%),
-        linear-gradient(90deg, #d06818 0%, #a83238 36%, #7a2060 68%, #3a1860 100%);
-    }
-
-    .canciones {
-      background:
-        linear-gradient(180deg, rgba(42, 12, 24, 0.42) 0%, rgba(42, 12, 24, 0) 26%),
-        linear-gradient(162deg, #ff8c18 0%, #d01662 44%, #7a1458 78%, #3a1848 100%);
-    }
-
-    .corte {
-      position: absolute;
-      z-index: 3;
-      top: 0;
-      bottom: 0;
-      left: 50%;
-      width: 2px;
-      background: rgba(255, 246, 239, 0.72);
-      pointer-events: none;
-    }
-
-    .grano {
-      position: absolute;
-      inset: 0;
-      z-index: 4;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      opacity: 0.22;
-      mix-blend-mode: soft-light;
     }
 
     .marca {
       position: absolute;
       z-index: 2;
       top: 36px;
-      left: 40px;
+      left: 56px;
       font-size: 12px;
       font-weight: 500;
       letter-spacing: 0.44em;
@@ -124,59 +77,24 @@
       color: var(--ink-mute);
     }
 
-    .kicker {
+    .noche {
       position: absolute;
       z-index: 2;
-      top: 72px;
-      left: 40px;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.32em;
-      text-indent: 0.32em;
-      text-transform: uppercase;
-      color: rgba(255, 246, 239, 0.82);
+      left: 56px;
+      top: 0;
+      width: 460px;
+      height: 100%;
+      list-style: none;
     }
 
-    .elegidas {
-      position: absolute;
-      z-index: 2;
-      left: 40px;
-      right: 36px;
-      top: 46%;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      column-gap: 28px;
-      transform: translateY(-50%);
-    }
-
-    .elegidas h2 {
-      font-family: Anton, Impact, sans-serif;
-      font-weight: 400;
-      font-size: 36px;
-      line-height: 0.9;
-      letter-spacing: -0.03em;
-      color: #fff8f1;
-    }
-
-    .marca-alma {
-      display: block;
-      width: 36px;
-      height: 3px;
-      margin: 14px 0 16px;
-      border: 0;
-    }
-
-    .exploradora .marca-alma { background: #f07810; }
-    .colectiva .marca-alma { background: #e83a28; }
-    .noctambula .marca-alma { background: #e0086a; }
-
-    .momento,
-    .dicho {
-      display: block;
-    }
+    .noche li { position: absolute; left: 0; right: 0; }
+    .noche li:nth-child(1) { top: 120px; }
+    .noche li:nth-child(2) { top: 300px; }
+    .noche li:nth-child(3) { top: 628px; }
+    .noche li:nth-child(3) .momento { letter-spacing: 0.06em; text-indent: 0; }
 
     .momento {
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.22em;
@@ -184,92 +102,95 @@
       color: var(--ink-mute);
     }
 
+    .noche h2 {
+      font-family: Anton, Impact, sans-serif;
+      font-weight: 400;
+      font-size: 64px;
+      line-height: 0.86;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+
     .dicho {
-      max-width: 16ch;
+      margin-top: 10px;
+      max-width: 28ch;
       font-size: 15px;
       line-height: 1.35;
       color: var(--ink-soft);
     }
 
-    .retrato {
+    .regla {
       position: absolute;
       z-index: 2;
-      left: 48px;
-      right: 48px;
-      top: 46%;
-      transform: translateY(-58%);
+      top: 508px;
+      left: 0;
+      width: 528px;
+      height: 2px;
+      background: var(--acento);
     }
 
-    .retrato h2 {
+    .cruce {
+      position: absolute;
+      z-index: 2;
+      top: 508px;
+      left: 548px;
+      right: 64px;
+      transform: translateY(-46px);
+    }
+
+    .cruce .momento { color: var(--acento); }
+
+    .cruce h1 {
       font-family: Anton, Impact, sans-serif;
       font-weight: 400;
-      font-size: 92px;
+      font-size: 64px;
       line-height: 0.86;
       letter-spacing: -0.03em;
-      color: #fff8f1;
-      text-wrap: balance;
+      color: var(--acento);
     }
 
     .borde {
-      margin-top: 22px;
+      margin-top: 14px;
       font-size: 13px;
       font-weight: 500;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: #fff8f1;
+      color: var(--ink);
     }
 
     .frase {
-      margin-top: 14px;
-      max-width: 22ch;
-      font-size: 22px;
+      margin-top: 8px;
+      max-width: 28ch;
+      font-size: 20px;
       line-height: 1.3;
       letter-spacing: -0.01em;
       color: var(--ink-soft);
     }
 
-    .piso {
-      position: absolute;
-      z-index: 2;
-      left: 48px;
-      right: 44px;
-      bottom: 40px;
-      display: grid;
-      gap: 22px;
-    }
-
     .temas {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 0;
+      margin-top: 14px;
+      max-width: 640px;
       list-style: none;
-    }
-
-    .temas li { min-width: 0; }
-
-    .artista {
-      display: block;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: rgba(255, 246, 239, 0.72);
-    }
-
-    .titulo {
-      display: block;
-      margin-top: 4px;
       font-size: 14px;
-      font-weight: 500;
-      line-height: 1.25;
-      letter-spacing: -0.01em;
+      line-height: 1.4;
+      color: var(--ink-soft);
+    }
+
+    .temas li:not(:last-child)::after {
+      content: "·";
+      margin: 0 0.5em;
+      color: var(--ink-mute);
     }
 
     .cta {
-      justify-self: start;
+      display: inline-block;
+      margin-top: 22px;
       font-size: 13px;
       letter-spacing: 0.02em;
-      color: #fff8f1;
+      color: var(--ink);
       text-decoration: underline;
       text-underline-offset: 4px;
     }
@@ -277,75 +198,42 @@
 </head>
 <body>
   <div class="marco" id="marco">
-    <div class="diptico">
-      <section class="lado fila" aria-label="En la fila">
-        <p class="marca">Playworld</p>
-        <p class="kicker">En la fila</p>
-        <div class="elegidas">
-          <article class="exploradora">
-            <p class="momento">Llegas</p>
-            <h2>Exploradora</h2>
-            <span class="marca-alma" aria-hidden="true"></span>
-            <p class="dicho">Lo que no conozco</p>
-          </article>
-          <article class="colectiva">
-            <p class="momento">Empieza el show</p>
-            <h2>Colectiva</h2>
-            <span class="marca-alma" aria-hidden="true"></span>
-            <p class="dicho">Me quedo con mi gente</p>
-          </article>
-          <article class="noctambula">
-            <p class="momento">2 a.m.</p>
-            <h2>Noctámbula</h2>
-            <span class="marca-alma" aria-hidden="true"></span>
-            <p class="dicho">Bailo como si apenas empezara</p>
-          </article>
-        </div>
-      </section>
+    <p class="marca">Playworld</p>
 
-      <section class="lado canciones" aria-label="Tus canciones">
-        <p class="kicker">Tus canciones</p>
-        <div class="retrato">
-          <h2>Melancólica<br />Feliz</h2>
-          <p class="borde">con un borde nostálgico</p>
-          <p class="frase">Lloras en los conciertos, y te encanta.</p>
-        </div>
-        <footer class="piso">
-          <ul class="temas">
-            <li>
-              <span class="artista">Carla Morrison</span>
-              <span class="titulo">Cómo Es</span>
-            </li>
-            <li>
-              <span class="artista">The National</span>
-              <span class="titulo">I Need My Girl</span>
-            </li>
-            <li>
-              <span class="artista">Lana Del Rey</span>
-              <span class="titulo">Summertime Sadness</span>
-            </li>
-            <li>
-              <span class="artista">Caifanes</span>
-              <span class="titulo">Viento</span>
-            </li>
-            <li>
-              <span class="artista">Andrés Calamaro</span>
-              <span class="titulo">Flaca</span>
-            </li>
-          </ul>
-          <a class="cta" href="#colectiva">Mira qué se llevaron los demás</a>
-        </footer>
-      </section>
-    </div>
+    <ol class="noche">
+      <li>
+        <p class="momento">Llegas</p>
+        <h2>Exploradora</h2>
+        <p class="dicho">Lo que no conozco</p>
+      </li>
+      <li>
+        <p class="momento">Empieza el show</p>
+        <h2>Colectiva</h2>
+        <p class="dicho">Me quedo con mi gente</p>
+      </li>
+      <li>
+        <p class="momento">2 a.m.</p>
+        <h2>Noctámbula</h2>
+        <p class="dicho">Bailo como si apenas empezara</p>
+      </li>
+    </ol>
 
-    <div class="corte" aria-hidden="true"></div>
-    <svg class="grano" aria-hidden="true">
-      <filter id="ruido">
-        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" />
-        <feColorMatrix type="saturate" values="0" />
-      </filter>
-      <rect width="100%" height="100%" filter="url(#ruido)" />
-    </svg>
+    <div class="regla" aria-hidden="true"></div>
+
+    <section class="cruce" aria-label="Tus canciones">
+      <p class="momento">Tus canciones</p>
+      <h1>Melancólica Feliz</h1>
+      <p class="borde">con un borde nostálgico</p>
+      <p class="frase">Lloras en los conciertos, y te encanta.</p>
+      <ul class="temas">
+        <li>Carla Morrison, Cómo Es</li>
+        <li>The National, I Need My Girl</li>
+        <li>Lana Del Rey, Summertime Sadness</li>
+        <li>Caifanes, Viento</li>
+        <li>Andrés Calamaro, Flaca</li>
+      </ul>
+      <a class="cta" href="#colectiva">Mira qué se llevaron los demás</a>
+    </section>
   </div>
 
   <script>
