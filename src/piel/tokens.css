@@ -7,6 +7,12 @@
   --c1: #f07810;
   --c2: #d01662;
   --c3: #011544;
+  --grano-op: 0.2;
+  --deg-arriba: #f48ca1;
+  --deg-alta: #eb899f;
+  --deg-media: #c7709c;
+  --deg-baja: #a74f98;
+  --deg-suelo: #a04294;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
   --z-bg: 0;
@@ -21,11 +27,11 @@
   --bp-cine: 1024px;
   --fondo-home: linear-gradient(
     162deg,
-    #f27a51 0%,
-    #d24a72 24%,
-    #8d4494 52%,
-    #3a4a9e 78%,
-    #182761 100%
+    var(--deg-arriba) 0%,
+    var(--deg-alta) 24%,
+    var(--deg-media) 52%,
+    var(--deg-baja) 78%,
+    var(--deg-suelo) 100%
   );
 }
 

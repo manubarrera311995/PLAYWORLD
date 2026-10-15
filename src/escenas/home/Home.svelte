@@ -152,6 +152,15 @@
     display: block;
     width: 22px;
     height: 1px;
+    background: color-mix(in srgb, var(--ink) 38%, transparent);
+  }
+  /* El suelo del degradado claro sigue siendo violeta: ahí la crema se lee. */
+  .home__eco--suelo-izq,
+  .home__eco--suelo-der,
+  .home__foot {
+    color: rgba(255, 246, 239, 0.78);
+  }
+  .home__eco--suelo-izq::before {
     background: rgba(255, 246, 239, 0.38);
   }
   .home__eco--ejes::after,

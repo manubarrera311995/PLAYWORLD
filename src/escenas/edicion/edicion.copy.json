@@ -39,13 +39,11 @@
     "many": "{n} canciones",
     "medians": "Mediana de cada emoción",
     "unlabeled": "Sin género",
-    "rasgosHint": "Pulsa una emoción para ponerla en el eje vertical de la nube.",
+    "rasgosHint": "Pulsa una emoción en la mediana. La altura cuenta canciones en cada grupo.",
     "menor": "Menor",
     "mayor": "Mayor",
     "cartelHint": "Cada marca es la mediana de {trait} de un artista. La línea es la del año.",
-    "hist": "{trait} en el filtro",
-    "plot": "Cada punto es una canción",
-    "tempo": "Tempo"
+    "plot": "Cada punto es una canción"
   },
   "chapters": {
     "clima": {
@@ -86,6 +84,16 @@
   "rasgos": {
     "method": "Mediana de cada emoción, de 0 a 100. La barra marcada ordena a los artistas.",
     "aria": "Mediana de cada rasgo, de 0 a 100",
+    "groups": [
+      { "label": "Mínima", "range": "0–19" },
+      { "label": "Baja", "range": "20–39" },
+      { "label": "Media", "range": "40–59" },
+      { "label": "Alta", "range": "60–79" },
+      { "label": "Máxima", "range": "80–100" }
+    ],
+    "x": "Intensidad",
+    "y": "Canciones",
+    "chartAria": "Canciones de {trait} por grupo",
     "tempo": "Tempo",
     "tempoNote": "La mediana del tempo es {med} bpm.",
     "keys": "Tonalidades",
@@ -104,9 +112,9 @@
   },
   "stats": {
     "songs": "Canciones",
-    "minor": "En tono menor",
+    "minor": "Canciones en tono menor",
     "acts": "Artistas",
-    "tempo": "Tempo, bpm",
+    "tempo": "Tempo mediano, bpm",
     "spread": {
       "pareja": "Se parecen",
       "media": "Se parecen un poco",

@@ -6,7 +6,7 @@ import {
   forceX,
   forceY,
 } from "d3-force";
-import { ALMA_IDS, type AlmaId } from "../../almas/almas";
+import type { AlmaId } from "../../almas/almas";
 import type { Rastro } from "../../rastros/tipos";
 
 export type NodoGrafo = {
@@ -30,7 +30,6 @@ export type HiloGrafo = {
 export type LayoutGrafo = {
   nodos: NodoGrafo[];
   hilos: HiloGrafo[];
-  centros: Record<AlmaId, { x: number; y: number }>;
 };
 
 function jitter(id: string): number {
@@ -42,7 +41,8 @@ function jitter(id: string): number {
   return ((h >>> 0) % 1000) / 1000 - 0.5;
 }
 
-function centrosDe(w: number, h: number): Record<AlmaId, { x: number; y: number }> {
+/** Zona libre del mapa: a la derecha del texto, igual para todas las almas. */
+function campoDe(w: number, h: number): { cx: number; cy: number; radio: number } {
   const cine = w >= 1024;
   const columna = cine ? Math.min(300, w * 0.28) : Math.min(280, w * 0.52);
   const izquierda = columna + 56;
@@ -51,18 +51,23 @@ function centrosDe(w: number, h: number): Record<AlmaId, { x: number; y: number 
   const abajo = cine ? 64 : 20;
   const ancho = Math.max(160, w - izquierda - derecha);
   const alto = Math.max(160, h - arriba - abajo);
-  const cx = izquierda + ancho / 2;
-  const cy = arriba + alto / 2;
-  const r = Math.min(ancho, alto) * 0.36;
-  const out = {} as Record<AlmaId, { x: number; y: number }>;
-  ALMA_IDS.forEach((id, i) => {
-    const a = (i / ALMA_IDS.length) * Math.PI * 2 - Math.PI / 2;
-    out[id] = { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r };
-  });
-  return out;
+  return {
+    cx: izquierda + ancho / 2,
+    cy: arriba + alto / 2,
+    radio: Math.min(ancho, alto) * 0.38,
+  };
 }
 
-/** Dos personas se unen solo si sus listas traen el mismo trackId. La fuerza es cuántas canciones comparten. */
+/**
+ * La distancia es el parecido de gusto. Una canción en común deja el enlace
+ * largo (220 px); cada canción de más lo acorta 42 px, hasta 56 px.
+ */
+export function distanciaDe(compartidas: number): number {
+  const n = Math.max(1, compartidas);
+  return Math.max(56, 262 - n * 42);
+}
+
+/** Dos personas se unen solo si sus listas traen el mismo trackId. */
 export function hilosDe(rastros: Rastro[]): HiloGrafo[] {
   const hilos: HiloGrafo[] = [];
   for (let i = 0; i < rastros.length; i++) {
@@ -87,10 +92,11 @@ export function layoutGrafo(
   propioId: string | null,
   artDe: (trackId: string) => string | null,
 ): LayoutGrafo {
-  const centros = centrosDe(w, h);
+  const campo = campoDe(w, h);
   const hilos = hilosDe(rastros);
   const nodos: NodoGrafo[] = rastros.map((r) => {
-    const c = centros[r.almaId];
+    const ang = (jitter(r.id) + 0.5) * Math.PI * 2;
+    const rad = campo.radio * (0.15 + Math.abs(jitter(`${r.id}:r`)));
     return {
       id: r.id,
       alias: r.alias,
@@ -98,22 +104,22 @@ export function layoutGrafo(
       trackIds: r.trackIds,
       art: artDe(r.trackIds[0] ?? ""),
       tu: r.id === propioId,
-      x: c.x + jitter(r.id) * 46,
-      y: c.y + jitter(`${r.id}:y`) * 46,
+      x: campo.cx + Math.cos(ang) * rad,
+      y: campo.cy + Math.sin(ang) * rad,
     };
   });
 
   const sim = forceSimulation(nodos)
-    .force("charge", forceManyBody().strength(-28))
+    .force("charge", forceManyBody().strength(-22))
     .force("collide", forceCollide(28))
-    .force("x", forceX((d: NodoGrafo) => centros[d.almaId].x).strength(0.18))
-    .force("y", forceY((d: NodoGrafo) => centros[d.almaId].y).strength(0.18))
+    .force("x", forceX(campo.cx).strength(0.045))
+    .force("y", forceY(campo.cy).strength(0.045))
     .force(
       "link",
       forceLink(hilos)
         .id((d) => (d as NodoGrafo).id)
-        .distance(90)
-        .strength((l) => 0.08 * ((l as HiloGrafo).strength ?? 1)),
+        .distance((l) => distanciaDe((l as HiloGrafo).strength ?? 1))
+        .strength(0.85),
     )
     .stop();
 
@@ -125,5 +131,5 @@ export function layoutGrafo(
     h.source = typeof s === "string" ? s : s.id;
     h.target = typeof t === "string" ? t : t.id;
   }
-  return { nodos, hilos, centros };
+  return { nodos, hilos };
 }

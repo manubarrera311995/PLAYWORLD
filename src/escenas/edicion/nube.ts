@@ -76,10 +76,6 @@ export function binsDe(nums: readonly number[]): number[] {
   return bins;
 }
 
-export function binsTempo(nums: readonly number[]): number[] {
-  return binsDe(nums.map((value) => ((value - 60) / 140) * 100));
-}
-
 export function escalaDe(tracks: readonly Track[]): NotaEscala[] {
   const cuentas = new Map<string, NotaEscala>(NOTAS.map((note) => [note, { note, menor: 0, mayor: 0 }]));
   const extra: NotaEscala[] = [];

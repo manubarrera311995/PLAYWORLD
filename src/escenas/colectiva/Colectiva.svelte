@@ -7,7 +7,7 @@
   import FichaRastro from "./FichaRastro.svelte";
   import { hidratar, rastros, reintentarPendientes } from "../../rastros/store";
   import { recorrido } from "../../estado/recorrido";
-  import type { AlmaId } from "../../almas/almas";
+  import { ALMA_IDS, almas, type AlmaId } from "../../almas/almas";
   import type { RutaParsed } from "../director/router";
   import { navigate } from "../director/router";
 
@@ -27,6 +27,19 @@
   function ponerFiltro(id: AlmaId | "all"): void {
     filtro = filtro === id ? "all" : id;
     if (filtro !== "all" && ficha && ficha.almaId !== filtro) foco = null;
+  }
+
+  function tintaDe(id: AlmaId): string {
+    const { c1, c2 } = almas[id].paleta;
+    const luz = (hex: string) => {
+      const n = hex.replace("#", "");
+      return (
+        0.2126 * Number.parseInt(n.slice(0, 2), 16) +
+        0.7152 * Number.parseInt(n.slice(2, 4), 16) +
+        0.0722 * Number.parseInt(n.slice(4, 6), 16)
+      );
+    };
+    return luz(c1) >= luz(c2) ? c1 : c2;
   }
 
   onMount(() => {
@@ -54,7 +67,6 @@
       {filtro}
       {foco}
       onrastro={(id) => (foco = id)}
-      onfiltro={ponerFiltro}
     />
   </div>
 
@@ -68,6 +80,16 @@
     <h1 class="tipo-seccion">{copy.title}</h1>
     <p class="bajada">{copy.bajada}</p>
     <div class="filtros">
+      {#each ALMA_IDS as id (id)}
+        <button
+          type="button"
+          class={["filtro", filtro === id && "is-on", filtro !== "all" && filtro !== id && "is-off"]}
+          style:color={filtro === id ? tintaDe(id) : undefined}
+          onclick={() => ponerFiltro(id)}
+        >
+          {almas[id].corto}
+        </button>
+      {/each}
       {#if mia}
         <button type="button" class={["filtro", filtro === mia && "is-on"]} onclick={() => ponerFiltro(mia)}>
           {copy.filtroMia}
@@ -148,6 +170,7 @@
     cursor: pointer;
   }
   .filtros button.is-on { color: var(--ink-title); }
+  .filtros button.is-off { opacity: 0.35; }
   .aviso {
     max-width: 36ch;
     font-size: 13px;

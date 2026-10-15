@@ -10,11 +10,19 @@ type ControlEmbed = {
   destroy: () => void;
 };
 
+type CallbacksEmbed = {
+  onCreateCallback?: (control: ControlEmbed) => void;
+  events?: {
+    onReady?: () => void;
+    onError?: () => void;
+  };
+};
+
 type ApiEmbed = {
   createController: (
     element: HTMLElement,
     options: { uri: string; width: number; height: number },
-    callback: (control: ControlEmbed) => void,
+    callback: ((control: ControlEmbed) => void) | CallbacksEmbed,
   ) => void;
 };
 
@@ -65,16 +73,27 @@ export function abrirPreview(
   void cargarSpotify()
     .then((api) => {
       if (cancelado) return;
-      api.createController(slot, { uri: uriSpotify(spotifyId), width: ancho, height: ALTO }, (c) => {
-        if (cancelado) {
-          c.destroy();
-          return;
-        }
-        control = c;
-        alListo({
-          alternar: () => c.togglePlay(),
-          oir: () => c.play(),
-        });
+      api.createController(slot, { uri: uriSpotify(spotifyId), width: ancho, height: ALTO }, {
+        onCreateCallback: (c) => {
+          if (cancelado) {
+            c.destroy();
+            return;
+          }
+          control = c;
+        },
+        events: {
+          onReady: () => {
+            if (cancelado || !control) return;
+            const c = control;
+            alListo({
+              alternar: () => c.togglePlay(),
+              oir: () => c.play(),
+            });
+          },
+          onError: () => {
+            if (!cancelado) alFallar?.();
+          },
+        },
       });
     })
     .catch(() => {

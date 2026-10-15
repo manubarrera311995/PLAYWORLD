@@ -31,9 +31,6 @@
             <span class="nm">{fila.artist}</span>
             <span class="ct">{fila.n}</span>
             <span class="regla">
-              {#if lectura.year != null}
-                <i class="ano" style:left="{lectura.year}%"></i>
-              {/if}
               <i class="marca" style:left="{fila.center}%"></i>
             </span>
             <span>{round(fila.center)}</span>
@@ -82,13 +79,6 @@
   .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
   .ct { color: var(--ink-mute); font-size: 12px; font-variant-numeric: tabular-nums; }
   .regla { position: relative; height: 8px; border-radius: 99px; background: rgba(255, 246, 239, 0.08); }
-  .ano {
-    position: absolute;
-    top: -3px;
-    width: 1px;
-    height: 14px;
-    background: rgba(255, 246, 239, 0.45);
-  }
   .marca {
     position: absolute;
     top: 50%;

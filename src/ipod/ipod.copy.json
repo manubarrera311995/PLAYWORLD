@@ -16,6 +16,7 @@
   "lleno": "Ya hay 5",
   "sinPreview": "Esta canción no está en Spotify",
   "previewFallo": "No se pudo abrir el preview",
+  "cargando": "Cargando",
   "teclas": {
     "menu": "Volver",
     "prev": "Anterior",

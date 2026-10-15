@@ -2,125 +2,120 @@
   import { onMount } from "svelte";
   import { get } from "svelte/store";
   import { recorrido } from "../../estado/recorrido";
-  import { almas, paletaDeAlma } from "../../almas/almas";
-  import { ecosDelArchivo } from "../../almas/motor";
-  import { edicionDe } from "../../datos/archivo";
-  import { cargarPool } from "../../datos/pool";
+  import { almas, paletaDeAlma, type AlmaId } from "../../almas/almas";
   import { aplicarPaleta } from "../../sketches/paleta";
-  import EcosDelArchivo from "./EcosDelArchivo.svelte";
   import Revelado from "./Revelado.svelte";
-  import Sello from "./Sello.svelte";
-  import Boton from "../../ui/Boton.svelte";
   import Marca from "../../ui/Marca.svelte";
   import { navigate, type RutaParsed } from "../director/router";
-  import type { AudioDNA, Track } from "../../datos/tipos";
-  import { fraseDeSeleccion, rotulosDe } from "./frase";
+  import copy from "../hook/hook.copy.json";
 
   type Props = { ruta?: RutaParsed };
   let { ruta: _ruta }: Props = $props();
+
+  type Hora = {
+    id: string;
+    momento: string;
+    corto: string;
+    dicho: string;
+    coincide: boolean;
+  };
+
   const rec = $derived($recorrido);
   const alma = $derived(rec.alma ? almas[rec.alma.principal] : null);
   const eco = $derived(rec.alma ? almas[rec.alma.eco] : null);
-  const fila = $derived.by(() => {
+  const temas = $derived(rec.seleccion?.tracks ?? []);
+
+  const horas = $derived.by((): Hora[] => {
     const ids = rec.almasFila ?? [];
-    const nombres = ids.map((id) => almas[id].corto);
-    if (nombres.length < 2) return nombres[0] ?? "";
-    return `${nombres.slice(0, -1).join(", ")} y ${nombres[nombres.length - 1]}`;
-  });
-  const titulo = $derived.by(() => {
-    if (!alma) return [];
-    let i = 0;
-    return alma.nombre.split(" ").map((palabra) => ({
-      palabra,
-      letras: [...palabra].map((letra) => ({ letra, delay: i++ * 28 })),
-    }));
-  });
-  const rotulos = $derived(rec.seleccion ? rotulosDe(rec.seleccion.tracks) : {});
-  const meta = $derived.by(() => {
-    if (!rec.seleccion || !alma) return "";
-    const year = rec.seleccion.yearHint ?? rec.yearHint ?? rec.edicionAbierta;
-    return [rec.seleccion.alias, year, alma.corto]
-      .filter((p) => p != null && String(p).trim() !== "")
-      .join(" · ");
+    const principal = rec.alma?.principal;
+    return copy.questions.flatMap((pregunta, i) => {
+      const id = ids[i];
+      if (!id || !(id in almas)) return [];
+      const almaId = id as AlmaId;
+      const opcion = pregunta.options.find((o) => o.alma === almaId);
+      return [{
+        id: pregunta.id,
+        momento: pregunta.etiqueta,
+        corto: almas[almaId].corto,
+        dicho: opcion?.label ?? "",
+        coincide: almaId === principal,
+      }];
+    });
   });
 
-  let ecos = $state<Track[]>([]);
-  let anioFrase = $state<number | null>(null);
-  let medianaAnio = $state<Partial<AudioDNA> | null>(null);
-  let anioListo = $state(false);
+  const coincideEn = $derived(horas.findIndex((hora) => hora.coincide));
 
-  const frase = $derived(
-    anioListo && rec.seleccion
-      ? fraseDeSeleccion(rec.seleccion.tracks, anioFrase, medianaAnio)
-      : null,
-  );
+  function filaDe(i: number): number {
+    if (coincideEn >= 0 || horas.length < 2) return i + 1;
+    const corte = horas.length - 1;
+    return i < corte ? i + 1 : i + 2;
+  }
+
+  const filaCruce = $derived.by(() => {
+    if (!horas.length) return 1;
+    if (coincideEn >= 0) return coincideEn + 1;
+    return horas.length;
+  });
 
   onMount(() => {
     const r = get(recorrido);
     if (r.alma) aplicarPaleta(paletaDeAlma(r.alma.principal));
-    void cargarPool().then((pool) => {
-      if (r.seleccion && r.alma) {
-        ecos = ecosDelArchivo(r.seleccion.tracks, pool, r.alma.principal, 4);
-      }
-    });
-    const year = r.seleccion?.yearHint ?? r.yearHint ?? r.edicionAbierta;
-    anioFrase = year;
-    if (year == null) {
-      anioListo = true;
-      return;
-    }
-    void edicionDe(year)
-      .then((ed) => {
-        medianaAnio = ed?.stats.mediana ?? null;
-      })
-      .finally(() => {
-        anioListo = true;
-      });
   });
 </script>
 
 <section class="creacion">
   <Revelado />
-  <div class="col">
-    <header>
-      <Marca />
-      {#if alma}
-        <h1 class="tipo-seccion nombre" aria-label={alma.nombre}>
-          {#each titulo as bloque, bi (bloque.palabra + bi)}
-            <span class="palabra" aria-hidden="true">
-              {#each bloque.letras as letra, li (`${bi}-${li}`)}
-                <span class="letra" style:animation-delay="{letra.delay}ms">{letra.letra}</span>
-              {/each}
-            </span>
+  <Marca />
+  {#if alma}
+    <div class="lienzo">
+      {#if horas.length}
+        <ol class="noche">
+          {#each horas as hora, i (hora.id)}
+            <li class={["hora", hora.coincide && "is-on"]} style:grid-row={filaDe(i)}>
+              <p class="momento">{hora.momento}</p>
+              <h2>{hora.corto}</h2>
+              {#if hora.dicho}
+                <p class="dicho">{hora.dicho}</p>
+              {/if}
+            </li>
           {/each}
-        </h1>
-        {#if eco}
-          <p class="tipo-eco tinta">con un borde {eco.borde}</p>
-        {/if}
-        <p class="tipo-cuerpo">{alma.texto}</p>
-        {#if fila}
-          <p class="tipo-cuerpo">En la fila dijiste {fila}. Tus canciones dicen {alma.corto}.</p>
-        {/if}
+        </ol>
       {/if}
-    </header>
-    {#if rec.alma}
-      <Sello puntajes={rec.alma.puntajes} principal={rec.alma.principal} eco={rec.alma.eco} />
-    {/if}
-    {#if frase}
-      <p class="frase">{frase}</p>
-    {/if}
-    {#if rec.seleccion}
-      <article class="polaroid">
-        <EcosDelArchivo propias={rec.seleccion.tracks} {ecos} {rotulos} />
-        <footer class="borde">
-          {#if meta}
-            <p class="meta">{meta}</p>
+
+      <div
+        class="veredicto"
+        class:solo={!horas.length}
+        class:is-on={coincideEn >= 0}
+        style:grid-row={filaCruce}
+      >
+        <div class="eje">
+          {#if horas.length && coincideEn < 0}
+            <div class="regla" aria-hidden="true"></div>
           {/if}
-          <Boton onclick={() => navigate("/colectiva")}>Mira qué se llevaron los demás</Boton>
-        </footer>
-      </article>
-    {/if}
-  </div>
+          <div class="nombre">
+            <p class="momento">Tus canciones</p>
+            <h1>{alma.corto}</h1>
+          </div>
+        </div>
+        <div class="resto">
+          {#if eco}
+            <p class="borde">con un borde {eco.borde}</p>
+          {/if}
+          <p class="frase">{alma.frase}</p>
+          {#if temas.length}
+            <ul class="temas">
+              {#each temas as tema (tema.id)}
+                <li>{tema.artist}, {tema.track}</li>
+              {/each}
+            </ul>
+          {/if}
+          <button class="cta" type="button" onclick={() => navigate("/colectiva")}>
+            Mira qué se llevaron los demás
+          </button>
+        </div>
+      </div>
+    </div>
+  {/if}
 </section>
 
 <style>
@@ -128,88 +123,191 @@
     position: relative;
     min-height: 100%;
     min-height: 100dvh;
-    display: grid;
-    justify-items: center;
-    padding: var(--pad-y) var(--pad-x) 40px;
-    align-content: start;
-  }
-  .col {
-    width: min(100%, 460px);
-    display: grid;
-    gap: 22px;
-  }
-  header { display: grid; gap: 10px; }
-  .nombre { display: flex; flex-wrap: wrap; column-gap: 0.28em; }
-  .palabra { display: inline-flex; }
-  .letra {
-    display: inline-block;
-    animation: creacion-letra 0.55s var(--ease-out) both;
-  }
-  .tinta {
-    color: var(--c2);
-    animation: creacion-eco 0.7s var(--ease-out) 0.45s both;
-  }
-  .frase {
-    margin: 0;
-    font-family: Anton, Impact, sans-serif;
-    font-size: clamp(22px, 4vw, 34px);
-    font-weight: 400;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    color: var(--ink-title);
-    text-wrap: balance;
-  }
-  .polaroid {
-    background: #f4efe8;
-    color: #241628;
-    padding: 14px 14px 16px;
-    display: grid;
-    gap: 16px;
-    box-shadow: 0 18px 40px rgba(8, 0, 16, 0.28);
-  }
-  .borde {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px 12px;
-    padding: 2px 4px 0;
+    flex-direction: column;
+    gap: clamp(28px, 5vh, 56px);
+    padding: var(--pad-y) var(--pad-x) 48px;
   }
-  .meta {
-    margin: 0;
+
+  .lienzo {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(220px, 440px) minmax(0, 1fr);
+    column-gap: clamp(32px, 5vw, 72px);
+    row-gap: clamp(36px, 6vh, 72px);
+    align-content: center;
+  }
+
+  .noche {
+    display: contents;
+    list-style: none;
+  }
+
+  .hora { grid-column: 1; }
+
+  .momento {
+    margin-bottom: 6px;
     font-size: 11px;
     font-weight: 500;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: #3a2844;
-  }
-  .polaroid :global(button.boton) {
-    color: #2a1834;
-    border-color: rgba(42, 24, 52, 0.35);
-    background: transparent;
-  }
-  .polaroid :global(button.boton:focus-visible) {
-    outline-color: #2a1834;
+    color: var(--ink-mute);
   }
 
-  @keyframes creacion-letra {
-    from { opacity: 0; transform: translateY(0.18em); }
-    to { opacity: 1; transform: none; }
-  }
-  @keyframes creacion-eco {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  .hora h2,
+  .veredicto h1 {
+    font-family: Anton, Impact, sans-serif;
+    font-weight: 400;
+    font-size: clamp(36px, 4.2vw, 64px);
+    line-height: 0.86;
+    letter-spacing: -0.03em;
+    color: var(--ink-title);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .letra,
-    .tinta {
-      animation: none;
+  .dicho {
+    margin-top: 10px;
+    max-width: 28ch;
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--ink-soft);
+  }
+
+  .veredicto {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-self: center;
+  }
+
+  .veredicto.solo { grid-column: 1 / -1; }
+
+  .eje {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: end;
+  }
+
+  .regla {
+    grid-column: 1;
+    height: 2px;
+    width: calc(100% + var(--pad-x) + clamp(32px, 5vw, 72px) - 16px);
+    margin-left: calc(var(--pad-x) * -1);
+    margin-bottom: 0.12em;
+    background: var(--c1);
+  }
+
+  .nombre { grid-column: 2; }
+
+  .veredicto.solo .nombre { grid-column: 1; }
+
+  .resto {
+    grid-column: 2;
+    margin-top: 14px;
+  }
+
+  .veredicto.solo .resto { grid-column: 1; }
+
+  .veredicto.is-on {
+    grid-column: 2;
+    display: block;
+  }
+
+  .veredicto.is-on .eje { display: block; }
+
+  .veredicto .momento { color: var(--c1); }
+
+  .veredicto h1 { color: var(--c1); }
+
+  .hora.is-on h2 {
+    position: relative;
+    color: var(--c1);
+  }
+
+  .hora.is-on h2::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 12px);
+    width: calc(var(--pad-x) + 12px);
+    height: 2px;
+    background: var(--c1);
+    transform: translateY(-50%);
+  }
+
+  .borde {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-title);
+  }
+
+  .frase {
+    margin-top: 8px;
+    max-width: 28ch;
+    font-size: clamp(16px, 1.6vw, 20px);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--ink-soft);
+  }
+
+  .temas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 0;
+    margin-top: 14px;
+    list-style: none;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+
+  .temas li:not(:last-child)::after {
+    content: "·";
+    margin: 0 0.5em;
+    color: var(--ink-mute);
+  }
+
+  .cta {
+    display: inline-block;
+    margin-top: 22px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: var(--ink-title);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+
+  .cta:focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 767px) {
+    .lienzo {
+      grid-template-columns: 1fr;
+      row-gap: 28px;
+      align-content: start;
     }
-  }
 
-  :global(html.reduce) .letra,
-  :global(html.reduce) .tinta {
-    animation: none;
+    .hora,
+    .veredicto,
+    .eje,
+    .regla,
+    .nombre,
+    .resto { grid-column: 1; }
+
+    .regla {
+      width: 88px;
+      margin-left: 0;
+      margin-bottom: 12px;
+    }
+
+    .hora.is-on h2::before { display: none; }
   }
 </style>

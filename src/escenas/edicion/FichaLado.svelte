@@ -1,6 +1,5 @@
 <script lang="ts">
   import copy from "./edicion.copy.json";
-  import { fill } from "./ficha";
   import type { RasgoKey } from "./lectura";
 
   type Fila = { key: RasgoKey; value: number };
@@ -13,17 +12,11 @@
     meta: string;
     filas: readonly Fila[];
     yKey: RasgoKey;
-    tempo: number | null;
-    menor: string;
-    bins: readonly number[];
-    marca: number | null;
     ontrait: (key: RasgoKey) => void;
   };
-  let { porta, art, titulo, subtitulo, meta, filas, yKey, tempo, menor, bins, marca, ontrait }: Props = $props();
+  let { porta, art, titulo, subtitulo, meta, filas, yKey, ontrait }: Props = $props();
 
   const labels = copy.moods as Record<string, string>;
-  const max = $derived(Math.max(...bins, 1));
-  const etiqueta = $derived(labels[yKey] ?? yKey);
 </script>
 
 <aside class="panel">
@@ -50,17 +43,6 @@
         <span class="num">{fila.value}</span>
       </button>
     {/each}
-    <div class="linea"><span>{copy.tablero.tempo}</span><span>{tempo ?? "—"} bpm</span></div>
-    {#if menor}
-      <div class="linea"><span>{copy.stats.minor}</span><span>{menor}</span></div>
-    {/if}
-    <div class="hist">
-      {#each bins as n, i (i)}
-        <i style:height="{Math.max(4, Math.round((n / max) * 100))}%"></i>
-      {/each}
-      {#if marca != null}<i class="aguja" style:left="{marca}%"></i>{/if}
-    </div>
-    <p class="hist-ley">{fill(copy.tablero.hist, { trait: etiqueta })}</p>
   </div>
 </aside>
 
@@ -106,49 +88,17 @@
     cursor: pointer;
   }
   .nombre { font-size: 11px; color: var(--ink-soft); }
-  .barra.is-on .nombre { color: var(--ink); }
   .surco { height: 4px; border-radius: 99px; background: rgba(255, 246, 239, 0.12); overflow: hidden; }
   .surco i { display: block; height: 100%; background: rgba(255, 246, 239, 0.82); }
-  .barra.is-on .surco i { background: #fff; }
-  .num { font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; }
-  .linea {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-    color: var(--ink-soft);
-    font-size: 12px;
+  .num { font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; color: var(--ink-soft); }
+  .barra.is-on {
+    margin-inline: -8px;
+    padding: 5px 8px;
+    border-radius: 8px;
+    background: rgba(232, 90, 134, 0.18);
   }
-  .hist {
-    position: relative;
-    display: flex;
-    align-items: end;
-    gap: 3px;
-    height: 64px;
-    margin-top: 14px;
-  }
-  .hist i {
-    flex: 1;
-    display: block;
-    background: rgba(255, 246, 239, 0.8);
-    border-radius: 2px 2px 0 0;
-    min-height: 2px;
-  }
-  .hist i.aguja {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    flex: none;
-    width: 2px;
-    min-height: 0;
-    background: #e85a86;
-    border-radius: 0;
-    transform: translateX(-1px);
-  }
-  .hist-ley {
-    margin: 6px 0 0;
-    color: var(--ink-mute);
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
+  .barra.is-on .nombre { color: var(--ink); font-size: 12px; }
+  .barra.is-on .surco { height: 6px; background: rgba(232, 90, 134, 0.28); }
+  .barra.is-on .surco i { background: #e85a86; }
+  .barra.is-on .num { color: var(--ink); font-size: 14px; }
 </style>

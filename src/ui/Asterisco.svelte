@@ -8,7 +8,7 @@
 <style>
   .asterisco {
     font-size: 18px;
-    color: rgba(255, 248, 242, 0.85);
+    color: var(--ink-soft);
     line-height: 1;
   }
 </style>

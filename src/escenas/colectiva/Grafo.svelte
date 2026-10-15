@@ -4,7 +4,7 @@
   import { grafoSketch, type GrafoParams } from "../../sketches/grafo.sketch";
   import { layoutGrafo, type LayoutGrafo } from "./layout";
   import type { Rastro } from "../../rastros/tipos";
-  import { ALMA_IDS, almas, type AlmaId } from "../../almas/almas";
+  import type { AlmaId } from "../../almas/almas";
   import { cargarPool } from "../../datos/pool";
   import { artUrl } from "../../datos/color";
 
@@ -14,9 +14,8 @@
     filtro: AlmaId | "all";
     foco: string | null;
     onrastro: (id: string) => void;
-    onfiltro: (id: AlmaId) => void;
   };
-  let { rastros, propioId, filtro, foco, onrastro, onfiltro }: Props = $props();
+  let { rastros, propioId, filtro, foco, onrastro }: Props = $props();
 
   let mountEl: HTMLElement | undefined = $state();
   let isla: Isla | null = null;
@@ -74,22 +73,6 @@
 
 <div class="grafo">
   <div class="lienzo" {@attach stage}></div>
-  {#if layout}
-    <div class="nombres">
-      {#each ALMA_IDS as id (id)}
-        {@const c = layout.centros[id]}
-        <button
-          type="button"
-          class={["constelacion", filtro !== "all" && filtro !== id && "is-off", filtro === id && "is-on"]}
-          style:left="{c.x}px"
-          style:top="{c.y}px"
-          onclick={() => onfiltro(id)}
-        >
-          {almas[id].corto}
-        </button>
-      {/each}
-    </div>
-  {/if}
 </div>
 <ul class="sr-only">
   {#each rastros as r (r.id)}
@@ -107,30 +90,6 @@
     inset: 0;
     touch-action: none;
   }
-  .nombres {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-  .constelacion {
-    position: absolute;
-    transform: translate(-50%, calc(-100% - 18px));
-    max-width: 14ch;
-    border: 0;
-    background: transparent;
-    padding: 0;
-    color: rgba(255, 246, 239, 0.78);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    text-align: center;
-    line-height: 1.35;
-    cursor: pointer;
-    pointer-events: auto;
-  }
-  .constelacion.is-off { opacity: 0.28; }
-  .constelacion.is-on { color: #fff8f1; }
   .sr-only {
     position: absolute;
     width: 1px;

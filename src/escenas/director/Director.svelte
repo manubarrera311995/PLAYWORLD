@@ -13,6 +13,7 @@
   import { currentRuta, hrefOf, initRouter, subscribe, type RutaParsed } from "./router";
   import { crossfade, disolverFondoHome, disuelveFondo, ocultarFondoHome } from "./transiciones";
   import { cambiarCielo, type LimpiezaCielo } from "../../motion/cielo";
+  import { aplicarDegradado } from "../../motion/degradado";
   import { reduce } from "../../motion/reducedMotion";
   import { parcheRecorrido } from "../../estado/recorrido";
   import { precargarPool } from "../../datos/archivo";
@@ -85,6 +86,7 @@
     // crossfade. No se llama a la limpieza previa: cambiarCielo mata el
     // contexto anterior con kill(false) y un revert aquí saltaría el velo.
     limpiarCielo = cambiarCielo(next.name, get(reduce));
+    aplicarDegradado(next.name, get(reduce));
     // Req 7.1: arranca en el mismo tick que el crossfade y sin await, de modo
     // que ambas animaciones comparten inicio y duración.
     if (disuelveFondo(actual.ruta.name, next.name)) disolverFondoHome(leaveEl, get(reduce));
@@ -109,7 +111,10 @@
     // cubren el cambio en caliente de prefers-reduced-motion (Req 8.2, 11.4).
     const unsubReduce = reduce.subscribe((quieto) => {
       const capa = viva();
-      if (capa) limpiarCielo = cambiarCielo(capa.ruta.name, quieto);
+      if (capa) {
+        limpiarCielo = cambiarCielo(capa.ruta.name, quieto);
+        aplicarDegradado(capa.ruta.name, quieto);
+      }
     });
     return () => {
       stop();

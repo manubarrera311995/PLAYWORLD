@@ -9,7 +9,7 @@
   import { cargarTracks } from "../../datos/archivo";
   import { actPrefix, caracterDe, dnaNum, fill, groupActs, median, round, values } from "./ficha";
   import { RASGO_KEYS, filasArtistas, tempoDe, type RasgoKey } from "./lectura";
-  import { binsDe, binsTempo, colorGenero, ejeDe, escalaDe, etiquetaGenero, pasaFiltro, puntoDe } from "./nube";
+  import { binsDe, colorGenero, ejeDe, escalaDe, etiquetaGenero, pasaFiltro, puntoDe } from "./nube";
   import copy from "./edicion.copy.json";
   import contextos from "./contextos.json";
   import Boton from "../../ui/Boton.svelte";
@@ -121,10 +121,6 @@
       return [{ key, median: round(med), bins: binsDe(nums) }];
     }),
   );
-  const tempoVista = $derived(tempoDe(visibles));
-  const tempoCard = $derived(
-    tempoVista ? { median: round(tempoVista.median), bins: binsTempo(values(visibles, "tempo")) } : null,
-  );
   const notas = $derived(escalaDe(visibles));
   const lectura = $derived(filasArtistas(visibles, yKey));
   const trait = $derived((copy.moods as Record<string, string>)[yKey] ?? yKey);
@@ -136,7 +132,11 @@
         art: cancion.art,
         titulo: cancion.artist.split(",")[0]?.trim() || cancion.artist,
         subtitulo: `‘${cancion.track}’`,
-        meta: [cancion.dna.scale, cancion.dna.keyNote].filter(Boolean).join(" · "),
+        meta: [
+          cancion.dna.scale,
+          cancion.dna.keyNote,
+          Number.isFinite(cancion.dna.tempo) ? `${round(cancion.dna.tempo)} bpm` : "",
+        ].filter(Boolean).join(" · "),
       };
     }
     const titulo =
@@ -154,18 +154,6 @@
       return [{ key, value: round(value) }];
     }),
   );
-  const tempoFicha = $derived(
-    cancion && Number.isFinite(cancion.dna.tempo) ? round(cancion.dna.tempo) : tempoVista ? round(tempoVista.median) : null,
-  );
-  const menorFicha = $derived.by(() => {
-    if (cancion || !visibles.length) return "";
-    const tonal = visibles.filter((track) => track.dna.scale === "Menor" || track.dna.scale === "Mayor").length;
-    if (!tonal) return "";
-    const menor = visibles.filter((track) => track.dna.scale === "Menor").length;
-    return `${Math.round((100 * menor) / tonal)}%`;
-  });
-  const binsFicha = $derived(binsDe(values(visibles, yKey)));
-  const marca = $derived(cancion ? dnaNum(cancion, yKey) : null);
   const filtrado = $derived(Boolean(q.trim() || genres.length || selectedAct));
 
   $effect(() => {
@@ -297,7 +285,7 @@
             onsong={elegirCancion}
           />
         {:else if vista === "rasgos"}
-          <VistaRasgos {cards} tempo={tempoCard} {yKey} ontrait={elegirRasgo} />
+          <VistaRasgos {cards} {yKey} />
         {:else if vista === "notas"}
           <VistaNotas {notas} />
         {:else}
@@ -319,10 +307,6 @@
         meta={cabeza.meta}
         filas={filasFicha}
         {yKey}
-        tempo={tempoFicha}
-        menor={menorFicha}
-        bins={binsFicha}
-        {marca}
         ontrait={elegirRasgo}
       />
     </div>

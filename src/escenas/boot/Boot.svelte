@@ -160,6 +160,11 @@
     inset: 0;
     z-index: var(--z-boot);
     pointer-events: auto;
+    /* El velo del boot es oscuro aunque el cielo de home ya sea claro. */
+    --ink: #fff6ef;
+    --ink-soft: rgba(255, 245, 236, 0.9);
+    --ink-mute: rgba(255, 246, 239, 0.72);
+    --ink-title: #fff8f1;
   }
   .boot__velo {
     position: absolute;

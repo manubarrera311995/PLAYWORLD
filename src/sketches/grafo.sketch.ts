@@ -99,12 +99,14 @@ export const grafoSketch: Sketch<GrafoParams> = (p: p5, params, _paleta: Readabl
         const a = porId.get(h.source);
         const b = porId.get(h.target);
         if (!a || !b) continue;
-        const on = (!filtro || a.almaId === filtro) && (!filtro || b.almaId === filtro);
+        const tocaFiltro = !filtro || a.almaId === filtro || b.almaId === filtro;
+        const on = !filtro || (a.almaId === filtro && b.almaId === filtro);
         const tocaFoco = params.foco != null && (a.id === params.foco || b.id === params.foco);
         const conTu = a.tu || b.tu;
         let alpha = 42;
         let peso = 0.7;
-        if (!on) alpha = 8;
+        if (!tocaFiltro) alpha = 8;
+        else if (!on) alpha = 64;
         else if (tocaFoco) {
           alpha = 185;
           peso = 1.15;
@@ -132,10 +134,10 @@ export const grafoSketch: Sketch<GrafoParams> = (p: p5, params, _paleta: Readabl
         const pal = almas[n.almaId].paleta;
         const color = tinta(pal);
         const on = !filtro || n.almaId === filtro;
-        const alpha = !on ? 36 : params.foco && !vecinos.has(n.id) ? 150 : 255;
+        const alpha = !on ? 48 : params.foco && !vecinos.has(n.id) ? 150 : 255;
         const r = magnitud(n.id, n.tu, params.nodos.length);
         const rot = ((hash(n.id) % 360) * Math.PI) / 180;
-        const glow = p.color(color);
+        const glow = p.color(on ? color : "#fff6ef");
         glow.setAlpha(on ? (n.tu ? 100 : 70) : 18);
         p.fill(glow);
         p.circle(n.x, n.y, r * (n.tu ? 3.2 : 2.6));
@@ -146,7 +148,7 @@ export const grafoSketch: Sketch<GrafoParams> = (p: p5, params, _paleta: Readabl
           p.circle(n.x, n.y, r * (n.tu ? 2.15 : 1.9));
           p.noStroke();
         }
-        const cuerpo = p.color(n.tu ? "#fff8f1" : color);
+        const cuerpo = p.color(!on ? "#fff6ef" : n.tu ? "#fff8f1" : color);
         cuerpo.setAlpha(alpha);
         p.fill(cuerpo);
         estrella(p, n.x, n.y, r, n.tu ? 8 : 4, rot, n.tu);

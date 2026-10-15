@@ -40,7 +40,7 @@
   text-indent: 0.26em;
   text-transform: uppercase;
   line-height: 1.7;
-  color: rgba(255, 246, 239, 0.78);
+  color: var(--ink-mute);
 }
 
 .tipo-hero {
@@ -83,7 +83,7 @@
 
 .tipo-pie {
   font-size: clamp(13px, 1.2vw, 16px);
-  color: rgba(255, 245, 236, 0.78);
+  color: var(--ink-soft);
 }
 
 @media (max-width: 767px) {

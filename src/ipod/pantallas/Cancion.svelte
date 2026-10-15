@@ -16,16 +16,27 @@
   const art = $derived(artUrl(track.art, "300"));
 
   let slot = $state<HTMLDivElement | null>(null);
-  let fallo = $state(false);
+  let listoDe = $state<string | null>(null);
+  let falloDe = $state<string | null>(null);
+  const listo = $derived(listoDe === track.spotifyId);
+  const fallo = $derived(falloDe === track.spotifyId);
 
   $effect(() => {
     const el = slot;
     const id = track.spotifyId;
     if (!el || !id) return;
     const avisar = untrack(() => onmando);
-    const cerrar = abrirPreview(el, id, avisar, () => {
-      fallo = true;
-    });
+    const cerrar = abrirPreview(
+      el,
+      id,
+      (mando) => {
+        listoDe = id;
+        avisar(mando);
+      },
+      () => {
+        falloDe = id;
+      },
+    );
     return () => {
       cerrar();
       avisar(null);
@@ -47,8 +58,16 @@
   {:else if fallo}
     <p class="nota">{copy.previewFallo}</p>
   {:else}
-    <div class="preview">
-      <div bind:this={slot}></div>
+    <div class="preview" class:listo aria-busy={!listo}>
+      <div class="slot" bind:this={slot}></div>
+      {#if !listo}
+        <div class="carga" role="status">
+          <span class="carga__txt">{copy.cargando}</span>
+          <span class="carga__pista" aria-hidden="true">
+            <span class="carga__carro"></span>
+          </span>
+        </div>
+      {/if}
     </div>
   {/if}
   <button type="button" onclick={onmeter} disabled={!metida && llena}>
@@ -90,18 +109,77 @@
   }
   .nota { grid-area: play; white-space: normal; }
   .preview {
+    position: relative;
     grid-area: play;
     width: 100%;
     min-height: 152px;
-    border-radius: 8px;
     overflow: hidden;
-    background: #121212;
+    border-radius: 2px;
+    background: #f4f4f4;
   }
-  .preview :global(iframe) {
+  .preview:not(.listo) :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 152px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .preview.listo :global(iframe) {
     display: block;
     width: 100% !important;
     height: 152px;
     border: 0;
+    opacity: 1;
+    transition: opacity 280ms ease;
+  }
+  .carga {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 14px 10px;
+    background: linear-gradient(180deg, #f7f7f7 0%, #e4e4e4 100%);
+  }
+  .carga__txt {
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: #3a3a3a;
+  }
+  .carga__pista {
+    position: relative;
+    height: 8px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #c6c6c6, #efefef);
+    box-shadow:
+      inset 0 1px 2px rgba(0, 0, 0, 0.32),
+      0 1px 0 rgba(255, 255, 255, 0.85);
+  }
+  .carga__carro {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 42%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(180deg, #8ec4ff 0%, #2d78e8 46%, #1c62d6 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    animation: ipod-carga-slider 1.15s ease-in-out infinite;
+  }
+  @keyframes ipod-carga-slider {
+    0% { transform: translateX(-8%); }
+    100% { transform: translateX(155%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .carga__carro {
+      animation: none;
+      width: 58%;
+    }
+    .preview.listo :global(iframe) { transition: none; }
   }
   button {
     grid-area: btn;
