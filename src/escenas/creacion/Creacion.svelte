@@ -8,6 +8,7 @@
   import Marca from "../../ui/Marca.svelte";
   import { navigate, type RutaParsed } from "../director/router";
   import { lineaFila, manchaDe } from "./boleta";
+  import { descargarTarjeta } from "./tarjeta";
   import copy from "../hook/hook.copy.json";
 
   type Props = { ruta?: RutaParsed };
@@ -66,8 +67,23 @@
     mira = { id, momento };
   }
 
-  function imprimir(): void {
-    window.print();
+  let guardando = $state(false);
+
+  async function guardar(): Promise<void> {
+    if (guardando || !alma) return;
+    guardando = true;
+    try {
+      await descargarTarjeta({
+        alias: rec.seleccion?.alias ?? "",
+        proyecto: "PLAYWORLD",
+        anio,
+        alma: alma.nombre,
+        temas: temas.map((tema) => ({ track: tema.track, artist: tema.artist })),
+        mancha,
+      });
+    } finally {
+      guardando = false;
+    }
   }
 
   onMount(() => {
@@ -174,7 +190,9 @@
     </aside>
 
     <div class="acciones">
-      <button type="button" onclick={imprimir}>Imprimir la boleta</button>
+      <button type="button" onclick={guardar} disabled={guardando}>
+        {guardando ? "Guardando…" : "Guardar la boleta"}
+      </button>
       <button type="button" onclick={() => navigate("/colectiva")}>
         Mira qué se llevaron los demás
       </button>
@@ -394,6 +412,11 @@
     outline-offset: 3px;
   }
 
+  .acciones button:disabled {
+    cursor: progress;
+    opacity: 0.55;
+  }
+
   .boleta {
     position: sticky;
     top: 0;
@@ -402,8 +425,6 @@
     width: clamp(200px, 20vw, 260px);
     height: 100dvh;
     padding: clamp(20px, 4vh, 36px) 20px clamp(20px, 4vh, 32px);
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
   }
 
   .anio,
@@ -516,22 +537,5 @@
 
     .cancion,
     .artista { white-space: normal; }
-  }
-
-  @media print {
-    :global(body *) { visibility: hidden; }
-
-    .boleta,
-    .boleta * { visibility: visible; }
-
-    .boleta {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 72mm;
-      height: 100vh;
-      min-height: 100vh;
-      margin: 0;
-    }
   }
 </style>

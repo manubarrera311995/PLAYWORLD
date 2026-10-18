@@ -1,10 +1,14 @@
 import { writable } from "svelte/store";
 import type { AlmaId } from "../datos/tipos";
 import { localPort } from "./adaptadores/local";
-import { semillaPort } from "./adaptadores/semilla";
 import { supabaseDisponible, supabasePort } from "./adaptadores/supabase";
 import { clearPendiente, loadPendientes, loadPropio, savePendiente, savePropio } from "./sesion";
 import type { Rastro, RastroNuevo } from "./tipos";
+
+/** La cartografía solo pinta iPods cerrados de verdad. La semilla no entra. */
+function deIpod(rows: Rastro[]): Rastro[] {
+  return rows.filter((r) => r.origen === "visitante");
+}
 
 export type RastrosEstado = {
   items: Rastro[];
@@ -34,20 +38,26 @@ async function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
 }
 
 export async function hidratar(opts?: { almaId?: AlmaId }): Promise<void> {
-  const semilla = await semillaPort.listar(opts);
-  const local = await localPort.listar();
+  const local = deIpod(await localPort.listar());
   const propio = loadPropio();
-  rastros.set({ items: dedupe([...semilla, ...local, ...(propio ? [propio] : [])]), propio, sinSenal: false });
+  const propioReal = propio?.origen === "visitante" ? propio : null;
+  rastros.set({
+    items: dedupe([...local, ...(propioReal ? [propioReal] : [])]),
+    propio: propioReal,
+    sinSenal: false,
+  });
 
   if (!supabaseDisponible()) {
     rastros.update((s) => ({ ...s, sinSenal: true }));
     return;
   }
   try {
-    const remotos = await withTimeout(supabasePort.listar({ limite: 500, almaId: opts?.almaId }), LISTAR_MS);
+    const remotos = deIpod(
+      await withTimeout(supabasePort.listar({ limite: 500, almaId: opts?.almaId }), LISTAR_MS),
+    );
     rastros.update((s) => ({
       ...s,
-      items: dedupe([...s.items, ...remotos]),
+      items: dedupe([...deIpod(s.items), ...remotos]),
       sinSenal: false,
     }));
   } catch {

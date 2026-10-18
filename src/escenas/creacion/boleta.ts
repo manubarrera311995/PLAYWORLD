@@ -23,11 +23,18 @@ export type Franja = {
   tinta: string;
 };
 
+export type Parada = {
+  color: string;
+  en: number;
+};
+
 export type Mancha = {
   fondo: string;
   franjas: Franja[];
   cabecera: string;
   pie: string;
+  angulo: number;
+  paradas: Parada[];
 };
 
 function clamp01(n: number): number {
@@ -95,6 +102,11 @@ const VACIA: Mancha = {
   franjas: [],
   cabecera: "#fff6ef",
   pie: "#fff6ef",
+  angulo: 180,
+  paradas: [
+    { color: MORA, en: 0 },
+    { color: MAGENTA, en: 100 },
+  ],
 };
 
 export function manchaDe(canciones: CancionMancha[]): Mancha {
@@ -108,17 +120,25 @@ export function manchaDe(canciones: CancionMancha[]): Mancha {
     acc += peso;
     return ((inicio + peso / 2) / total) * 100;
   });
-  const paradas = [
-    `${colores[0]} 0%`,
-    ...colores.map((color, i) => `${color} ${centros[i].toFixed(1)}%`),
-    `${colores[colores.length - 1]} 100%`,
+  const grados = Number(angulo(canciones.map((c) => c.id)).toFixed(1));
+  const paradas: Parada[] = [
+    { color: colores[0], en: 0 },
+    ...colores.map((color, i) => ({ color, en: Number(centros[i].toFixed(1)) })),
+    { color: colores[colores.length - 1], en: 100 },
+  ];
+  const css = [
+    `${paradas[0].color} 0%`,
+    ...paradas.slice(1, -1).map((p) => `${p.color} ${p.en.toFixed(1)}%`),
+    `${paradas[paradas.length - 1].color} 100%`,
   ];
   const franjas = colores.map((color, i) => ({ peso: pesos[i], tinta: tintaDe(color) }));
   return {
-    fondo: `linear-gradient(${angulo(canciones.map((c) => c.id)).toFixed(1)}deg, ${paradas.join(", ")})`,
+    fondo: `linear-gradient(${grados.toFixed(1)}deg, ${css.join(", ")})`,
     franjas,
     cabecera: tintaDe(colores[0]),
     pie: tintaDe(colores[colores.length - 1]),
+    angulo: grados,
+    paradas,
   };
 }
 
