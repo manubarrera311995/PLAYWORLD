@@ -202,7 +202,7 @@
             n={estado.seleccion.length}
             year={rec.yearHint}
             sellado={estado.sellado}
-            {onsaltar}
+            onsaltar={saltar}
           />
         {:else if v.kind === "lista"}
           <Lista
