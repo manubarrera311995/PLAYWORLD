@@ -142,6 +142,6 @@ function lista(nombres: string[]): string {
 /** Una sola frase cuando la fila y las canciones no se encuentran. */
 export function lineaFila(fila: AlmaId[] | null, principal: AlmaId): string | null {
   if (!fila?.length || fila.includes(principal)) return null;
-  const dichos = lista(unicos(fila).map((id) => almas[id].corto));
-  return `En la fila dijiste ${dichos}. Tus canciones dicen ${almas[principal].corto}.`;
+  const dichos = lista(unicos(fila).map((id) => almas[id].nombre));
+  return `En la fila dijiste ${dichos}. Tus canciones dicen ${almas[principal].nombre}.`;
 }

@@ -17,7 +17,7 @@
     id: string;
     almaId: AlmaId;
     momento: string;
-    corto: string;
+    nombre: string;
     dicho: string;
     coincide: boolean;
   };
@@ -44,7 +44,7 @@
         id: pregunta.id,
         almaId,
         momento: pregunta.etiqueta,
-        corto: almas[almaId].corto,
+        nombre: almas[almaId].nombre,
         dicho: opcion?.label ?? "",
         coincide: almaId === principal,
       }];
@@ -80,7 +80,10 @@
   <Revelado />
   {#if alma}
     <div class="zona">
-      <Marca />
+      <header class="cabeza">
+        <Marca />
+        <h1>Tu alma</h1>
+      </header>
       <div class="lienzo">
         {#if horas.length}
           <ol class="noche">
@@ -97,7 +100,7 @@
                   onmouseleave={() => (mira = null)}
                   onfocus={() => posar(hora.almaId, hora.momento)}
                   onblur={() => (mira = null)}
-                >{hora.corto}</button>
+                >{hora.nombre}</button>
                 {#if hora.dicho}
                   <p class="dicho">{hora.dicho}</p>
                 {/if}
@@ -124,7 +127,7 @@
                 onmouseleave={() => (mira = null)}
                 onfocus={() => posar(alma.id, null)}
                 onblur={() => (mira = null)}
-              >{alma.corto}</button>
+              >{alma.nombre}</button>
             </div>
           </div>
         </div>
@@ -166,7 +169,7 @@
             {/each}
           </ol>
         {/if}
-        <p class="sello" style:color={mancha.pie}>{alma.corto}</p>
+        <p class="sello" style:color={mancha.pie}>{alma.nombre}</p>
       </article>
     </aside>
 
@@ -194,6 +197,23 @@
     gap: clamp(28px, 5vh, 56px);
     min-width: 0;
     padding: var(--pad-y) clamp(20px, 3vw, 40px) 88px var(--pad-x);
+  }
+
+  .cabeza {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: Anton, Impact, sans-serif;
+    font-weight: 400;
+    font-size: clamp(48px, 7vw, 88px);
+    line-height: 0.86;
+    letter-spacing: -0.03em;
+    color: var(--ink-title);
   }
 
   .lienzo {
@@ -228,10 +248,12 @@
     background: none;
     font-family: Anton, Impact, sans-serif;
     font-weight: 400;
-    font-size: clamp(36px, 4.2vw, 64px);
-    line-height: 0.86;
+    max-width: 9em;
+    font-size: clamp(32px, 3.6vw, 56px);
+    line-height: 0.9;
     letter-spacing: -0.03em;
     text-align: left;
+    text-wrap: balance;
     text-decoration: none;
     color: var(--ink-title);
     cursor: pointer;
@@ -444,7 +466,11 @@
     opacity: 0.72;
   }
 
-  .sello { letter-spacing: 0.18em; }
+  .sello {
+    letter-spacing: 0.14em;
+    line-height: 1.35;
+    text-wrap: balance;
+  }
 
   @media (max-width: 1023px) {
     .creacion { grid-template-columns: 1fr; }

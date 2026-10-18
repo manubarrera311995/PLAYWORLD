@@ -68,13 +68,13 @@ describe("línea de la fila", () => {
   it("nombra lo dicho en la fila cuando no aparece en las canciones", () => {
     const fila: AlmaId[] = ["colectiva", "intensa", "nostalgica"];
     expect(lineaFila(fila, "exploradora")).toBe(
-      "En la fila dijiste Colectiva, Intensa y Nostálgica. Tus canciones dicen Exploradora.",
+      "En la fila dijiste Alma Colectiva, Alma Intensa y Alma Nostálgica. Tus canciones dicen Alma Exploradora.",
     );
   });
 
   it("deja una sola alma cuando la fila repite", () => {
     expect(lineaFila(["colectiva", "colectiva", "colectiva"], "exploradora")).toBe(
-      "En la fila dijiste Colectiva. Tus canciones dicen Exploradora.",
+      "En la fila dijiste Alma Colectiva. Tus canciones dicen Alma Exploradora.",
     );
   });
 });
