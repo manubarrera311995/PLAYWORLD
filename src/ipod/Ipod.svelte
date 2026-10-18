@@ -12,8 +12,10 @@
   import { bindTeclado } from "./entrada/teclado";
   import {
     atrasDe,
+    CAPACIDAD,
     contarItems,
     enSeleccion,
+    estadoSellado,
     meterOQuitar,
     tituloDe,
     tracksDelAnio,
@@ -29,6 +31,7 @@
   import { tracksAPaleta } from "../datos/color";
   import { aplicarPaleta } from "../sketches/paleta";
   import { paletaDefault } from "../datos/color";
+  import { paletaDeAlma } from "../almas/almas";
   import type { Seleccion, Track } from "../datos/tipos";
   import { cargarSpotify, type MandoSpotify } from "./spotify";
 
@@ -45,7 +48,9 @@
   );
   const nItems = $derived(contarItems(estado));
   const tituloLcd = $derived(
-    v.kind === "menu" && estado.alias ? `iPod de ${estado.alias}` : tituloDe(v),
+    estado.alias && (v.kind === "menu" || (estado.sellado && v.kind === "miIpod"))
+      ? `iPod de ${estado.alias}`
+      : tituloDe(v),
   );
   const atras = $derived(atrasDe(estado));
   const leyenda = $derived({
@@ -98,10 +103,11 @@
     } else if (entrada.tipo === "play") {
       quererOir = true;
     }
+    const yaCerrado = get(ipod).cerrado;
     const next = dispatchIpod(entrada);
     if (visible(next).kind !== "cancion") quererOir = false;
     if (next.resaltada) aplicarPaleta(tracksAPaleta([next.resaltada]));
-    if (next.cerrado) {
+    if (next.cerrado && !yaCerrado) {
       oncerrar({
         trackIds: next.seleccion.map((t) => t.id),
         tracks: next.seleccion,
@@ -117,9 +123,21 @@
     onentrada({ tipo: "select" });
   }
 
-  onMount(() => {
+  const recAlEntrar = get(recorrido);
+  const guardada = recAlEntrar.seleccion;
+  if (guardada && guardada.tracks.length >= CAPACIDAD) {
+    ipod.set(estadoSellado(guardada.alias, guardada.tracks));
+  } else {
     resetIpod();
-    aplicarPaleta(paletaDefault);
+  }
+
+  onMount(() => {
+    if (guardada && guardada.tracks.length >= CAPACIDAD) {
+      if (recAlEntrar.alma) aplicarPaleta(paletaDeAlma(recAlEntrar.alma.principal));
+      else aplicarPaleta(tracksAPaleta(guardada.tracks));
+    } else {
+      aplicarPaleta(paletaDefault);
+    }
     void cargarSpotify().catch(() => {});
     const stopKey = bindTeclado(onentrada);
     campo?.focus();
@@ -179,7 +197,13 @@
             </label>
           </form>
         {:else if v.kind === "menu"}
-          <Menu cursor={estado.cursor} n={estado.seleccion.length} year={rec.yearHint} onsaltar={saltar} />
+          <Menu
+            cursor={estado.cursor}
+            n={estado.seleccion.length}
+            year={rec.yearHint}
+            sellado={estado.sellado}
+            {onsaltar}
+          />
         {:else if v.kind === "lista"}
           <Lista
             items={v.tracks}
@@ -195,6 +219,7 @@
             track={v.track}
             metida={enSeleccion(estado, v.track.id)}
             llena={estado.seleccion.length >= estado.capacidad}
+            fija={estado.sellado}
             {onmando}
             onmeter={() => {
               if (enSeleccion(estado, v.track.id)) {

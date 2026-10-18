@@ -26,19 +26,44 @@ export function etiquetaGenero(track: Track, vacio = "Sin género"): string {
   return genre || vacio;
 }
 
+export function etiquetaPais(track: Track, vacio = "Sin país"): string {
+  const pais = track.pais?.trim();
+  return pais || vacio;
+}
+
+/** País del acto: el más frecuente entre sus canciones. Un artista aporta un país. */
+export function paisDeActo(songs: readonly Track[], vacio = "Sin país"): string {
+  const counts = new Map<string, number>();
+  for (const song of songs) {
+    const label = etiquetaPais(song, vacio);
+    counts.set(label, (counts.get(label) ?? 0) + 1);
+  }
+  return (
+    [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"))[0]?.[0] ??
+    vacio
+  );
+}
+
 export function colorGenero(label: string): string {
   return GENERO_COLOR[label] ?? GENERO_COLOR["Sin género"]!;
 }
 
 export function pasaFiltro(
   track: Track,
-  filtro: { q: string; genres: readonly string[]; prefix: string | null },
+  filtro: {
+    q: string;
+    genres: readonly string[];
+    countries: readonly string[];
+    prefix: string | null;
+  },
   prefix: string,
   etiqueta: string,
+  pais: string,
 ): boolean {
   const q = filtro.q.trim().toLowerCase();
   if (q && !`${track.artist} ${track.track}`.toLowerCase().includes(q)) return false;
   if (filtro.genres.length && !filtro.genres.includes(etiqueta)) return false;
+  if (filtro.countries.length && !filtro.countries.includes(pais)) return false;
   if (filtro.prefix && prefix !== filtro.prefix) return false;
   return true;
 }

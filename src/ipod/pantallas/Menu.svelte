@@ -5,9 +5,10 @@
     cursor: number;
     n: number;
     year: number | null;
+    sellado?: boolean;
     onsaltar: (i: number) => void;
   };
-  let { cursor, n, year, onsaltar }: Props = $props();
+  let { cursor, n, year, sellado = false, onsaltar }: Props = $props();
   const items: MenuId[] = [...MENU];
 </script>
 
@@ -15,9 +16,9 @@
   {#each items as id, i (id)}
     <li>
       <button
-        class={["row", i === cursor && "is-on", menuDisabled(id, n) && "is-off"]}
+        class={["row", i === cursor && "is-on", menuDisabled(id, n, sellado) && "is-off"]}
         type="button"
-        disabled={menuDisabled(id, n)}
+        disabled={menuDisabled(id, n, sellado)}
         onclick={() => onsaltar(i)}
       >
         <span>{menuLabel(id, n, year)}</span>

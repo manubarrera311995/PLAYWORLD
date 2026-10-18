@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { Track } from "../src/datos/tipos";
-import { binsDe, escalaDe, etiquetaGenero, pasaFiltro, PLOT, puntoDe } from "../src/escenas/edicion/nube";
+import {
+  binsDe,
+  escalaDe,
+  etiquetaGenero,
+  paisDeActo,
+  pasaFiltro,
+  PLOT,
+  puntoDe,
+} from "../src/escenas/edicion/nube";
 
 function track(partial: Partial<Track> & { id: string }): Track {
   return {
@@ -38,13 +46,34 @@ describe("nube del año", () => {
     expect(etiquetaGenero(track({ id: "c", genre: undefined }))).toBe("Sin género");
   });
 
-  it("cruza búsqueda, género y artista", () => {
-    const latin = track({ id: "a_1", artist: "Doja Cat", track: "Woman" });
-    const rock = track({ id: "b_1", artist: "Turnstile", track: "Blackout", genre: "Rock" });
-    const filtro = { q: "black", genres: ["Rock"], prefix: "b" };
-    expect(pasaFiltro(rock, filtro, "b", "Rock")).toBe(true);
-    expect(pasaFiltro(latin, filtro, "a", "Latin")).toBe(false);
-    expect(pasaFiltro(rock, { q: "", genres: [], prefix: null }, "b", "Rock")).toBe(true);
+  it("cruza búsqueda, género, país y artista", () => {
+    const latin = track({ id: "a_1", artist: "Doja Cat", track: "Woman", pais: "Estados Unidos" });
+    const rock = track({
+      id: "b_1",
+      artist: "Turnstile",
+      track: "Blackout",
+      genre: "Rock",
+      pais: "Estados Unidos",
+    });
+    const filtro = { q: "black", genres: ["Rock"], countries: ["Estados Unidos"], prefix: "b" };
+    expect(pasaFiltro(rock, filtro, "b", "Rock", "Estados Unidos")).toBe(true);
+    expect(pasaFiltro(latin, filtro, "a", "Latin", "Estados Unidos")).toBe(false);
+    expect(pasaFiltro(rock, { q: "", genres: [], countries: [], prefix: null }, "b", "Rock", "Estados Unidos")).toBe(
+      true,
+    );
+    expect(
+      pasaFiltro(rock, { q: "", genres: [], countries: ["Brasil"], prefix: null }, "b", "Rock", "Estados Unidos"),
+    ).toBe(false);
+  });
+
+  it("elige el país más frecuente del acto", () => {
+    expect(
+      paisDeActo([
+        track({ id: "p_1", pais: "Brasil" }),
+        track({ id: "p_2", pais: "Brasil" }),
+        track({ id: "p_3", pais: "Estados Unidos" }),
+      ]),
+    ).toBe("Brasil");
   });
 
   it("deja el punto dentro del plano, también en los extremos", () => {

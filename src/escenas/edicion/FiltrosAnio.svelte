@@ -7,17 +7,35 @@
   type Props = {
     q: string;
     genres: readonly string[];
+    countries: readonly string[];
     opciones: readonly string[];
+    opcionesPais: readonly string[];
     artistas: readonly Artista[];
     artist: string | null;
     filtrado: boolean;
     onq: (q: string) => void;
     ongenre: (label: string) => void;
+    oncountry: (label: string) => void;
     onartist: (prefix: string) => void;
     onhover: (prefix: string | null) => void;
     onclear: () => void;
   };
-  let { q, genres, opciones, artistas, artist, filtrado, onq, ongenre, onartist, onhover, onclear }: Props = $props();
+  let {
+    q,
+    genres,
+    countries,
+    opciones,
+    opcionesPais,
+    artistas,
+    artist,
+    filtrado,
+    onq,
+    ongenre,
+    oncountry,
+    onartist,
+    onhover,
+    onclear,
+  }: Props = $props();
 </script>
 
 <aside class="panel">
@@ -42,6 +60,17 @@
       >
         <i style:background={colorGenero(label)}></i>{label}
       </button>
+    {/each}
+  </div>
+  <p class="seccion">{copy.tablero.countries}</p>
+  <div class="chips">
+    {#each opcionesPais as label (label)}
+      <button
+        type="button"
+        class={["chip", countries.includes(label) && "is-on"]}
+        aria-pressed={countries.includes(label)}
+        onclick={() => oncountry(label)}
+      >{label}</button>
     {/each}
   </div>
   <p class="seccion">{copy.tablero.artists}</p>

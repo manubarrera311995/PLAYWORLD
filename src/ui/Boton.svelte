@@ -2,14 +2,15 @@
   type Props = {
     onclick?: (e: MouseEvent) => void;
     href?: string;
+    download?: string;
     disabled?: boolean;
     children?: import("svelte").Snippet;
   };
-  let { onclick, href, disabled = false, children }: Props = $props();
+  let { onclick, href, download, disabled = false, children }: Props = $props();
 </script>
 
 {#if href && !disabled}
-  <a class="boton" {href} onclick={(e) => {
+  <a class="boton" {href} {download} onclick={(e) => {
     if (onclick) {
       e.preventDefault();
       onclick(e);
@@ -38,6 +39,7 @@
     font-size: 11px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
+    white-space: nowrap;
     cursor: pointer;
   }
   .boton:disabled {

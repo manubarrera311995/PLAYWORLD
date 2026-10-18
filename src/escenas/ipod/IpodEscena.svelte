@@ -24,6 +24,16 @@
   );
 
   function oncerrar(s: Seleccion): void {
+    const previa = get(recorrido).seleccion;
+    const misma =
+      previa != null &&
+      previa.alias === s.alias &&
+      previa.trackIds.length === s.trackIds.length &&
+      previa.trackIds.every((id, i) => id === s.trackIds[i]);
+    if (misma && get(recorrido).alma) {
+      navigate("/creacion");
+      return;
+    }
     const ranking = rankear(s.tracks);
     parcheRecorrido({ seleccion: s, alma: ranking });
     aplicarPaleta(paletaDeAlma(ranking.principal));

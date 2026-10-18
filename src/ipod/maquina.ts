@@ -24,6 +24,8 @@ export type EstadoIpod = {
   resaltada: Track | null;
   alias: string;
   cerrado: boolean;
+  /** Selección ya guardada: se puede mirar, no se puede cambiar. */
+  sellado: boolean;
 };
 
 export const CAPACIDAD = 5;
@@ -41,6 +43,23 @@ export function estadoInicial(): EstadoIpod {
     resaltada: null,
     alias: "",
     cerrado: false,
+    sellado: false,
+  };
+}
+
+/** Reabre un iPod ya cerrado: el nombre y las canciones, sin el formulario. */
+export function estadoSellado(alias: string, tracks: Track[]): EstadoIpod {
+  const seleccion = tracks.slice(0, CAPACIDAD);
+  return {
+    pila: [{ kind: "menu" }, { kind: "miIpod" }],
+    cursor: 0,
+    cursores: [1, 0],
+    seleccion,
+    capacidad: CAPACIDAD,
+    resaltada: seleccion[0] ?? null,
+    alias,
+    cerrado: false,
+    sellado: true,
   };
 }
 
@@ -155,7 +174,10 @@ export function contarItems(e: EstadoIpod): number {
 
 function selectMenu(e: EstadoIpod, pool: Track[], yearHint: number | null): EstadoIpod {
   const id = MENU[e.cursor];
-  if (id === "songs") return conResalte(push(e, listaDelAnio(pool, yearHint)));
+  if (id === "songs") {
+    if (e.sellado) return e;
+    return conResalte(push(e, listaDelAnio(pool, yearHint)));
+  }
   if (id === "mine") return conResalte(push(e, { kind: "miIpod" }));
   if (id === "close") {
     if (e.seleccion.length < e.capacidad) return e;
@@ -220,6 +242,7 @@ export function aplicar(
 }
 
 function meterYSeguir(e: EstadoIpod, track: Track): EstadoIpod {
+  if (e.sellado) return e;
   const has = e.seleccion.some((t) => t.id === track.id);
   if (has || e.seleccion.length >= e.capacidad) return e;
   const metida = { ...e, seleccion: [...e.seleccion, track] };
@@ -227,6 +250,7 @@ function meterYSeguir(e: EstadoIpod, track: Track): EstadoIpod {
 }
 
 export function meterOQuitar(e: EstadoIpod, track: Track): EstadoIpod {
+  if (e.sellado) return e;
   const has = e.seleccion.some((t) => t.id === track.id);
   if (has) {
     return { ...e, seleccion: e.seleccion.filter((t) => t.id !== track.id) };
@@ -245,6 +269,7 @@ export function menuLabel(id: MenuId, n: number, year: number | null): string {
   return "Cerrar el iPod";
 }
 
-export function menuDisabled(id: MenuId, n: number): boolean {
+export function menuDisabled(id: MenuId, n: number, sellado = false): boolean {
+  if (id === "songs" && sellado) return true;
   return id === "close" && n < CAPACIDAD;
 }

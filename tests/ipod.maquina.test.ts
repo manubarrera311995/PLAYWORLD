@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NOMBRES } from "../src/ipod/alias";
-import { aplicar, atrasDe, estadoInicial, meterOQuitar, visible } from "../src/ipod/maquina";
+import { aplicar, atrasDe, estadoInicial, estadoSellado, meterOQuitar, visible } from "../src/ipod/maquina";
 import type { Track } from "../src/datos/tipos";
 
 function t(id: string): Track {
@@ -184,6 +184,35 @@ describe("máquina iPod", () => {
     e = aplicar(e, { tipo: "play" }, ctx);
     expect(visible(e).kind).toBe("cancion");
     expect(e.seleccion).toHaveLength(0);
+  });
+
+  it("un iPod sellado muestra el nombre y las canciones y no deja cambiarlas", () => {
+    const tracks = pool.slice(0, 5);
+    let e = estadoSellado("Vera", tracks);
+    expect(e.sellado).toBe(true);
+    expect(e.alias).toBe("Vera");
+    expect(e.seleccion.map((tr) => tr.id)).toEqual(["a", "b", "c", "d", "e"]);
+    expect(visible(e).kind).toBe("miIpod");
+
+    e = aplicar(e, { tipo: "back" }, ctx);
+    expect(visible(e).kind).toBe("menu");
+    e = { ...e, cursor: 0 };
+    const quieto = aplicar(e, { tipo: "select" }, ctx);
+    expect(visible(quieto).kind).toBe("menu");
+    expect(quieto.seleccion).toHaveLength(5);
+
+    const ficha = aplicar(estadoSellado("Vera", tracks), { tipo: "select" }, ctx);
+    expect(visible(ficha).kind).toBe("cancion");
+    const metida = aplicar(ficha, { tipo: "select" }, ctx);
+    expect(metida.seleccion).toHaveLength(5);
+    expect(visible(metida).kind).toBe("cancion");
+    const pantalla = visible(metida);
+    if (pantalla.kind !== "cancion") return;
+    expect(meterOQuitar(metida, pantalla.track).seleccion).toHaveLength(5);
+
+    const cierre = aplicar({ ...e, cursor: 2 }, { tipo: "select" }, ctx);
+    expect(cierre.cerrado).toBe(true);
+    expect(cierre.seleccion.map((tr) => tr.id)).toEqual(["a", "b", "c", "d", "e"]);
   });
 
   it("atrás nombra la pantalla anterior", () => {

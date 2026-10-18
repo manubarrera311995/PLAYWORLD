@@ -25,6 +25,8 @@ export type Track = {
   art: string | null;
   spotifyId?: string;
   genre?: string;
+  /** País del CSV. En la vista de un año cuenta una vez por artista, no por canción. */
+  pais?: string;
   dna: AudioDNA;
   dnaPct: Partial<Record<DnaKey, number>>;
   dnaCompleto: boolean;

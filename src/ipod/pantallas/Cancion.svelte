@@ -9,10 +9,11 @@
     track: Track;
     metida: boolean;
     llena: boolean;
+    fija?: boolean;
     onmeter: () => void;
     onmando: (mando: MandoSpotify | null) => void;
   };
-  let { track, metida, llena, onmeter, onmando }: Props = $props();
+  let { track, metida, llena, fija = false, onmeter, onmando }: Props = $props();
   const art = $derived(artUrl(track.art, "300"));
 
   let slot = $state<HTMLDivElement | null>(null);
@@ -70,8 +71,8 @@
       {/if}
     </div>
   {/if}
-  <button type="button" onclick={onmeter} disabled={!metida && llena}>
-    {metida ? copy.quitar : llena ? copy.lleno : copy.meter}
+  <button type="button" onclick={onmeter} disabled={fija || (!metida && llena)}>
+    {fija ? copy.teclas.centro.metida : metida ? copy.quitar : llena ? copy.lleno : copy.meter}
   </button>
 </div>
 
