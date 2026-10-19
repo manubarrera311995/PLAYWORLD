@@ -54,6 +54,17 @@
   text-shadow: 0 8px 40px rgba(20, 0, 40, 0.28);
 }
 
+/* Año a pantalla completa. En una columna (la ficha junto al cartel) se mide al contenedor. */
+.tipo-anio {
+  font-family: Anton, Impact, Haettenschweiler, sans-serif;
+  font-weight: 400;
+  font-size: clamp(88px, min(22vw, 32vh), 280px);
+  line-height: 0.82;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-title);
+}
+
 .tipo-pregunta {
   font-family: Anton, Impact, Haettenschweiler, sans-serif;
   font-weight: 400;
@@ -89,5 +100,15 @@
 @media (max-width: 767px) {
   .tipo-hero {
     font-size: clamp(56px, 19vw, 92px);
+  }
+
+  .tipo-anio {
+    font-size: clamp(72px, 22vw, 128px);
+  }
+}
+
+@container (max-width: 920px) {
+  .tipo-anio {
+    font-size: clamp(112px, 48cqi, 248px);
   }
 }

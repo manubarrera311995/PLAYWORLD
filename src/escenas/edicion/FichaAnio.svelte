@@ -340,7 +340,7 @@
     <p class="status">{copy.loading}</p>
   {:else if !tracks.length}
     <div class="empty">
-      <h1 id="page-title">{year}</h1>
+      <h1 id="page-title" class="tipo-anio">{year}</h1>
       {#if contexto}
         <p class="contexto-titulo">{contexto.titulo}</p>
         {#each contexto.parrafos as parrafo}
@@ -379,7 +379,7 @@
       {/if}
       <div class="lado">
         <div class="year" data-in>
-          <h1 id="page-title">{year}</h1>
+          <h1 id="page-title" class="tipo-anio">{year}</h1>
         </div>
         <div class="relato" data-in>
           {#if contexto}
@@ -496,11 +496,6 @@
     text-align: center;
     gap: 12px;
   }
-  .empty h1 {
-    font-family: Anton, Impact, sans-serif;
-    font-size: clamp(36px, 6vw, 56px);
-    font-weight: 400;
-  }
   .ficha {
     width: min(1440px, 100%);
     min-height: 100%;
@@ -609,14 +604,6 @@
     cursor: pointer;
   }
   .luz-cerrar:hover { color: var(--ink); }
-  h1 {
-    margin: 0;
-    font-family: Anton, Impact, sans-serif;
-    font-size: clamp(140px, 48cqi, 248px);
-    font-weight: 400;
-    line-height: 0.9;
-    letter-spacing: -0.045em;
-  }
   .relato { display: grid; gap: 14px; align-content: start; min-width: 0; }
   .contexto-titulo {
     margin: 0;
@@ -707,7 +694,6 @@
       max-width: 100%;
       margin-inline: auto;
     }
-    h1 { font-size: clamp(112px, 38vw, 200px); }
   }
   @media (prefers-reduced-motion: reduce) {
     .pliego,

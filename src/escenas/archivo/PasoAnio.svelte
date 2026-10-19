@@ -24,7 +24,7 @@
   <Onda {year} {years} />
   {#key year}
     <div class="nucleo">
-      <h1 class="year" aria-label={String(year)} in:fly={inYear}>
+      <h1 class="year tipo-anio" aria-label={String(year)} in:fly={inYear}>
         {#each digits as d, i (i)}
           <span aria-hidden="true">{d}</span>
         {/each}
@@ -50,7 +50,6 @@
 
 <style>
   .paso {
-    --year-size: clamp(88px, min(22vw, 32vh), 280px);
     position: relative;
     height: 100%;
     min-height: 0;
@@ -79,13 +78,7 @@
     justify-content: center;
     align-items: center;
     margin: 0;
-    font-family: Anton, Impact, sans-serif;
-    font-size: var(--year-size);
-    line-height: 0.82;
     font-kerning: none;
-    font-variant-numeric: tabular-nums;
-    color: var(--ink-title);
-    letter-spacing: -0.02em;
     gap: 0.02em;
   }
 
@@ -128,9 +121,6 @@
   }
 
   @media (max-width: 767px) {
-    .paso {
-      --year-size: clamp(72px, 22vw, 128px);
-    }
     .year {
       gap: 0.01em;
     }

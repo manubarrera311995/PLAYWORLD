@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { envolver, extremosDegradado, nombreArchivo, repartirBandas } from "../src/escenas/creacion/tarjeta";
+import { collageDe, envolver, extremosDegradado, nombreArchivo, repartirBandas } from "../src/escenas/creacion/tarjeta";
 
 describe("bandas de la tarjeta", () => {
   it("reparte el alto según el peso", () => {
@@ -51,6 +51,33 @@ describe("envolver", () => {
 
   it("calla si no hay texto", () => {
     expect(envolver("   ", 2, cabe(12))).toEqual([]);
+  });
+});
+
+describe("collage", () => {
+  const caja = { x: 0, y: 0, ancho: 400, alto: 800 };
+
+  it("llena el marco con cinco piezas que no se tapan", () => {
+    const piezas = collageDe(5, caja);
+    expect(piezas).toHaveLength(5);
+    const area = piezas.reduce((suma, p) => suma + p.ancho * p.alto, 0);
+    expect(area).toBeCloseTo(caja.ancho * caja.alto);
+    for (let i = 0; i < piezas.length; i++) {
+      for (let j = i + 1; j < piezas.length; j++) {
+        const a = piezas[i];
+        const b = piezas[j];
+        if (!a || !b) continue;
+        const separado = a.x + a.ancho <= b.x + 0.5 || b.x + b.ancho <= a.x + 0.5
+          || a.y + a.alto <= b.y + 0.5 || b.y + b.alto <= a.y + 0.5;
+        expect(separado).toBe(true);
+      }
+    }
+  });
+
+  it("pone la segunda carátula alta, a la derecha", () => {
+    const piezas = collageDe(5, caja);
+    expect(piezas[1]?.x).toBeCloseTo(200);
+    expect(piezas[1]?.alto).toBeGreaterThan(piezas[0]?.alto ?? 0);
   });
 });
 

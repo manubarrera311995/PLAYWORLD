@@ -7,6 +7,7 @@
   import Revelado from "./Revelado.svelte";
   import Marca from "../../ui/Marca.svelte";
   import { navigate, type RutaParsed } from "../director/router";
+  import { artUrl } from "../../datos/color";
   import { lineaFila, manchaDe } from "./boleta";
   import { descargarTarjeta } from "./tarjeta";
   import copy from "../hook/hook.copy.json";
@@ -78,7 +79,12 @@
         proyecto: "PLAYWORLD",
         anio,
         alma: alma.nombre,
-        temas: temas.map((tema) => ({ track: tema.track, artist: tema.artist })),
+        descripcion: alma.texto,
+        temas: temas.map((tema) => ({
+          track: tema.track,
+          artist: tema.artist,
+          art: artUrl(tema.art, "300"),
+        })),
         mancha,
       });
     } finally {
@@ -98,7 +104,10 @@
     <div class="zona">
       <header class="cabeza">
         <Marca />
-        <h1>Tu alma</h1>
+        {#if anio != null}
+          <p class="eyebrow">{anio}</p>
+        {/if}
+        <h1 class="tipo-seccion">Tu alma</h1>
       </header>
       <div class="lienzo">
         {#if horas.length}
@@ -170,14 +179,19 @@
 
       <article class="boleta" style:background={mancha.fondo}>
         {#if anio != null}
-          <p class="anio" style:color={mancha.cabecera}>{anio}</p>
+          <p class="anio">{anio}</p>
         {/if}
         {#if temas.length}
-          <ol>
+          <ol class="portadas" class:es-cinco={temas.length === 5}>
             {#each temas as tema, i (tema.id)}
-              <li style:flex-grow={mancha.franjas[i]?.peso ?? 1} style:color={mancha.franjas[i]?.tinta}>
-                <span class="num">{String(i + 1).padStart(2, "0")}</span>
-                <span class="tema">
+              {@const porta = artUrl(tema.art, "300")}
+              <li>
+                {#if porta}
+                  <img src={porta} alt="" />
+                {:else}
+                  <span class="hueco" aria-hidden="true"></span>
+                {/if}
+                <span class="pieza">
                   <span class="cancion">{tema.track}</span>
                   <span class="artista">{tema.artist}</span>
                 </span>
@@ -185,7 +199,7 @@
             {/each}
           </ol>
         {/if}
-        <p class="sello" style:color={mancha.pie}>{alma.nombre}</p>
+        <p class="sello">{alma.nombre}</p>
       </article>
     </aside>
 
@@ -222,16 +236,6 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 14px;
-  }
-
-  h1 {
-    margin: 0;
-    font-family: Anton, Impact, sans-serif;
-    font-weight: 400;
-    font-size: clamp(48px, 7vw, 88px);
-    line-height: 0.86;
-    letter-spacing: -0.03em;
-    color: var(--ink-title);
   }
 
   .lienzo {
@@ -420,74 +424,111 @@
   .boleta {
     position: sticky;
     top: 0;
-    display: flex;
-    flex-direction: column;
-    width: clamp(200px, 20vw, 260px);
+    width: clamp(280px, 34vw, 460px);
     height: 100dvh;
-    padding: clamp(20px, 4vh, 36px) 20px clamp(20px, 4vh, 32px);
+    overflow: hidden;
+    background: #100a12;
   }
 
   .anio,
   .sello {
+    position: absolute;
+    z-index: 2;
+    color: #fff6ef;
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.22em;
     text-transform: uppercase;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
   }
 
-  .anio { text-indent: 0.22em; }
+  .anio {
+    top: 18px;
+    left: 16px;
+    text-indent: 0.22em;
+  }
 
-  .boleta ol {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    margin: clamp(18px, 3vh, 28px) 0;
+  .portadas {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 1fr;
     list-style: none;
   }
 
-  .boleta li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .portadas.es-cinco {
+    grid-template-rows: 38fr 20fr 16fr 26fr;
+  }
+
+  .portadas.es-cinco li:nth-child(1) { grid-column: 1; grid-row: 1; }
+  .portadas.es-cinco li:nth-child(2) { grid-column: 2; grid-row: 1 / span 2; }
+  .portadas.es-cinco li:nth-child(3) { grid-column: 1; grid-row: 2 / span 2; }
+  .portadas.es-cinco li:nth-child(4) { grid-column: 2; grid-row: 3 / span 2; }
+  .portadas.es-cinco li:nth-child(5) { grid-column: 1; grid-row: 4; }
+
+  .portadas.es-cinco li:nth-child(4) .pieza,
+  .portadas.es-cinco li:nth-child(5) .pieza {
+    top: 0;
+    bottom: auto;
+    padding: 8px 10px 22px;
+    background: linear-gradient(180deg, rgba(8, 4, 12, 0.78), rgba(8, 4, 12, 0));
+  }
+
+  .portadas li {
+    position: relative;
+    min-width: 0;
     min-height: 0;
+    overflow: hidden;
   }
 
-  .num {
-    flex: none;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    opacity: 0.72;
+  .portadas img,
+  .portadas .hueco {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: rgba(0, 0, 0, 0.28);
   }
 
-  .tema {
+  .pieza {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    min-width: 0;
+    justify-content: flex-end;
+    gap: 1px;
+    padding: 22px 10px 8px;
+    background: linear-gradient(0deg, rgba(8, 4, 12, 0.78), rgba(8, 4, 12, 0));
+    color: #fff6ef;
+    pointer-events: none;
+  }
+
+  .cancion,
+  .artista {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .cancion {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    font-size: 14px;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.15;
   }
 
   .artista {
-    overflow: hidden;
-    font-size: 12px;
-    line-height: 1.2;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    opacity: 0.72;
+    font-size: 10px;
+    line-height: 1.15;
+    opacity: 0.84;
   }
 
   .sello {
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
     letter-spacing: 0.14em;
     line-height: 1.35;
     text-wrap: balance;
@@ -509,8 +550,8 @@
     .boleta {
       position: relative;
       width: 100%;
-      height: auto;
-      min-height: 62dvh;
+      height: 78dvh;
+      min-height: 78dvh;
     }
   }
 
@@ -534,8 +575,5 @@
     }
 
     .hora.is-on .mood::before { display: none; }
-
-    .cancion,
-    .artista { white-space: normal; }
   }
 </style>

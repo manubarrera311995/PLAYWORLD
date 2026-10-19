@@ -76,9 +76,8 @@
       <Asterisco />
     </div>
     <p class="eyebrow">{copy.parada}</p>
-    <p class="eyebrow">{copy.kicker}</p>
     <h1 class="tipo-seccion">{copy.title}</h1>
-    <p class="bajada">{copy.bajada}</p>
+    <p class="bajada tipo-cuerpo">{copy.bajada}</p>
     <div class="filtros">
       {#each ALMA_IDS as id (id)}
         <button
@@ -148,13 +147,9 @@
   .tope { display: flex; align-items: center; gap: 10px; }
   h1 {
     max-width: 10ch;
-    font-size: clamp(28px, 5vw, 44px);
   }
   .bajada {
     max-width: 34ch;
-    font-size: 15px;
-    line-height: 1.4;
-    color: var(--ink-soft);
   }
   .filtros { display: flex; flex-wrap: wrap; gap: 8px 16px; }
   .filtros button {
@@ -223,7 +218,6 @@
     }
     h1 {
       max-width: 9ch;
-      font-size: clamp(28px, 5vw, 56px);
     }
     footer {
       position: absolute;

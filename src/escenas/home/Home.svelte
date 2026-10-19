@@ -28,7 +28,7 @@
     </header>
     <div class="home__stage">
       <div class="home__copy">
-        <p class="home__kicker">{copy.kicker}</p>
+        <p class="home__kicker eyebrow">{copy.kicker}</p>
         <h1 class="tipo-hero">{copy.title[0]}</h1>
         <p class="tipo-cuerpo">{copy.tagline}</p>
       </div>
@@ -116,14 +116,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-  .home__kicker {
-    font-size: clamp(10px, 1vw, 12px);
-    font-weight: 500;
-    letter-spacing: 0.42em;
-    text-indent: 0.42em;
-    text-transform: uppercase;
-    color: var(--ink-mute);
   }
   .home__fragmentos {
     position: absolute;
@@ -530,10 +522,6 @@
     }
     .home__fragmentos {
       display: none;
-    }
-    .home__kicker {
-      letter-spacing: 0.28em;
-      text-indent: 0.28em;
     }
   }
 

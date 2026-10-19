@@ -169,7 +169,7 @@
   <header class="archivo__top" data-chrome>
     <div class="archivo__folio">
       <Marca texto={copy.brand} />
-      <p class="archivo__kicker">{copy.title[0]} {copy.title[1]}</p>
+      <p class="eyebrow">{copy.title[0]} {copy.title[1]}</p>
     </div>
     <p class="archivo__progreso" aria-live="polite">{progreso}</p>
   </header>
@@ -250,14 +250,6 @@
   .archivo__folio {
     display: grid;
     gap: 4px;
-  }
-
-  .archivo__kicker {
-    font-size: 10px;
-    letter-spacing: 0.28em;
-    text-indent: 0.28em;
-    text-transform: uppercase;
-    color: rgba(255, 246, 239, 0.42);
   }
 
   .archivo__progreso {

@@ -7,6 +7,7 @@
   import { paleta } from "./sketches/paleta";
   import { initReducedMotion } from "./motion/reducedMotion";
   import { initViewport } from "./estado/viewport";
+  import Puntero from "./ui/Puntero.svelte";
 
   let directorOn = $state(false);
   let bootOn = $state(true);
@@ -37,4 +38,5 @@
   {#if bootOn}
     <Boot onrevelar={() => (directorOn = true)} onsalida={() => (bootOn = false)} />
   {/if}
+  <Puntero />
 </div>

@@ -43,8 +43,8 @@
   style:--alma={tinta}
 >
   <button type="button" class="x" onclick={oncerrar} aria-label="Cerrar">×</button>
-  <p class="quien">{propio ? copy.tu : rastro.alias ?? copy.alguien}</p>
-  <h2>{alma.nombre}</h2>
+  <p class="quien eyebrow">{propio ? copy.tu : rastro.alias ?? copy.alguien}</p>
+  <h2 class="tipo-seccion">{alma.nombre}</h2>
   <p class="frase">{alma.frase}</p>
   {#if tracks.length}
     <p class="se-llevo">{copy.seLlevo}</p>
@@ -67,6 +67,7 @@
     z-index: 4;
     color: var(--ink);
     padding: 22px 22px 18px 26px;
+    container-type: inline-size;
   }
   .ficha::before {
     content: "";
@@ -116,21 +117,10 @@
     line-height: 1;
     cursor: pointer;
   }
-  .quien {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: var(--ink-mute);
-  }
   h2 {
-    font-family: Anton, Impact, sans-serif;
-    font-weight: 400;
-    font-size: 34px;
-    line-height: 0.95;
-    letter-spacing: -0.02em;
     margin: 8px 0 10px;
-    max-width: 12ch;
+    max-width: 100%;
+    font-size: clamp(28px, 14cqi, 40px);
   }
   .frase {
     max-width: 28ch;

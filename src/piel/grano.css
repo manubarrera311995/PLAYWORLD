@@ -16,17 +16,16 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .mundo {
-    cursor: url("/assets/ui/asterisco-cursor.png") 16 16, auto;
+  html,
+  html *,
+  html *::before,
+  html *::after {
+    cursor: url("/assets/ui/cursor-oculto.cur") 0 0, none !important;
   }
 
-  .mundo :is(a, button, input, textarea, select, summary, label) {
-    cursor: pointer;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mundo {
-    cursor: auto;
+  html :is(input, textarea, select),
+  html :is(input, textarea, select)::before,
+  html :is(input, textarea, select)::after {
+    cursor: text !important;
   }
 }

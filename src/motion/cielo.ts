@@ -52,8 +52,13 @@ type ContextoCielo = ReturnType<InstanciaGsap["context"]>;
 /** Los dos nodos de `Cielo_Global`; ambos o ninguno (Req 8.9). */
 type NodosCielo = { cielo: Element; velo: Element };
 
-/** Vars de un extremo de la transición: solo `transform`, `opacity` y `filter` (Req 8.3). */
-type DestinoCielo = { opacity: number; scale: number; filter?: string };
+/**
+ * Vars de un extremo de la transición: solo `transform`, `opacity` y `filter`
+ * (Req 8.3). `x` e `y` son el reposo de la deriva: sin ellas, al salir de
+ * `colectiva` el `kill(false)` deja el desplazamiento y la escala que vuelve a 1
+ * descubre el borde de `.mundo__bg`.
+ */
+type DestinoCielo = { opacity: number; scale: number; filter?: string; x?: number; y?: number };
 
 /** Prefijo de los avisos de diagnóstico del cielo. */
 const AVISO = "[cielo]";
@@ -136,11 +141,17 @@ function destinoVelo(valores: ValoresCielo): DestinoCielo {
  * `cieloEscala` es el colchón de la deriva y no forma parte de las cuatro
  * magnitudes acotadas, así que se toma del perfil; el resto viene de los valores
  * ya acotados.
+ *
+ * `x` e `y` vuelven a 0 en toda escena. El bucle de `colectiva` es el único que
+ * los mueve, y al matarlo con `kill(false)` el valor queda inline: si la escena
+ * destino no los anima, el fondo se queda corrido cuando la escala regresa a 1.
  */
 function destinoCielo(perfil: PerfilCielo, valores: ValoresCielo): DestinoCielo {
   return {
     opacity: valores.cieloOpacidad,
     scale: perfil.cieloEscala,
+    x: 0,
+    y: 0,
     filter: cadenaBrillo(valores.cieloBrillo),
   };
 }

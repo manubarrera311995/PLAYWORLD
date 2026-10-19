@@ -146,7 +146,7 @@
         </figure>
         <div class="hook__golpe">
           <Eyebrow texto={copy.revealEyebrow} />
-          <h1 class="tipo-hero hook__anio">{puerta.year}</h1>
+          <h1 class="tipo-anio hook__anio">{puerta.year}</h1>
           <p class="tipo-cuerpo">{puerta.linea}</p>
           <Boton onclick={irAlArchivo}>{copy.cta}</Boton>
           <button class="hook__atras" type="button" onclick={atras}>{copy.atras}</button>
@@ -156,10 +156,9 @@
       {#key pregunta.id}
         <div class="hook__paso" {@attach entrarPaso}>
           <div class="hook__kicker">
-            <Eyebrow texto={copy.kicker} />
-            <p class="hook__etiqueta">{pregunta.etiqueta}</p>
+            <Eyebrow texto={pregunta.etiqueta} />
             {#if paso === 0}
-              <p class="hook__bajada">{copy.bajada}</p>
+              <p class="hook__bajada tipo-cuerpo">{copy.bajada}</p>
             {/if}
           </div>
           <h1 class="tipo-pregunta" id="hook-q">{pregunta.text}</h1>
@@ -299,20 +298,9 @@
   .hook__tick.is-on {
     background: rgba(255, 246, 239, 0.88);
   }
-  .hook__etiqueta {
-    margin: 8px 0 0;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-  }
   .hook__bajada {
     max-width: 42ch;
     margin: 8px 0 0;
-    font-size: 14px;
-    line-height: 1.4;
-    color: var(--ink-soft);
   }
   .hook__main {
     display: flex;
@@ -437,11 +425,6 @@
     flex-direction: column;
     align-items: center;
     gap: clamp(16px, 3vh, 28px);
-  }
-  .hook__anio {
-    font-size: clamp(88px, 18vw, 220px);
-    line-height: 0.82;
-    margin: 0;
   }
   .hook__atras {
     appearance: none;

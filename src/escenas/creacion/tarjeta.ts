@@ -9,6 +9,7 @@ const MARGEN_Y = 140;
 export type TemaTarjeta = {
   track: string;
   artist: string;
+  art: string | null;
 };
 
 export type Tarjeta = {
@@ -16,11 +17,48 @@ export type Tarjeta = {
   proyecto: string;
   anio: number | null;
   alma: string;
+  descripcion: string;
   temas: TemaTarjeta[];
   mancha: Mancha;
 };
 
 export type Banda = { y: number; alto: number };
+
+export type Caja = { x: number; y: number; ancho: number; alto: number };
+
+export type Pieza = { x: number; y: number; ancho: number; alto: number };
+
+/** Dos columnas a sangre. La derecha abre con la pieza alta. */
+const MOSAICO = [
+  { col: 0, y: 0, alto: 0.38 },
+  { col: 1, y: 0, alto: 0.58 },
+  { col: 0, y: 0.38, alto: 0.36 },
+  { col: 1, y: 0.58, alto: 0.42 },
+  { col: 0, y: 0.74, alto: 0.26 },
+] as const;
+
+export function collageDe(n: number, caja: Caja): Pieza[] {
+  if (n <= 0 || caja.ancho <= 0 || caja.alto <= 0) return [];
+  if (n === 5) {
+    const mitad = caja.ancho / 2;
+    return MOSAICO.map((m) => ({
+      x: caja.x + m.col * mitad,
+      y: caja.y + m.y * caja.alto,
+      ancho: mitad,
+      alto: m.alto * caja.alto,
+    }));
+  }
+  const cols = n === 1 ? 1 : 2;
+  const filas = Math.ceil(n / cols);
+  const ancho = caja.ancho / cols;
+  const alto = caja.alto / filas;
+  return Array.from({ length: n }, (_, i) => ({
+    x: caja.x + (i % cols) * ancho,
+    y: caja.y + Math.floor(i / cols) * alto,
+    ancho,
+    alto,
+  }));
+}
 
 export function repartirBandas(pesos: number[], desde: number, alto: number): Banda[] {
   if (!pesos.length || alto <= 0) return pesos.map(() => ({ y: desde, alto: 0 }));
@@ -161,76 +199,128 @@ function pintarCabeza(
     const anchoAnio = Math.max(0, ctx.measureText(anio).width - tracking);
     ctx.fillText(anio, x + ancho - anchoAnio, y);
   }
-  y += 52;
+  y += 64;
   const alias = tarjeta.alias.trim();
-  if (!alias) return y;
+  if (!alias) return y + 12;
   const px = pxQueCabe(ctx, alias, ancho, 118, 64);
   fuente(ctx, 400, px, "Anton", "-0.03em");
-  ctx.fillStyle = tinta;
-  ctx.fillText(alias, x, y);
-  return y + px * 0.9 + 36;
+  ctx.textBaseline = "alphabetic";
+  const medida = ctx.measureText(alias);
+  const sube = medida.actualBoundingBoxAscent || px * 0.82;
+  const baja = medida.actualBoundingBoxDescent || px * 0.2;
+  ctx.fillText(alias, x, y + sube);
+  return y + sube + baja + 56;
 }
 
-function pintarTemas(
+function pintarDescripcion(
   ctx: CanvasRenderingContext2D,
-  tarjeta: Tarjeta,
+  texto: string,
   x: number,
   ancho: number,
-  desde: number,
-  alto: number,
+  y: number,
+  tinta: string,
+): number {
+  const limpio = texto.replace(/\s+/g, " ").trim();
+  if (!limpio) return y;
+  const px = 26;
+  const lh = 36;
+  fuente(ctx, 400, px, "Inter");
+  const lineas = envolver(limpio, 6, (s) => ctx.measureText(s).width <= ancho);
+  ctx.fillStyle = tinta;
+  ctx.globalAlpha = 0.92;
+  ctx.textBaseline = "top";
+  ctx.textAlign = "left";
+  lineas.forEach((linea, i) => ctx.fillText(linea, x, y + i * lh));
+  ctx.globalAlpha = 1;
+  return y + lineas.length * lh + 48;
+}
+
+function pintarRecorte(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement | null,
+  pieza: Pieza,
+): void {
+  if (pieza.ancho < 2 || pieza.alto < 2) return;
+  if (!img || !img.naturalWidth) {
+    ctx.save();
+    ctx.globalAlpha = 0.28;
+    ctx.fillStyle = "#000";
+    ctx.fillRect(pieza.x, pieza.y, pieza.ancho, pieza.alto);
+    ctx.restore();
+    return;
+  }
+  const escala = Math.max(pieza.ancho / img.naturalWidth, pieza.alto / img.naturalHeight);
+  const sw = pieza.ancho / escala;
+  const sh = pieza.alto / escala;
+  const sx = (img.naturalWidth - sw) / 2;
+  const sy = (img.naturalHeight - sh) / 2;
+  ctx.drawImage(img, sx, sy, sw, sh, pieza.x, pieza.y, pieza.ancho, pieza.alto);
+}
+
+function pintarEtiqueta(
+  ctx: CanvasRenderingContext2D,
+  tema: TemaTarjeta,
+  pieza: Pieza,
+  arriba: boolean,
+): void {
+  const banda = Math.min(78, pieza.alto * 0.34);
+  const y0 = arriba ? pieza.y : pieza.y + pieza.alto - banda;
+  const velo = ctx.createLinearGradient(pieza.x, y0, pieza.x, y0 + banda);
+  velo.addColorStop(arriba ? 0 : 1, "rgba(8, 4, 12, 0.78)");
+  velo.addColorStop(arriba ? 1 : 0, "rgba(8, 4, 12, 0)");
+  ctx.fillStyle = velo;
+  ctx.fillRect(pieza.x, y0, pieza.ancho, banda);
+
+  const tituloPx = Math.max(14, Math.round(Math.min(28, pieza.ancho * 0.07)));
+  const artistaPx = Math.max(12, Math.round(tituloPx * 0.72));
+  const yTitulo = arriba ? pieza.y + 16 : pieza.y + pieza.alto - 18 - artistaPx - tituloPx;
+  const yArtista = yTitulo + tituloPx + 4;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(pieza.x + 12, y0, Math.max(0, pieza.ancho - 24), banda);
+  ctx.clip();
+  ctx.fillStyle = "#fff6ef";
+  ctx.textBaseline = "top";
+  ctx.textAlign = "left";
+  fuente(ctx, 500, tituloPx, "Inter");
+  const titulo = envolver(tema.track, 1, (s) => ctx.measureText(s).width <= pieza.ancho - 24);
+  ctx.fillText(titulo[0] ?? "", pieza.x + 14, yTitulo);
+  fuente(ctx, 400, artistaPx, "Inter");
+  ctx.globalAlpha = 0.84;
+  const artista = envolver(tema.artist, 1, (s) => ctx.measureText(s).width <= pieza.ancho - 24);
+  if (artista[0]) ctx.fillText(artista[0], pieza.x + 14, yArtista);
+  ctx.restore();
+}
+
+function pintarCollage(
+  ctx: CanvasRenderingContext2D,
+  tarjeta: Tarjeta,
+  portadas: (HTMLImageElement | null)[],
+  caja: Caja,
 ): void {
   const temas = tarjeta.temas;
-  if (!temas.length || alto < 48) return;
-  const franjas = tarjeta.mancha.franjas;
-  const bandas = repartirBandas(
-    temas.map((_, i) => franjas[i]?.peso ?? 1),
-    desde,
-    alto,
-  );
-  const numAncho = 86;
-  const textoX = x + numAncho;
-  const textoAncho = ancho - numAncho;
-  const tituloPx = 42;
-  const tituloLh = 50;
-  const artistaPx = 28;
-  const artistaLh = 34;
-  const gap = 8;
-
+  if (!temas.length) return;
+  const piezas = collageDe(temas.length, caja);
   temas.forEach((tema, i) => {
-    const banda = bandas[i];
-    if (!banda) return;
-    const tinta = franjas[i]?.tinta ?? tarjeta.mancha.pie;
-    const cabeTitulo = (s: string) => {
-      fuente(ctx, 400, tituloPx, "Inter");
-      return ctx.measureText(s).width <= textoAncho;
-    };
-    const dos = tituloLh * 2 + gap + artistaLh;
-    const lineas = envolver(tema.track, banda.alto >= dos ? 2 : 1, cabeTitulo);
-    fuente(ctx, 400, artistaPx, "Inter");
-    const artista = envolver(tema.artist, 1, (s) => ctx.measureText(s).width <= textoAncho);
-    const bloque = lineas.length * tituloLh + (artista.length ? gap + artistaLh : 0);
-    const ty = banda.y + Math.max(0, (banda.alto - bloque) / 2);
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(x, banda.y, ancho, banda.alto);
-    ctx.clip();
-    ctx.fillStyle = tinta;
-    ctx.textBaseline = "top";
-    ctx.textAlign = "left";
-    ctx.globalAlpha = 0.72;
-    fuente(ctx, 500, 26, "Inter", "0.06em");
-    ctx.fillText(String(i + 1).padStart(2, "0"), x, ty + 8);
-    ctx.globalAlpha = 1;
-    fuente(ctx, 400, tituloPx, "Inter");
-    lineas.forEach((linea, li) => ctx.fillText(linea, textoX, ty + li * tituloLh));
-    if (artista[0]) {
-      ctx.globalAlpha = 0.72;
-      fuente(ctx, 400, artistaPx, "Inter");
-      ctx.fillText(artista[0], textoX, ty + lineas.length * tituloLh + gap);
-    }
-    ctx.restore();
+    const pieza = piezas[i];
+    if (!pieza) return;
+    pintarRecorte(ctx, portadas[i] ?? null, pieza);
+    const tocaPiso = pieza.y + pieza.alto >= caja.y + caja.alto - 2;
+    pintarEtiqueta(ctx, tema, pieza, tocaPiso);
   });
+}
+
+function pintarVelos(ctx: CanvasRenderingContext2D, ancho: number, alto: number): void {
+  const arriba = ctx.createLinearGradient(0, 0, 0, alto * 0.46);
+  arriba.addColorStop(0, "rgba(8, 4, 12, 0.78)");
+  arriba.addColorStop(1, "rgba(8, 4, 12, 0)");
+  ctx.fillStyle = arriba;
+  ctx.fillRect(0, 0, ancho, alto * 0.46);
+  const abajo = ctx.createLinearGradient(0, alto * 0.82, 0, alto);
+  abajo.addColorStop(0, "rgba(8, 4, 12, 0)");
+  abajo.addColorStop(1, "rgba(8, 4, 12, 0.72)");
+  ctx.fillStyle = abajo;
+  ctx.fillRect(0, alto * 0.82, ancho, alto * 0.18);
 }
 
 function pintarSello(
@@ -255,14 +345,36 @@ function pintarSello(
   return y;
 }
 
-export function dibujarTarjeta(ctx: CanvasRenderingContext2D, tarjeta: Tarjeta): void {
+export function dibujarTarjeta(
+  ctx: CanvasRenderingContext2D,
+  tarjeta: Tarjeta,
+  portadas: (HTMLImageElement | null)[] = [],
+): void {
   const { ancho, alto } = TARJETA;
+  const tinta = "#fff6ef";
   pintarFondo(ctx, tarjeta.mancha, ancho, alto);
+  pintarCollage(ctx, tarjeta, portadas, { x: 0, y: 0, ancho, alto });
+  pintarVelos(ctx, ancho, alto);
   const x = MARGEN_X;
   const anchoTexto = ancho - MARGEN_X * 2;
-  const cabeza = pintarCabeza(ctx, tarjeta, x, anchoTexto, tarjeta.mancha.cabecera);
-  const selloY = pintarSello(ctx, tarjeta.alma, x, anchoTexto, alto - MARGEN_Y, tarjeta.mancha.pie);
-  pintarTemas(ctx, tarjeta, x, anchoTexto, cabeza + 12, selloY - cabeza - 48);
+  const cabeza = pintarCabeza(ctx, tarjeta, x, anchoTexto, tinta);
+  pintarDescripcion(ctx, tarjeta.descripcion, x, anchoTexto, cabeza, tinta);
+  pintarSello(ctx, tarjeta.alma, x, anchoTexto, alto - 72, tinta);
+}
+
+function cargarImagen(url: string): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const fin = (valor: HTMLImageElement | null) => {
+      clearTimeout(timer);
+      resolve(valor);
+    };
+    const timer = setTimeout(() => fin(null), 4000);
+    img.crossOrigin = "anonymous";
+    img.onload = () => fin(img.naturalWidth ? img : null);
+    img.onerror = () => fin(null);
+    img.src = url;
+  });
 }
 
 async function fuentesListas(): Promise<void> {
@@ -276,12 +388,13 @@ async function fuentesListas(): Promise<void> {
 
 export async function descargarTarjeta(tarjeta: Tarjeta): Promise<void> {
   await fuentesListas();
+  const portadas = await Promise.all(tarjeta.temas.map((tema) => (tema.art ? cargarImagen(tema.art) : Promise.resolve(null))));
   const canvas = document.createElement("canvas");
   canvas.width = TARJETA.ancho;
   canvas.height = TARJETA.alto;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
-  dibujarTarjeta(ctx, tarjeta);
+  dibujarTarjeta(ctx, tarjeta, portadas);
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
   if (!blob) return;
   const url = URL.createObjectURL(blob);
