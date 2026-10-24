@@ -126,7 +126,7 @@ export function montarOrbita(root: HTMLElement): () => void {
         pulsoTl?.kill();
         destelloTl = undefined;
         pulsoTl = undefined;
-        gsap.set(play, { autoAlpha: 0, scale: 0.42 });
+        gsap.set(play, { autoAlpha: 0, scale: 0.42, x: 0, y: 0 });
         if (core) gsap.set(core, { scale: 1 });
         if (icono) gsap.set(icono, { scale: 1 });
         if (destello) gsap.set(destello, { autoAlpha: 0, scale: 0.4 });
@@ -238,7 +238,7 @@ export function montarOrbita(root: HTMLElement): () => void {
       gsap.set(orbita, { rotation: 0 });
       gsap.set(copyEl, { autoAlpha: 1, scale: 1, y: 0 });
       if (fragmentos) gsap.set(fragmentos, { autoAlpha: 1 });
-      gsap.set(play, { autoAlpha: 0, scale: 0.42, rotation: 0, y: 0 });
+      gsap.set(play, { autoAlpha: 0, scale: 0.42, rotation: 0, y: 0, x: 0 });
       if (cue) gsap.set(cue, { autoAlpha: 1 });
       if (foot) gsap.set(foot, { autoAlpha: 0 });
       play.classList.remove("is-vivo");
@@ -261,8 +261,6 @@ export function montarOrbita(root: HTMLElement): () => void {
               aparte = siguiente;
               aplicarMedida();
             }
-            if (self.progress >= 0.92 && self.direction >= 0) encenderDestello();
-            else if (self.progress < 0.88) apagarDestello();
           },
         },
       });
@@ -321,7 +319,41 @@ export function montarOrbita(root: HTMLElement): () => void {
         });
       });
 
+      const sentarPlay = () => {
+        const tira = root.querySelector<HTMLElement>(".tira--der");
+        const stage = root.querySelector<HTMLElement>(".home__stage");
+        if (!tira || !stage) return;
+        const t = tira.getBoundingClientRect();
+        const s = stage.getBoundingClientRect();
+        gsap.set(play, {
+          x: t.left + t.width / 2 - (s.left + s.width / 2),
+          y: t.top + t.height / 2 - (s.top + s.height / 2),
+        });
+      };
+      const alPlay = () => {
+        sentarPlay();
+        destelloTl?.kill();
+        pulsoTl?.kill();
+        destelloTl = undefined;
+        pulsoTl = undefined;
+        destelloHecho = true;
+        if (destello) gsap.set(destello, { autoAlpha: 0, scale: 0.4 });
+        if (brillo) gsap.set(brillo, { autoAlpha: 0, "--shine-x": "-20%" });
+        gsap.set(play, { scale: 1 });
+        gsap.to(play, {
+          autoAlpha: 1,
+          duration: 0.35,
+          ease: "power1.out",
+          overwrite: "auto",
+        });
+      };
+      const alOff = () => apagarDestello();
+      root.addEventListener("home-play", alPlay);
+      root.addEventListener("home-play-off", alOff);
+
       return () => {
+        root.removeEventListener("home-play", alPlay);
+        root.removeEventListener("home-play-off", alOff);
         tweens.forEach((t) => t?.kill());
         tweens.fill(undefined);
         aparecidas.clear();

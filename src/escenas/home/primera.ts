@@ -12,7 +12,9 @@ const PESO_PREVIO = 4;
 const PESO_FAN = 7;
 const PESO_UMBRAL = 8;
 const PESO_ENTENDIDO = 7;
-const PESO_CAMARA = 7;
+const PESO_CAMARA = 9;
+const PESO_SIGUE = 6;
+const PESO_CIERRE = 8;
 
 function pesosDe(beats: HTMLElement[]): number[] {
   const umbralI = beats.findIndex((beat) => beat.classList.contains("home__beat--umbral"));
@@ -21,6 +23,8 @@ function pesosDe(beats: HTMLElement[]): number[] {
     if (beat.classList.contains("home__beat--umbral")) return PESO_UMBRAL;
     if (beat.classList.contains("home__beat--fan")) return PESO_FAN;
     if (beat.classList.contains("home__beat--entendido")) return PESO_ENTENDIDO;
+    if (beat.classList.contains("home__beat--cierre")) return PESO_CIERRE;
+    if (beat.classList.contains("home__beat--sigue")) return PESO_SIGUE;
     if (umbralI >= 0 && i < umbralI) return PESO_PREVIO;
     return 1;
   });
@@ -77,22 +81,32 @@ export function montarPrimera(root: HTMLElement): () => void {
       const n = beats.length;
       const fade = Math.min(0.028, ((FIN - INICIO) / n) * 0.3);
       const camaraI = beats.findIndex((beat) => beat.classList.contains("home__beat--lado"));
+      const entendidoI = beats.findIndex((beat) => beat.classList.contains("home__beat--entendido"));
       const toma = root.querySelector<HTMLElement>(".home__toma");
       const pila = root.querySelector<HTMLElement>(".home__pila");
+      const orbita = root.querySelector<HTMLElement>(".home__orbita");
       const lado = camaraI >= 0 ? beats[camaraI]?.querySelector<HTMLElement>(".home__lado") : null;
       const ventana = camaraI >= 0 ? tramo(camaraI, pesos) : null;
+      const vertical = entendidoI >= 0 ? tramo(entendidoI, pesos) : null;
+      const tomaDesde = vertical?.entra ?? ventana?.entra ?? FIN;
+      const tomaHasta = ventana?.sale ?? vertical?.sale ?? FIN;
 
-      const reposo = (): { x: number; y: number; scale: number } => {
-        const hueco = pila?.querySelector<HTMLElement>(".hueco");
+      /** La cámara nace de pie en la columna derecha. El ancho visual es el alto del cuerpo. */
+      const pose = (): { x: number; y: number; scale: number } => {
         const stage = root.querySelector<HTMLElement>(".home__stage");
-        if (!hueco || !stage || !toma) return { x: 0, y: 0, scale: 0.28 };
-        const h = hueco.getBoundingClientRect();
+        if (!stage || !toma) return { x: 220, y: 0, scale: 0.32 };
         const s = stage.getBoundingClientRect();
         const base = toma.offsetWidth || 1;
+        const alto = s.height * (compacto ? 0.42 : 0.58);
+        const ancho = s.width * (compacto ? 0.34 : 0.28);
+        const porAlto = alto / base;
+        const porAncho = (ancho * 1.4994) / base;
+        const scale = Math.min(0.5, Math.max(0.16, Math.min(porAlto, porAncho)));
+        const col = s.width * (compacto ? 0.58 : 0.74);
         return {
-          x: h.left + h.width / 2 - (s.left + s.width / 2),
-          y: h.top + h.height / 2 - (s.top + s.height / 2),
-          scale: Math.min(0.46, Math.max(0.16, h.width / base)),
+          x: col - s.width / 2,
+          y: compacto ? -s.height * 0.14 : s.height * 0.02,
+          scale,
         };
       };
 
@@ -101,6 +115,8 @@ export function montarPrimera(root: HTMLElement): () => void {
         el.setAttribute("aria-hidden", "true");
         el.setAttribute("inert", "");
       });
+
+      let tiraFin = PLAY_VIVO;
 
       const tl = gsap.timeline({
         defaults: { ease: "none", immediateRender: false },
@@ -113,13 +129,15 @@ export function montarPrimera(root: HTMLElement): () => void {
           scrub: compacto ? 1.25 : 2.2,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
-            const vivo = indice(self.progress, pesos);
-            const tomaViva = camaraI >= 0 && vivo === camaraI;
+            let vivo = indice(self.progress, pesos);
+            const cierreI = beats.findIndex((beat) => beat.classList.contains("home__beat--cierre"));
+            if (cierreI >= 0 && vivo < 0 && self.progress >= tramo(cierreI, pesos).entra) vivo = cierreI;
+            const tomaViva = self.progress >= tomaDesde && self.progress < tomaHasta;
             const ancho = ventana ? ventana.sale - ventana.entra : 1;
             const llena =
               ventana !== null &&
-              self.progress >= ventana.entra + ancho * 0.5 &&
-              self.progress < ventana.entra + ancho * 0.8;
+              self.progress >= ventana.entra + ancho * 0.76 &&
+              self.progress < ventana.entra + ancho * 0.9;
             root.classList.toggle("is-toma", tomaViva);
             root.classList.toggle("is-llena", llena);
             beats.forEach((el, i) => {
@@ -129,7 +147,15 @@ export function montarPrimera(root: HTMLElement): () => void {
               else el.setAttribute("inert", "");
             });
             if (toma) toma.toggleAttribute("aria-hidden", !tomaViva);
-            const listo = self.progress >= PLAY_VIVO;
+            const encendido = root.classList.contains("is-listo");
+            if (!encendido && self.progress >= tiraFin) {
+              root.classList.add("is-listo");
+              root.dispatchEvent(new Event("home-play"));
+            } else if (encendido && self.progress < tiraFin - 0.05) {
+              root.classList.remove("is-listo");
+              root.dispatchEvent(new Event("home-play-off"));
+            }
+            const listo = root.classList.contains("is-listo");
             play.classList.toggle("is-vivo", listo);
             if (listo) {
               play.removeAttribute("inert");
@@ -147,25 +173,37 @@ export function montarPrimera(root: HTMLElement): () => void {
         gsap.set(toma, {
           xPercent: -50,
           yPercent: -50,
-          x: () => reposo().x,
-          y: () => reposo().y,
-          scale: () => reposo().scale,
+          transformOrigin: "50% 50%",
+          rotation: -90,
+          x: () => pose().x,
+          y: () => pose().y + 72,
+          scale: () => pose().scale * 0.7,
           autoAlpha: 0,
           force3D: true,
         });
       }
 
+      const cierreI = beats.findIndex((beat) => beat.classList.contains("home__beat--cierre"));
+      const puente = cierreI >= 0 ? tramo(cierreI, pesos).entra : null;
+
       beats.forEach((beat, i) => {
         const { entra, sale } = tramo(i, pesos);
-        tl.to(beat, { autoAlpha: 1, duration: fade }, entra);
-        tl.to(beat, { autoAlpha: 0, duration: fade }, sale);
+        const cierre = i === cierreI;
+        const previa = puente !== null && i === cierreI - 1;
+        tl.to(beat, { autoAlpha: 1, duration: fade, ease: "none" }, entra);
+        if (cierre) return;
+        tl.to(
+          beat,
+          { autoAlpha: 0, duration: fade, ease: "none" },
+          previa && puente !== null ? puente : sale,
+        );
       });
 
       const umbralI = beats.findIndex((beat) => beat.classList.contains("home__beat--umbral"));
       const soltarUmbral = umbralI >= 0 ? cruzarUmbral(tl, root, tramo(umbralI, pesos)) : null;
 
       const fanI = beats.findIndex((beat) => beat.classList.contains("home__beat--fan"));
-      const pista = root.querySelector<HTMLElement>(".tira__pista");
+      const pista = root.querySelector<HTMLElement>(".home__beat--fan .tira__pista");
       if (pista && fanI >= 0) {
         const { entra, sale } = tramo(fanI, pesos);
         const dur = sale - entra;
@@ -184,43 +222,105 @@ export function montarPrimera(root: HTMLElement): () => void {
         );
       }
 
-      if (toma && ventana) {
+      const sigueIdx = beats
+        .map((beat, i) => (beat.classList.contains("home__beat--sigue") ? i : -1))
+        .filter((i) => i >= 0);
+      const cola =
+        sigueIdx.length > 0
+          ? {
+              entra: tramo(sigueIdx[0] ?? 0, pesos).entra,
+              sale: tramo(sigueIdx[sigueIdx.length - 1] ?? 0, pesos).sale,
+            }
+          : null;
+      tiraFin = cola?.sale ?? PLAY_VIVO;
+
+      if (orbita && vertical) {
+        tl.to(orbita, { autoAlpha: 0, duration: fade, ease: "power1.in" }, vertical.entra);
+      }
+
+      const tiraDer = root.querySelector<HTMLElement>(".tira--der");
+      const pistaDer = root.querySelector<HTMLElement>(".tira--der .tira__pista");
+      const alCargar = () => {
+        tl.invalidate();
+        tl.progress(tl.progress());
+      };
+      tiraDer?.addEventListener("cargada", alCargar);
+      if (tiraDer) gsap.set(tiraDer, { autoAlpha: 0 });
+      if (pistaDer && cola) {
+        const { entra, sale } = cola;
+        const dur = sale - entra;
+        const abajo = () => pistaDer.parentElement?.clientHeight ?? 0;
+        gsap.set(pistaDer, { y: abajo });
+        tl.to(tiraDer, { autoAlpha: 1, duration: fade * 1.4, ease: "power1.out" }, entra);
+        tl.fromTo(
+          pistaDer,
+          { y: abajo },
+          {
+            y: () => abajo() - pistaDer.offsetHeight,
+            duration: dur * 0.92,
+            ease: "none",
+            immediateRender: false,
+          },
+          entra + dur * 0.02,
+        );
+        tl.to(tiraDer, { autoAlpha: 0, duration: fade, ease: "power1.in" }, sale - fade);
+      }
+
+      if (toma && vertical && ventana) {
+        const nace = vertical.entra + (vertical.sale - vertical.entra) * 0.04;
+        const gira = ventana.entra + (ventana.sale - ventana.entra) * 0.46;
+        tl.to(
+          toma,
+          { autoAlpha: 1, duration: (vertical.sale - vertical.entra) * 0.14, ease: "power1.out" },
+          nace,
+        );
+        tl.fromTo(
+          toma,
+          {
+            rotation: -90,
+            x: () => pose().x,
+            y: () => pose().y + 28,
+            scale: () => pose().scale * 0.7,
+          },
+          {
+            rotation: -90,
+            x: () => pose().x,
+            y: () => pose().y,
+            scale: () => Math.min(0.68, pose().scale * 1.85),
+            duration: gira - nace,
+            ease: "none",
+            immediateRender: false,
+          },
+          nace,
+        );
         const { entra, sale } = ventana;
         const dur = sale - entra;
         tl.to(
           toma,
           {
-            autoAlpha: 1,
-            x: () => reposo().x,
-            y: () => reposo().y,
-            scale: () => reposo().scale,
-            duration: dur * 0.16,
-            ease: "power2.out",
+            rotation: 0,
+            x: 0,
+            y: 0,
+            scale: 1,
+            duration: dur * 0.36,
+            ease: "power2.inOut",
+            immediateRender: false,
           },
-          entra,
-        );
-        tl.to(
-          toma,
-          { x: 0, y: 0, scale: 1, duration: dur * 0.24, ease: "power2.inOut" },
-          entra + dur * 0.34,
+          gira,
         );
         if (lado) {
-          tl.to(lado, { autoAlpha: 0, y: -16, duration: dur * 0.12, ease: "power1.in" }, entra + dur * 0.36);
-        }
-        if (pila) {
-          tl.to(pila, { autoAlpha: 0, duration: dur * 0.14, ease: "power1.in" }, entra + dur * 0.4);
+          tl.to(lado, { autoAlpha: 0, y: -12, duration: dur * 0.14, ease: "power1.in" }, gira);
         }
         tl.to(
           toma,
           {
             autoAlpha: 0,
-            scale: () => Math.max(0.18, reposo().scale * 0.72),
-            x: () => reposo().x * 0.35,
-            y: -36,
-            duration: dur * 0.22,
+            scale: 0.9,
+            y: -24,
+            duration: dur * 0.12,
             ease: "power2.in",
           },
-          entra + dur * 0.78,
+          entra + dur * 0.88,
         );
       }
       tl.set({}, {}, 1);
@@ -233,8 +333,10 @@ export function montarPrimera(root: HTMLElement): () => void {
         play.removeAttribute("inert");
         play.setAttribute("aria-label", etiqueta);
         beats.forEach((el) => el.removeAttribute("inert"));
+        tiraDer?.removeEventListener("cargada", alCargar);
         root.classList.remove("is-toma");
         root.classList.remove("is-llena");
+        root.classList.remove("is-listo");
       };
     },
     root,

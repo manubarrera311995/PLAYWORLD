@@ -16,7 +16,6 @@ export function cruzarUmbral(
   const umbral = root.querySelector<HTMLElement>(".home__umbral");
   const rendija = root.querySelector<HTMLElement>(".home__rendija");
   const copia = root.querySelector<HTMLElement>(".home__umbral-copy");
-  const pila = root.querySelector<HTMLElement>(".home__pila");
   const lados = Array.from(root.querySelectorAll<HTMLElement>(".home__cierre-izq, .home__cierre-der"));
   const frentes = Array.from(root.querySelectorAll<HTMLElement>(".home__cierre-arriba, .home__cierre-abajo"));
   const cinta = root.querySelector<HTMLElement>(".home__cinta");
@@ -100,11 +99,6 @@ export function cruzarUmbral(
   );
   tl.to(anio, { autoAlpha: 1, duration: tCierre * 0.55, ease: "power2.out" }, entra + tCierre * 0.45);
   tl.to(umbral, { autoAlpha: 1, duration: dur * 0.03, ease: "none" }, entra + tCierre * 0.9);
-
-  if (pila) {
-    tl.to(pila, { autoAlpha: 0, duration: dur * 0.045, ease: "power1.in" }, entra);
-    tl.to(pila, { autoAlpha: 1, duration: salida * 0.5, ease: "power1.out" }, sale - salida * 0.35);
-  }
 
   tl.fromTo(
     cinta,

@@ -17,6 +17,8 @@
 
   type Props = { ruta?: RutaParsed };
   let { ruta: _ruta }: Props = $props();
+
+  const trasCamara = copy.primera.pasos.findIndex((paso) => "camara" in paso && paso.camara);
 </script>
 
 <!--
@@ -48,7 +50,7 @@
       </div>
       <span class="home__play-destello" aria-hidden="true"></span>
       <div class="home__relato" aria-label="{copy.primera.indice}. {copy.primera.lugar}">
-        {#each copy.primera.pasos as paso (paso.nombre)}
+        {#each copy.primera.pasos as paso, i (paso.nombre)}
           <div
             class="home__beat"
             class:home__beat--lado={"camara" in paso && paso.camara}
@@ -56,10 +58,11 @@
             class:home__beat--pregunta={paso.nombre === "La pregunta"}
             class:home__beat--fan={paso.nombre === "La fan"}
             class:home__beat--entendido={paso.nombre === "Lo que entendí"}
+            class:home__beat--sigue={trasCamara >= 0 && i > trasCamara && paso.nombre !== "La fila"}
+            class:home__beat--cierre={paso.nombre === "La fila"}
           >
-            {#if paso.img && "camara" in paso && paso.camara}
+            {#if "camara" in paso && paso.camara}
               <div class="home__lado">
-                <img class="home__pieza home__pieza--{paso.clase}" src={paso.img} alt={paso.alt} />
                 <p class="home__frase">{paso.frase}</p>
               </div>
             {:else}
@@ -77,6 +80,7 @@
           </div>
         {/each}
       </div>
+      <Tira lado="der" origen="caratulas" cards={copy.cards} />
       <button
         class="home__play"
         type="button"
@@ -467,6 +471,8 @@
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+    transform-origin: 50% 50%;
+    will-change: transform, opacity;
   }
   .home__toma :global(.objeto) {
     width: 100%;
@@ -510,7 +516,10 @@
     overflow: visible;
   }
   .home__beat--fan .home__frase,
-  .home__beat--entendido .home__frase {
+  .home__beat--entendido .home__frase,
+  .home__beat--lado .home__frase,
+  .home__beat--sigue .home__frase,
+  .home__beat--cierre .home__frase {
     max-width: none;
     font-family: "DM Sans", system-ui, sans-serif;
     font-weight: 500;
@@ -520,7 +529,10 @@
     text-wrap: pretty;
     transform: translateY(9vh);
   }
-  .home__beat--entendido {
+  .home__beat--entendido,
+  .home__beat--lado,
+  .home__beat--sigue,
+  .home__beat--cierre {
     right: auto;
     width: min(44vw, 640px);
     justify-content: center;
@@ -557,6 +569,14 @@
     position: relative;
     z-index: 5;
   }
+  .home:global(.is-listo) .home__play-destello,
+  .home:global(.is-listo) .home__play-aura,
+  .home:global(.is-listo) .home__play-ring,
+  .home:global(.is-listo) .home__play-ring--eco {
+    animation: none;
+    opacity: 0;
+  }
+
   @keyframes play-halo {
     0% {
       transform: scale(0.92);
@@ -723,7 +743,10 @@
     letter-spacing: -0.042em;
   }
   .home:global(.is-quieto) .home__beat--fan .home__frase,
-  .home:global(.is-quieto) .home__beat--entendido .home__frase {
+  .home:global(.is-quieto) .home__beat--entendido .home__frase,
+  .home:global(.is-quieto) .home__beat--lado .home__frase,
+  .home:global(.is-quieto) .home__beat--sigue .home__frase,
+  .home:global(.is-quieto) .home__beat--cierre .home__frase {
     font-size: clamp(28px, 3.6vw, 44px);
     font-weight: 500;
     line-height: 1.12;
@@ -731,7 +754,10 @@
     transform: none;
   }
   .home:global(.is-quieto) .home__beat--fan,
-  .home:global(.is-quieto) .home__beat--entendido {
+  .home:global(.is-quieto) .home__beat--entendido,
+  .home:global(.is-quieto) .home__beat--lado,
+  .home:global(.is-quieto) .home__beat--sigue,
+  .home:global(.is-quieto) .home__beat--cierre {
     width: min(100%, 720px);
   }
 
@@ -781,24 +807,29 @@
       justify-content: flex-end;
     }
     .home__beat--fan .home__frase,
-    .home__beat--entendido .home__frase {
+    .home__beat--entendido .home__frase,
+    .home__beat--lado .home__frase,
+    .home__beat--sigue .home__frase,
+    .home__beat--cierre .home__frase {
       font-size: clamp(24px, 6vw, 32px);
       font-weight: 500;
       line-height: 1.14;
       letter-spacing: -0.02em;
       transform: none;
     }
-    .home__beat--entendido {
+    .home__beat--entendido,
+    .home__beat--lado {
       inset: auto 0 0 0;
       width: 100%;
       height: auto;
       justify-content: flex-end;
     }
-    .home__beat--lado {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
+    .home__beat--sigue,
+    .home__beat--cierre {
+      inset: auto auto 0 0;
+      width: 54%;
+      height: auto;
+      justify-content: flex-end;
     }
   }
 
@@ -879,9 +910,7 @@
       white-space: normal;
     }
     .home__beat--lado {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
+      width: min(100%, 720px);
     }
     .home__pila {
       position: relative;
@@ -930,7 +959,10 @@
       letter-spacing: -0.042em;
     }
     .home__beat--fan .home__frase,
-    .home__beat--entendido .home__frase {
+    .home__beat--entendido .home__frase,
+    .home__beat--lado .home__frase,
+    .home__beat--sigue .home__frase,
+    .home__beat--cierre .home__frase {
       font-size: clamp(28px, 3.6vw, 44px);
       font-weight: 500;
       line-height: 1.12;
@@ -938,7 +970,10 @@
       transform: none;
     }
     .home__beat--fan,
-    .home__beat--entendido {
+    .home__beat--entendido,
+    .home__beat--lado,
+    .home__beat--sigue,
+    .home__beat--cierre {
       width: min(100%, 720px);
     }
     .home__play:global(.is-vivo) .home__play-ring,
