@@ -60,9 +60,9 @@ const marks = rows
   }
   ${row.songs.map((s) => `<circle cx="${s.x}" cy="${s.y}" r="2.4" fill="rgba(255,190,158,.82)"/>`).join("")}
   <circle cx="${row.cx}" cy="${row.y}" r="${i === hoverIdx ? 5.4 : 4.2}" fill="${i === hoverIdx ? "#ff9466" : "#fff6ef"}"/>
-  <text x="${geo.left - 42}" y="${row.y + 4}" text-anchor="end" fill="${row.thin ? "rgba(255,246,239,.38)" : "rgba(255,245,236,.9)"}" font-size="11" font-family="Inter,sans-serif">${esc(corto(row.artist))}</text>
-  <text x="${geo.left - 14}" y="${row.y + 4}" text-anchor="end" fill="rgba(255,246,239,.42)" font-size="11" font-family="Inter,sans-serif">${row.n}</text>
-  <text x="${geo.left + geo.plotW + 12}" y="${row.y + 4}" fill="rgba(255,246,239,.72)" font-size="11" font-family="Inter,sans-serif">${Math.round(row.center)}</text>`,
+  <text x="${geo.left - 42}" y="${row.y + 4}" text-anchor="end" fill="${row.thin ? "rgba(255,246,239,.38)" : "rgba(255,245,236,.9)"}" font-size="11" font-family="'DM Sans', sans-serif">${esc(corto(row.artist))}</text>
+  <text x="${geo.left - 14}" y="${row.y + 4}" text-anchor="end" fill="rgba(255,246,239,.42)" font-size="11" font-family="'DM Sans', sans-serif">${row.n}</text>
+  <text x="${geo.left + geo.plotW + 12}" y="${row.y + 4}" fill="rgba(255,246,239,.72)" font-size="11" font-family="'DM Sans', sans-serif">${Math.round(row.center)}</text>`,
   )
   .join("");
 
@@ -74,23 +74,23 @@ const reparto = repartoDe(entradas.map((a) => a.center), songCenter);
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${geo.width}" height="${geo.height}" viewBox="0 0 ${geo.width} ${geo.height}">
 <rect width="100%" height="100%" fill="#14081a"/>
-<text x="16" y="${geo.top - 18}" fill="rgba(255,246,239,.42)" font-size="10" font-family="Inter,sans-serif" letter-spacing="1.4">${metric.toUpperCase()} · 0–100</text>
+<text x="16" y="${geo.top - 18}" fill="rgba(255,246,239,.42)" font-size="10" font-family="'DM Sans', sans-serif" letter-spacing="1.4">${metric.toUpperCase()} · 0–100</text>
 ${[0, 50, 100]
   .map(
     (t, i) =>
       `<line x1="${xDe(t, geo)}" x2="${xDe(t, geo)}" y1="${geo.top - 10}" y2="${geo.bottom + 8}" stroke="rgba(255,246,239,${t === 50 ? ".14" : ".09"})" ${t === 50 ? 'stroke-dasharray="3 7"' : ""}/>
-       <text x="${xDe(t, geo)}" y="${geo.top - 18}" text-anchor="${i === 0 ? "start" : i === 2 ? "end" : "middle"}" fill="rgba(255,246,239,.42)" font-size="10" font-family="Inter,sans-serif">${t}</text>`,
+       <text x="${xDe(t, geo)}" y="${geo.top - 18}" text-anchor="${i === 0 ? "start" : i === 2 ? "end" : "middle"}" fill="rgba(255,246,239,.42)" font-size="10" font-family="'DM Sans', sans-serif">${t}</text>`,
   )
   .join("")}
 ${
   split
     ? `<rect x="${Math.min(xs, xa)}" y="${geo.top - 10}" width="${Math.abs(xs - xa)}" height="${geo.bottom + 18 - geo.top}" fill="rgba(255,143,189,.12)"/>
        <line x1="${xa}" x2="${xa}" y1="${geo.top - 10}" y2="${geo.bottom + 8}" stroke="#ff8fbd" stroke-dasharray="3 4"/>
-       <text x="${xa + 8}" y="${geo.bottom + 28}" fill="#ff8fbd" font-size="10" font-weight="600" font-family="Inter,sans-serif" letter-spacing="1.6">MEDIANA DE ACTOS · ${Math.round(actCenter)} (${actCenter > songCenter ? "+" : "−"}${Math.round(Math.abs(songCenter - actCenter))})</text>`
+       <text x="${xa + 8}" y="${geo.bottom + 28}" fill="#ff8fbd" font-size="10" font-weight="600" font-family="'DM Sans', sans-serif" letter-spacing="1.6">MEDIANA DE ACTOS · ${Math.round(actCenter)} (${actCenter > songCenter ? "+" : "−"}${Math.round(Math.abs(songCenter - actCenter))})</text>`
     : ""
 }
 <line x1="${xs}" x2="${xs}" y1="${geo.top - 10}" y2="${geo.bottom + 8}" stroke="#fff6ef" stroke-width="1.5"/>
-<text x="${anchor.x}" y="${geo.top - 38}" text-anchor="${anchor.a}" fill="#fff6ef" font-size="10" font-weight="600" font-family="Inter,sans-serif" letter-spacing="1.6">MEDIANA DEL AÑO · ${Math.round(songCenter)}</text>
+<text x="${anchor.x}" y="${geo.top - 38}" text-anchor="${anchor.a}" fill="#fff6ef" font-size="10" font-weight="600" font-family="'DM Sans', sans-serif" letter-spacing="1.6">MEDIANA DEL AÑO · ${Math.round(songCenter)}</text>
 ${marks}
 </svg>`;
 

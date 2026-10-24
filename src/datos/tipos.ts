@@ -27,6 +27,14 @@ export type Track = {
   genre?: string;
   /** País del CSV. En la vista de un año cuenta una vez por artista, no por canción. */
   pais?: string;
+  /** Cover o remix: quien la tocó en el festival y quién es en Spotify. */
+  observacion?: {
+    nota: string;
+    enFestival: string;
+    enSpotify: string;
+    artistaOriginal: string;
+    tituloCartel: string;
+  };
   dna: AudioDNA;
   dnaPct: Partial<Record<DnaKey, number>>;
   dnaCompleto: boolean;

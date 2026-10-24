@@ -173,7 +173,7 @@ function pxQueCabe(
 ): number {
   let px = max;
   while (px > min) {
-    fuente(ctx, 400, px, "Anton", "-0.03em");
+    fuente(ctx, 400, px, "Outfit", "-0.03em");
     if (ctx.measureText(texto).width <= ancho) return px;
     px -= 2;
   }
@@ -191,7 +191,7 @@ function pintarCabeza(
   ctx.fillStyle = tinta;
   ctx.textBaseline = "top";
   ctx.textAlign = "left";
-  fuente(ctx, 500, 26, "Inter", "0.42em");
+  fuente(ctx, 500, 26, '"DM Sans"', "0.42em");
   ctx.fillText(tarjeta.proyecto, x, y);
   if (tarjeta.anio != null) {
     const anio = String(tarjeta.anio);
@@ -203,7 +203,7 @@ function pintarCabeza(
   const alias = tarjeta.alias.trim();
   if (!alias) return y + 12;
   const px = pxQueCabe(ctx, alias, ancho, 118, 64);
-  fuente(ctx, 400, px, "Anton", "-0.03em");
+  fuente(ctx, 400, px, "Outfit", "-0.03em");
   ctx.textBaseline = "alphabetic";
   const medida = ctx.measureText(alias);
   const sube = medida.actualBoundingBoxAscent || px * 0.82;
@@ -224,7 +224,7 @@ function pintarDescripcion(
   if (!limpio) return y;
   const px = 26;
   const lh = 36;
-  fuente(ctx, 400, px, "Inter");
+  fuente(ctx, 400, px, '"DM Sans"');
   const lineas = envolver(limpio, 6, (s) => ctx.measureText(s).width <= ancho);
   ctx.fillStyle = tinta;
   ctx.globalAlpha = 0.92;
@@ -282,10 +282,10 @@ function pintarEtiqueta(
   ctx.fillStyle = "#fff6ef";
   ctx.textBaseline = "top";
   ctx.textAlign = "left";
-  fuente(ctx, 500, tituloPx, "Inter");
+  fuente(ctx, 500, tituloPx, '"DM Sans"');
   const titulo = envolver(tema.track, 1, (s) => ctx.measureText(s).width <= pieza.ancho - 24);
   ctx.fillText(titulo[0] ?? "", pieza.x + 14, yTitulo);
-  fuente(ctx, 400, artistaPx, "Inter");
+  fuente(ctx, 400, artistaPx, '"DM Sans"');
   ctx.globalAlpha = 0.84;
   const artista = envolver(tema.artist, 1, (s) => ctx.measureText(s).width <= pieza.ancho - 24);
   if (artista[0]) ctx.fillText(artista[0], pieza.x + 14, yArtista);
@@ -333,7 +333,7 @@ function pintarSello(
 ): number {
   const px = 30;
   const lh = 40;
-  fuente(ctx, 500, px, "Inter", "0.16em");
+  fuente(ctx, 500, px, '"DM Sans"', "0.16em");
   const lineas = envolver(alma.toLocaleUpperCase("es"), 2, (s) => ctx.measureText(s).width <= ancho);
   const alto = Math.max(lineas.length, 1) * lh;
   const y = piso - alto;
@@ -380,9 +380,9 @@ function cargarImagen(url: string): Promise<HTMLImageElement | null> {
 async function fuentesListas(): Promise<void> {
   if (typeof document === "undefined" || !document.fonts) return;
   await Promise.all([
-    document.fonts.load("400 118px Anton"),
-    document.fonts.load("400 42px Inter"),
-    document.fonts.load("500 30px Inter"),
+    document.fonts.load("400 118px Outfit"),
+    document.fonts.load('400 42px "DM Sans"'),
+    document.fonts.load('500 30px "DM Sans"'),
   ]).catch(() => undefined);
 }
 

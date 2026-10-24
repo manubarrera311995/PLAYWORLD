@@ -2,17 +2,16 @@
   import type { Snippet } from "svelte";
   import { fly } from "svelte/transition";
   import { reduce as reduceMotion } from "../../motion/reducedMotion";
-  import Onda from "./Onda.svelte";
 
   type Props = {
     year: number;
-    years?: number[];
     hasDNA: boolean;
     tesis: string[];
     cifra?: string;
+    velo?: boolean;
     children?: Snippet;
   };
-  let { year, years = [], hasDNA, tesis, cifra = "", children }: Props = $props();
+  let { year, hasDNA, tesis, cifra = "", velo = false, children }: Props = $props();
 
   const digits = $derived(String(year).padStart(4, "0").split(""));
   const reduce = $derived($reduceMotion);
@@ -21,9 +20,8 @@
 </script>
 
 <div class="paso">
-  <Onda {year} {years} />
   {#key year}
-    <div class="nucleo">
+    <div class={["nucleo", velo && "con-velo"]}>
       <h1 class="year tipo-anio" aria-label={String(year)} in:fly={inYear}>
         {#each digits as d, i (i)}
           <span aria-hidden="true">{d}</span>
@@ -71,6 +69,38 @@
     gap: 12px;
     pointer-events: none;
     transform: translateY(clamp(40px, 7.5vh, 76px));
+  }
+
+  /* Velo solo detrás del bloque de texto: el collage sigue libre en los bordes. */
+  .nucleo.con-velo::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: 50%;
+    top: 46%;
+    width: min(1080px, 94vw);
+    height: 132%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(
+      ellipse 68% 60% at 50% 46%,
+      rgba(10, 4, 14, 0.82) 0%,
+      rgba(10, 4, 14, 0.52) 42%,
+      rgba(10, 4, 14, 0) 74%
+    );
+    pointer-events: none;
+  }
+
+  .nucleo.con-velo .year {
+    text-shadow: 0 2px 28px rgba(8, 2, 12, 0.55);
+  }
+
+  .nucleo.con-velo .cifra {
+    color: rgba(255, 246, 239, 0.94);
+  }
+
+  .nucleo.con-velo .meta p,
+  .nucleo.con-velo p.meta {
+    color: rgba(255, 246, 239, 0.94);
   }
 
   .year {

@@ -49,52 +49,54 @@
       oninput={(e) => onq(e.currentTarget.value)}
     />
   </label>
-  <p class="seccion">{copy.tablero.genres}</p>
-  <div class="chips">
-    {#each opciones as label (label)}
-      <button
-        type="button"
-        class={["chip", genres.includes(label) && "is-on"]}
-        aria-pressed={genres.includes(label)}
-        onclick={() => ongenre(label)}
-      >
-        <i style:background={colorGenero(label)}></i>{label}
-      </button>
-    {/each}
-  </div>
-  <p class="seccion">{copy.tablero.countries}</p>
-  <div class="chips">
-    {#each opcionesPais as label (label)}
-      <button
-        type="button"
-        class={["chip", countries.includes(label) && "is-on"]}
-        aria-pressed={countries.includes(label)}
-        onclick={() => oncountry(label)}
-      >{label}</button>
-    {/each}
-  </div>
-  <p class="seccion">{copy.tablero.artists}</p>
-  <div class="artistas" role="list">
-    {#each artistas as fila (fila.prefix)}
-      <button
-        type="button"
-        class={["acto", artist === fila.prefix && "is-on"]}
-        aria-pressed={artist === fila.prefix}
-        onpointerenter={() => onhover(fila.prefix)}
-        onpointerleave={() => onhover(null)}
-        onclick={() => onartist(fila.prefix)}
-      >
-        <span class="avatar">
-          {#if fila.art}
-            <img alt="" src={fila.art} />
-          {:else}
-            {fila.artist.slice(0, 1)}
-          {/if}
-        </span>
-        <span class="nm">{fila.artist}</span>
-        <span class="ct">{fila.n}</span>
-      </button>
-    {/each}
+  <div class="lista">
+    <p class="seccion">{copy.tablero.genres}</p>
+    <div class="chips">
+      {#each opciones as label (label)}
+        <button
+          type="button"
+          class={["chip", genres.includes(label) && "is-on"]}
+          aria-pressed={genres.includes(label)}
+          onclick={() => ongenre(label)}
+        >
+          <i style:background={colorGenero(label)}></i>{label}
+        </button>
+      {/each}
+    </div>
+    <p class="seccion">{copy.tablero.countries}</p>
+    <div class="chips">
+      {#each opcionesPais as label (label)}
+        <button
+          type="button"
+          class={["chip", countries.includes(label) && "is-on"]}
+          aria-pressed={countries.includes(label)}
+          onclick={() => oncountry(label)}
+        >{label}</button>
+      {/each}
+    </div>
+    <p class="seccion">{copy.tablero.artists}</p>
+    <div class="artistas" role="list">
+      {#each artistas as fila (fila.prefix)}
+        <button
+          type="button"
+          class={["acto", artist === fila.prefix && "is-on"]}
+          aria-pressed={artist === fila.prefix}
+          onpointerenter={() => onhover(fila.prefix)}
+          onpointerleave={() => onhover(null)}
+          onclick={() => onartist(fila.prefix)}
+        >
+          <span class="avatar">
+            {#if fila.art}
+              <img alt="" src={fila.art} />
+            {:else}
+              {fila.artist.slice(0, 1)}
+            {/if}
+          </span>
+          <span class="nm">{fila.artist}</span>
+          <span class="ct">{fila.n}</span>
+        </button>
+      {/each}
+    </div>
   </div>
   {#if filtrado}
     <button type="button" class="limpiar" onclick={onclear}>{copy.tablero.clear}</button>
@@ -113,7 +115,23 @@
     background: rgba(16, 8, 14, 0.46);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
-  .busca { position: relative; display: block; }
+  .busca { position: relative; display: block; flex: none; }
+  .lista {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 246, 239, 0.28) transparent;
+    margin-right: -8px;
+    padding-right: 6px;
+  }
+  .lista::-webkit-scrollbar { width: 8px; }
+  .lista::-webkit-scrollbar-thumb {
+    background: rgba(255, 246, 239, 0.18);
+    border-radius: 8px;
+  }
   .busca span {
     position: absolute;
     left: 12px;
@@ -151,13 +169,9 @@
   .chip i { width: 8px; height: 8px; border-radius: 50%; }
   .chip.is-on { background: rgba(255, 246, 239, 0.14); border-color: rgba(255, 246, 239, 0.4); }
   .artistas {
-    min-height: 0;
-    overflow: auto;
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin-right: -6px;
-    padding-right: 4px;
   }
   .acto {
     display: grid;

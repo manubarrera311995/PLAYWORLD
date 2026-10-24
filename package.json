@@ -16,8 +16,8 @@
     "data": "tsx scripts/build-archivo.ts && tsx scripts/build-pool.ts && tsx scripts/build-semilla.ts"
   },
   "devDependencies": {
-    "@fontsource/anton": "^5.2.7",
-    "@fontsource/inter": "^5.2.8",
+    "@fontsource/dm-sans": "^5.3.0",
+    "@fontsource/outfit": "^5.3.0",
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@tsconfig/svelte": "^5.0.8",
     "@types/d3-force": "^3.0.10",

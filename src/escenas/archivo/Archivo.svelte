@@ -10,6 +10,7 @@
   import CueDesliza from "../../ui/CueDesliza.svelte";
   import { cargarEdiciones } from "../../datos/archivo";
   import type { Edicion } from "../../datos/tipos";
+  import { collageDe } from "./collages";
   import { formatN } from "./curva";
   import { navigate, type RutaParsed } from "../director/router";
   import { viewport } from "../../estado/viewport";
@@ -31,6 +32,7 @@
     return i >= 0 ? i : 0;
   });
   const year = $derived(years[idx] ?? years[0]);
+  const collage = $derived(collageDe(year));
   const ed = $derived(ediciones.find((e) => e.year === year));
   const conteos = $derived(
     Object.fromEntries(ediciones.map((e) => [e.year, e.conteo])) as Record<number, number>,
@@ -160,11 +162,14 @@
 </script>
 
 <section
-  class="archivo"
+  class={["archivo", collage && "tiene-collage"]}
   aria-label="{copy.brand} · {copy.title[0]} {copy.title[1]}. {copy.hint}"
   {@attach montar}
 >
   <div class="archivo__cielo" aria-hidden="true"></div>
+  {#if collage}
+    <img class="archivo__collage" src={collage} alt="" />
+  {/if}
 
   <header class="archivo__top" data-chrome>
     <div class="archivo__folio">
@@ -177,10 +182,10 @@
   <div class="archivo__escena">
     <PasoAnio
       {year}
-      {years}
       hasDNA={ed?.hasDNA ?? false}
       tesis={ed?.tesis ?? []}
       {cifra}
+      velo={collage != null}
     >
       <div class="archivo__acciones">
         <Boton onclick={() => navigate(`/edicion/${year}`)}>{copy.cta}</Boton>
@@ -215,7 +220,7 @@
     overflow: hidden;
     display: grid;
     grid-template-rows: auto 1fr auto;
-    padding: var(--pad-y) var(--pad-x);
+    padding: 48px var(--pad-x) var(--pad-y);
     padding-left: clamp(16px, 5vw, 64px);
     gap: 8px;
   }
@@ -228,6 +233,22 @@
     background:
       radial-gradient(90% 80% at 0% 0%, rgba(240, 120, 16, 0.42) 0%, transparent 58%),
       radial-gradient(70% 75% at 100% 85%, rgba(18, 0, 40, 0.28) 0%, transparent 52%);
+  }
+
+  .archivo__collage {
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    width: auto;
+    height: auto;
+    max-width: min(1400px, 118vw);
+    max-height: 92%;
+    transform: translate(-50%, -50%);
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
   }
 
   @media (min-width: 768px) {
@@ -289,6 +310,20 @@
 
   .archivo__acciones :global(.boton:hover) {
     background: rgba(255, 246, 239, 0.08);
+  }
+
+  .tiene-collage .archivo__acciones :global(.boton) {
+    background: rgba(10, 4, 14, 0.82);
+  }
+
+  .tiene-collage .archivo__acciones :global(.boton:hover) {
+    background: rgba(10, 4, 14, 0.94);
+  }
+
+  .tiene-collage .archivo__top,
+  .tiene-collage .archivo__cue,
+  .tiene-collage :global(.radio__year) {
+    text-shadow: 0 1px 10px rgba(8, 2, 12, 0.85);
   }
 
   .archivo__cue {

@@ -75,7 +75,6 @@
       <Marca texto={copy.brand} />
       <Asterisco />
     </div>
-    <p class="eyebrow">{copy.parada}</p>
     <h1 class="tipo-seccion">{copy.title}</h1>
     <p class="bajada tipo-cuerpo">{copy.bajada}</p>
     <div class="filtros">
@@ -136,7 +135,7 @@
     position: absolute;
     z-index: 2;
     left: var(--pad-x);
-    top: 16px;
+    top: 48px;
     width: min(280px, 52vw);
     max-height: calc(100% - 148px);
     overflow: auto;
@@ -209,7 +208,7 @@
     .colectiva { display: block; }
     .cielo { position: absolute; inset: 0; min-height: 0; }
     header {
-      top: var(--pad-y);
+      top: calc(var(--pad-y) + 28px);
       width: min(300px, 28vw);
       max-height: none;
       gap: 12px;

@@ -29,7 +29,7 @@
     margin-bottom: clamp(32px, 5vh, 56px);
   }
   .num {
-    font-family: Anton, Impact, sans-serif;
+    font-family: Outfit, sans-serif;
     color: var(--ink-mute);
     font-size: 34px;
   }
@@ -42,7 +42,7 @@
     text-transform: uppercase;
   }
   h2 {
-    font-family: Anton, Impact, sans-serif;
+    font-family: Outfit, sans-serif;
     font-size: clamp(32px, 4.4vw, 56px);
     font-weight: 400;
     letter-spacing: -0.03em;

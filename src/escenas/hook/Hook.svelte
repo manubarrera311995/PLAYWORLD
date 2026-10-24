@@ -2,7 +2,7 @@
   import { onDestroy } from "svelte";
   import copy from "./hook.copy.json";
   import { caratulaDe, ecosDelSuelo, resolverPuerta, type Revelado } from "./anio";
-  import { entrarPaso, entrarRevelado, entrarResto, entrarSuelo, marcarOrigen } from "./entrada";
+  import { entrarBajada, entrarPaso, entrarRevelado, entrarResto, entrarSuelo, marcarOrigen } from "./entrada";
   import Marca from "../../ui/Marca.svelte";
   import Eyebrow from "../../ui/Eyebrow.svelte";
   import Boton from "../../ui/Boton.svelte";
@@ -153,13 +153,12 @@
         </div>
       </div>
     {:else if pregunta}
-      {#key pregunta.id}
-        <div class="hook__paso" {@attach entrarPaso}>
+      <div class="hook__paso">
+        <p class="hook__bajada tipo-cuerpo" {@attach entrarBajada}>{copy.bajada}</p>
+        {#key pregunta.id}
+        <div class="hook__cambia" {@attach entrarPaso}>
           <div class="hook__kicker">
             <Eyebrow texto={pregunta.etiqueta} />
-            {#if paso === 0}
-              <p class="hook__bajada tipo-cuerpo">{copy.bajada}</p>
-            {/if}
           </div>
           <h1 class="tipo-pregunta" id="hook-q">{pregunta.text}</h1>
           <div class="hook__manos" role="radiogroup" aria-labelledby="hook-q">
@@ -184,7 +183,8 @@
             {/each}
           </div>
         </div>
-      {/key}
+        {/key}
+      </div>
       {#if paso > 0}
         <button class="hook__atras" type="button" onclick={atras}>{copy.atras}</button>
       {/if}
@@ -215,7 +215,7 @@
     min-height: 100dvh;
     display: grid;
     grid-template-rows: auto 1fr;
-    padding: var(--pad-y) var(--pad-x) 128px;
+    padding: 48px var(--pad-x) 128px;
     overflow: hidden;
   }
   .hook__suelo {
@@ -299,8 +299,11 @@
     background: rgba(255, 246, 239, 0.88);
   }
   .hook__bajada {
-    max-width: 42ch;
-    margin: 8px 0 0;
+    max-width: 34ch;
+    margin: 0 auto 18px;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--ink-mute);
   }
   .hook__main {
     display: flex;
@@ -311,10 +314,19 @@
     gap: clamp(20px, 4vh, 40px);
   }
   .hook__paso {
+    position: relative;
+    width: min(100%, 1080px);
+  }
+  .hook__cambia {
     display: grid;
     justify-items: center;
-    gap: clamp(20px, 4vh, 36px);
-    width: min(100%, 720px);
+    gap: clamp(28px, 5vh, 48px);
+    width: 100%;
+  }
+  .hook__paso .tipo-pregunta {
+    width: min(100%, 920px);
+    font-size: clamp(30px, 4.2vw, 56px);
+    line-height: 1.12;
   }
   .hook__manos {
     display: grid;
@@ -496,6 +508,17 @@
     .hook__resto {
       width: 64px;
       margin: 0 -10px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .hook__bajada {
+      position: absolute;
+      left: 0;
+      bottom: 78px;
+      width: min(24ch, calc((100% - 540px) / 2));
+      max-width: none;
+      margin: 0;
+      text-align: left;
     }
   }
   @media (min-width: 768px) {

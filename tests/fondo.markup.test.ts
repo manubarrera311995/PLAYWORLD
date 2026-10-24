@@ -1,21 +1,15 @@
 /**
- * Contratos estáticos del markup y el CSS de `FondoHome.svelte` (tarea 7.1).
+ * Contrato del cascarón de `FondoHome.svelte`.
  *
- * La suite corre con `environment: "node"` y sin DOM, así que las cuatro capas
- * se verifican leyendo la fuente del componente: orden en el DOM, atributos
- * decorativos, apilado por debajo de `--z-grain`, mezcla admitida, ausencia de
- * `isolation` / `filter` / `backdrop-filter` / `opacity` en reposo sobre
- * `.home__fondo` y el fallback de `@supports`.
- *
- * Requirements: 2.1, 2.2, 2.3, 2.9, 2.10, 6.8, 10.6, 12.5
+ * La onda, el ecualizador y el halo ya no se pintan. El nodo `.home__fondo`
+ * permanece: es la puerta de la cascada de ecos, del parallax y de la
+ * disolución hacia el hook. La suite corre sin DOM y lee la fuente.
  */
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
-
-import { MEZCLAS_PERMITIDAS, Z_GRAIN, Z_OVERLAYS } from "../src/escenas/home/fondo.curvas";
 
 const rutaComponente = fileURLToPath(
   new URL("../src/escenas/home/FondoHome.svelte", import.meta.url),
@@ -36,51 +30,25 @@ function declaracion(cuerpo: string, propiedad: string): string | null {
   return encontrado === null ? null : encontrado[1].trim();
 }
 
-const OVERLAYS: readonly { capa: keyof typeof Z_OVERLAYS; selector: string }[] = [
-  { capa: "onda", selector: ".home__fondo-onda" },
-  { capa: "eq", selector: ".home__fondo-eq" },
-  { capa: "halo", selector: ".home__fondo-halo" },
-];
-
-describe("FondoHome.svelte · markup de las cuatro capas", () => {
-  it("renderiza las tres overlays dentro del fondo, sin la foto", () => {
+describe("FondoHome.svelte · cascarón sin overlays", () => {
+  it("conserva el nodo del fondo y no pinta onda, ecualizador ni halo", () => {
     expect(fuente).toContain('<div class="home__fondo" aria-hidden="true">');
-    expect(fuente).not.toContain("fondo.jpeg");
+    expect(fuente).not.toContain("data-fondo-capa");
+    expect(fuente).not.toContain("home__fondo-onda");
+    expect(fuente).not.toContain("home__fondo-eq");
+    expect(fuente).not.toContain("home__fondo-halo");
+    expect(fuente).not.toContain("home__fondo-barra");
     expect(fuente).not.toContain("home__fondo-foto");
-
-    const posFondo = fuente.indexOf('class="home__fondo"');
-    const capas = [...fuente.matchAll(/data-fondo-capa="(onda|eq|halo)"/g)];
-    expect(capas.map((c) => c[1])).toEqual(["onda", "eq", "halo"]);
-    for (const capa of capas) {
-      expect(capa.index as number).toBeGreaterThan(posFondo);
-    }
+    expect(fuente).not.toContain("<svg");
   });
 
-  it("dibuja la onda con dos trazos SVG y el ecualizador con siete barras", () => {
-    const trazos = [...fuente.matchAll(/class="home__fondo-onda-trazo/g)];
-    expect(trazos).toHaveLength(2);
-
-    const literal = /const BARRAS: readonly number\[\] = \[([^\]]*)\]/.exec(fuente);
-    expect(literal).not.toBeNull();
-    const barras = (literal as RegExpExecArray)[1]
-      .split(",")
-      .map((v) => v.trim())
-      .filter((v) => v.length > 0);
-    expect(barras).toHaveLength(7);
-    expect(fuente).toContain('class="home__fondo-barra"');
-  });
-
-  it("no introduce nodos enfocables ni assets nuevos", () => {
+  it("no introduce nodos enfocables ni assets", () => {
     expect(fuente).not.toMatch(/<(button|a|input|select|textarea)\b/);
     expect(fuente).not.toContain("tabindex");
-    expect(fuente).toContain('focusable="false"');
-    // El halo y las barras son gradientes puros: ni imágenes ni vídeos nuevos.
     expect(fuente).not.toContain("url(");
     expect(fuente).not.toContain("fondo.jpeg");
   });
-});
 
-describe("FondoHome.svelte · CSS de las capas", () => {
   it("mantiene el layout de `.home__fondo` sin mezcla ni atenuación en reposo", () => {
     const cuerpo = bloque(".home__fondo");
     expect(declaracion(cuerpo, "position")).toBe("absolute");
@@ -91,44 +59,6 @@ describe("FondoHome.svelte · CSS de las capas", () => {
     expect(declaracion(cuerpo, "filter")).toBeNull();
     expect(declaracion(cuerpo, "backdrop-filter")).toBeNull();
     expect(declaracion(cuerpo, "opacity")).toBeNull();
-  });
-
-  it("apila cada overlay por debajo del grano, sin puntero y con mezcla admitida", () => {
-    for (const { capa, selector } of OVERLAYS) {
-      const cuerpo = bloque(selector);
-      expect(declaracion(cuerpo, "position")).toBe("absolute");
-      expect(declaracion(cuerpo, "pointer-events")).toBe("none");
-
-      const z = Number(declaracion(cuerpo, "z-index"));
-      expect(z).toBe(Z_OVERLAYS[capa]);
-      expect(z).toBeGreaterThanOrEqual(1);
-      expect(z).toBeLessThan(Z_GRAIN);
-
-      const mezcla = declaracion(cuerpo, "mix-blend-mode");
-      expect(mezcla).not.toBeNull();
-      expect(["screen", "plus-lighter"]).toContain(mezcla);
-      expect(MEZCLAS_PERMITIDAS as readonly string[]).toContain(mezcla as string);
-
-      // Con `.home__copy` visible ninguna overlay pasa de 0.35 (Req 2.7).
-      const opacidad = Number(declaracion(cuerpo, "opacity"));
-      expect(opacidad).toBeGreaterThan(0);
-      expect(opacidad).toBeLessThanOrEqual(0.35);
-    }
-  });
-
-  it("baja las tres overlays a 0.18 sin soporte de mezcla", () => {
-    const supports = /@supports not \(mix-blend-mode: plus-lighter\) \{([\s\S]*?)\n {2}\}/.exec(
-      fuente,
-    );
-    expect(supports).not.toBeNull();
-    const cuerpo = (supports as RegExpExecArray)[1];
-    for (const { selector } of OVERLAYS) {
-      expect(cuerpo).toContain(selector);
-    }
-    expect(/opacity:\s*0?\.18/.test(cuerpo)).toBe(true);
-  });
-
-  it("ancla las barras del ecualizador en su borde inferior", () => {
-    expect(declaracion(bloque(".home__fondo-barra"), "transform-origin")).toBe("50% 100%");
+    expect(declaracion(cuerpo, "mix-blend-mode")).toBeNull();
   });
 });

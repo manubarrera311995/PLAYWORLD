@@ -15,7 +15,6 @@
   };
   let { onrevelar, onsalida }: Props = $props();
 
-  const palabra = homeCopy.title[0];
   const MIN_MS = 1800;
   let root: HTMLElement | undefined;
   let pct = $state(0);
@@ -59,7 +58,7 @@
           }),
         ]);
       } catch {
-        /* Anton con swap */
+        /* Outfit con swap */
       }
     };
 
@@ -137,14 +136,13 @@
     </header>
     <div class="boot__stage">
       <div class="boot__copy">
-        <p class="tipo-hero boot__word" aria-hidden="true">
-          <span class="boot__ghost">{palabra}</span>
+        <div class="boot__word" aria-hidden="true">
+          <span class="boot__ghost"></span>
           <span class="boot__fill" data-fill style:--fill="0">
-            <span class="boot__ink">{palabra}</span>
-            <span class="boot__frost">{palabra}</span>
+            <span class="boot__ink"></span>
+            <span class="boot__frost"></span>
           </span>
-        </p>
-        <p class="tipo-cuerpo boot__eco" aria-hidden="true">{homeCopy.tagline}</p>
+        </div>
       </div>
     </div>
     <div class="boot__cue">
@@ -206,18 +204,20 @@
   }
   .boot__word {
     position: relative;
+    width: min(92cqi, 1080px, calc(28vh * 2400 / 644));
+    aspect-ratio: 2400 / 624;
     margin: 0;
-    font-size: clamp(80px, min(21cqi, 30vh), 360px);
-    white-space: nowrap;
-    max-width: 100%;
-    min-width: 0;
-    text-shadow: none;
   }
-  .boot__eco {
-    visibility: hidden;
+  .boot__ghost,
+  .boot__ink,
+  .boot__frost {
+    position: absolute;
+    inset: 0;
+    -webkit-mask: url("/assets/marca/playworld.png") center / contain no-repeat;
+    mask: url("/assets/marca/playworld.png") center / contain no-repeat;
   }
   .boot__ghost {
-    color: rgba(255, 246, 239, 0.16);
+    background: rgba(255, 246, 239, 0.16);
   }
   .boot__fill {
     position: absolute;
@@ -238,18 +238,9 @@
       transparent calc(var(--fill, 0) * 100% + var(--wave))
     );
   }
-  .boot__ink,
-  .boot__frost {
-    position: absolute;
-    inset: 0;
-    background-attachment: fixed;
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-  }
   .boot__ink {
     background-image: var(--fondo-home);
+    background-attachment: fixed;
   }
   .boot__frost {
     background-image:
@@ -263,9 +254,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
     gap: 10px;
+    /* La misma altura que el gesto del home, para que la palabra comparta su eje. */
+    min-height: 99px;
     color: rgba(255, 246, 239, 0.46);
-    padding-bottom: 6px;
   }
   .boot__status {
     letter-spacing: 0.28em;
@@ -277,10 +270,5 @@
     width: 10px;
     height: 10px;
     visibility: hidden;
-  }
-  @media (max-width: 767px) {
-    .boot__word {
-      font-size: clamp(56px, 19vw, 92px);
-    }
   }
 </style>

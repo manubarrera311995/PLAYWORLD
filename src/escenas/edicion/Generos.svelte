@@ -71,7 +71,7 @@
     text-transform: uppercase;
   }
   .title {
-    font-family: Anton, Impact, sans-serif;
+    font-family: Outfit, sans-serif;
     font-size: 28px;
     font-weight: 400;
     letter-spacing: -0.03em;

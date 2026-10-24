@@ -177,7 +177,7 @@
     background: rgba(8, 4, 10, 0.42);
   }
   svg { width: 100%; height: 100%; display: block; overflow: visible; }
-  text { fill: rgba(255, 246, 239, 0.55); font-size: 11px; font-family: Inter, system-ui, sans-serif; }
+  text { fill: rgba(255, 246, 239, 0.55); font-size: 11px; font-family: "DM Sans", system-ui, sans-serif; }
   .guia { stroke: rgba(255, 246, 239, 0.14); }
   .guia.suave { stroke: rgba(255, 246, 239, 0.08); }
   .cruce { stroke: rgba(255, 246, 239, 0.28); stroke-dasharray: 3 4; }

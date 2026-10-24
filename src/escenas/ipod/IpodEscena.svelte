@@ -97,7 +97,7 @@
     grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
     align-items: center;
     gap: clamp(16px, 3vw, 48px);
-    padding: var(--pad-y) var(--pad-x);
+    padding: 44px var(--pad-x) var(--pad-y);
     overflow: hidden;
   }
   .ipod-esc__device {
@@ -121,7 +121,7 @@
     grid-template-rows: auto minmax(0, 1fr);
     align-items: stretch;
     gap: 10px;
-    padding: 16px 16px 12px;
+    padding: 44px 16px 12px;
   }
   .ipod-esc--compacto .ipod-esc__copy {
     order: -1;

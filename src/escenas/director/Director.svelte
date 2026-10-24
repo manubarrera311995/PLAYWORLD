@@ -17,6 +17,7 @@
   import { reduce } from "../../motion/reducedMotion";
   import { parcheRecorrido } from "../../estado/recorrido";
   import { precargarPool } from "../../datos/archivo";
+  import Paradas from "../Paradas.svelte";
 
   type Fase = "enter" | "leave" | "live";
   type Capa = { id: number; ruta: RutaParsed; fase: Fase };
@@ -36,6 +37,7 @@
   let seq = 0;
   let busy = false;
   let capas = $state.raw<Capa[]>([{ id: 0, ruta: currentRuta(), fase: "live" }]);
+  const rutaViva = $derived(capas.find((c) => c.fase !== "leave")?.ruta ?? capas[0].ruta);
   const nodos = new SvelteMap<number, HTMLElement>();
   let limpiarCielo: LimpiezaCielo = () => undefined;
 
@@ -126,6 +128,7 @@
 </script>
 
 <div class="director">
+  <Paradas ruta={rutaViva} />
   {#each capas as capa (capa.id)}
     {const Scene = escenas[capa.ruta.name]}
     <section

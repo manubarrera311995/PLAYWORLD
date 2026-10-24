@@ -52,7 +52,7 @@
     overflow: hidden;
     color: #111;
     background: #f3f3f3;
-    font-family: Inter, Helvetica, Arial, sans-serif;
+    font-family: "DM Sans", Helvetica, Arial, sans-serif;
   }
   .lcd__bar {
     position: relative;

@@ -40,7 +40,7 @@
     border: 0;
     background: transparent;
     padding: 7px 10px;
-    font-family: Inter, Helvetica, Arial, sans-serif;
+    font-family: "DM Sans", Helvetica, Arial, sans-serif;
     font-size: 14px;
     line-height: 1.2;
     cursor: pointer;

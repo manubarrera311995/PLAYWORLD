@@ -138,7 +138,7 @@
     border: 0;
     background: transparent;
     color: #8a8682;
-    font-family: Inter, Helvetica, Arial, sans-serif;
+    font-family: "DM Sans", Helvetica, Arial, sans-serif;
     font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.14em;
@@ -177,7 +177,7 @@
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.96);
     color: #2c2a28;
-    font-family: Inter, Helvetica, Arial, sans-serif;
+    font-family: "DM Sans", Helvetica, Arial, sans-serif;
     font-size: 10px;
     font-weight: 500;
     letter-spacing: 0.04em;

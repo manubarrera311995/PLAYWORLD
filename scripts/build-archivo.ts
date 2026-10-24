@@ -61,6 +61,13 @@ type TrackOut = {
   spotifyId?: string;
   genre?: string;
   pais?: string;
+  observacion?: {
+    nota: string;
+    enFestival: string;
+    enSpotify: string;
+    artistaOriginal: string;
+    tituloCartel: string;
+  };
   dna: Record<string, unknown>;
   dnaPct: Record<string, number>;
   dnaCompleto: boolean;
@@ -68,6 +75,19 @@ type TrackOut = {
 
 function paisDe(v: unknown): string | undefined {
   return typeof v === "string" && v.trim() ? v.trim() : undefined;
+}
+
+function observacionDe(v: unknown): TrackOut["observacion"] {
+  if (!v || typeof v !== "object") return undefined;
+  const o = v as Record<string, unknown>;
+  if (typeof o.nota !== "string" || !o.nota.trim()) return undefined;
+  return {
+    nota: o.nota,
+    enFestival: String(o.enFestival ?? ""),
+    enSpotify: String(o.enSpotify ?? ""),
+    artistaOriginal: String(o.artistaOriginal ?? ""),
+    tituloCartel: String(o.tituloCartel ?? ""),
+  };
 }
 
 function fromRaw(file: string, json: Raw, year: number): TrackOut {
@@ -85,6 +105,7 @@ function fromRaw(file: string, json: Raw, year: number): TrackOut {
     spotifyId: typeof json.spotifyId === "string" ? json.spotifyId : undefined,
     genre: typeof json.genre === "string" ? json.genre : undefined,
     pais: paisDe(json.pais),
+    observacion: observacionDe(json.observacion),
     dna: {
       happy: num(json.happy) ?? 50,
       sad: num(json.sad) ?? 50,

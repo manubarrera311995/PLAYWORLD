@@ -44,6 +44,20 @@ export function entrarSuelo(root: HTMLElement): Limpieza {
   return () => ctx.revert();
 }
 
+/** La bajada queda fija al lado; entra una vez y no se va con la pregunta. */
+export function entrarBajada(root: HTMLElement): Limpieza {
+  if (get(reduce)) return LIMPIEZA_VACIA;
+  const gsap = ensureGsap();
+  const ctx = gsap.context(() => {
+    gsap.fromTo(
+      root,
+      { y: 10, autoAlpha: 0 },
+      { y: 0, autoAlpha: 1, duration: 0.4, ease: "power2.out", clearProps: "transform,opacity,visibility" },
+    );
+  }, root);
+  return () => ctx.revert();
+}
+
 /** Pregunta + recortes al cambiar de paso. */
 export function entrarPaso(root: HTMLElement): Limpieza {
   if (get(reduce)) return LIMPIEZA_VACIA;

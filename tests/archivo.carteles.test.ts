@@ -3,14 +3,11 @@ import copy from "../src/escenas/archivo/archivo.copy.json";
 import { cartelDe } from "../src/escenas/archivo/carteles";
 
 describe("cartelDe", () => {
-  it("deja 2020 y 2021 sin pieza y cubre el resto del archivo", () => {
+  it("cada año de la línea tiene cartel, y 2020 y 2021 no están", () => {
+    expect(copy.years).not.toContain(2020);
+    expect(copy.years).not.toContain(2021);
     for (const year of copy.years) {
-      const src = cartelDe(year);
-      if (year === 2020 || year === 2021) {
-        expect(src).toBeNull();
-      } else {
-        expect(src).toBe(`/assets/archivo/carteles/${year}.webp`);
-      }
+      expect(cartelDe(year)).toBe(`/assets/archivo/carteles/${year}.webp`);
     }
   });
 });

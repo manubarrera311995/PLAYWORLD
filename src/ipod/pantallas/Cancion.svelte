@@ -88,7 +88,7 @@
     gap: 8px;
     padding: 8px;
     color: #111;
-    font-family: Inter, Helvetica, Arial, sans-serif;
+    font-family: "DM Sans", Helvetica, Arial, sans-serif;
   }
   .meta { grid-area: meta; min-width: 0; }
   h2 {

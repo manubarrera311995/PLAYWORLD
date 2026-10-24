@@ -346,7 +346,7 @@
     gap: 8px;
     width: 100%;
     color: #111;
-    font-family: Anton, Impact, sans-serif;
+    font-family: Outfit, sans-serif;
     font-size: clamp(18px, 2.6vw, 26px);
     line-height: 1.1;
     letter-spacing: -0.02em;

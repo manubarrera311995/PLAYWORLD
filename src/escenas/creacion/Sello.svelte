@@ -54,7 +54,7 @@
     stroke-linejoin: round;
   }
   text {
-    font-family: Inter, system-ui, sans-serif;
+    font-family: "DM Sans", system-ui, sans-serif;
     font-size: 13px;
     font-weight: 400;
     fill: var(--ink-mute);

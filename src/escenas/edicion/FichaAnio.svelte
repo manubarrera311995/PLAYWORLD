@@ -607,7 +607,7 @@
   .relato { display: grid; gap: 14px; align-content: start; min-width: 0; }
   .contexto-titulo {
     margin: 0;
-    font-family: Anton, Impact, sans-serif;
+    font-family: Outfit, sans-serif;
     font-size: clamp(22px, 2.4vw, 32px);
     font-weight: 400;
     line-height: 1.05;
@@ -621,7 +621,7 @@
   .stat:first-child { padding-left: 0; border-left: 0; }
   .stat strong {
     display: block;
-    font-family: Anton, Impact, sans-serif;
+    font-family: Outfit, sans-serif;
     font-size: 28px;
     font-weight: 400;
     letter-spacing: -0.03em;

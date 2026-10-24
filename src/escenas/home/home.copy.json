@@ -28,6 +28,7 @@
       },
       {
         "nombre": "El portal",
+        "titulo": "Sentí que cruzaba un portal.",
         "frase": "Abril de 2016. Un sábado lluvioso, después de casi cuatro años convenciendo a mis papás, entré por primera vez al Festival Estéreo Picnic. La señal del celular desapareció casi de inmediato. Sentí que cruzaba un portal: adentro, el espacio y el tiempo obedecían otras reglas.",
         "img": "/assets/home/primera/flyer-2016.jpg",
         "alt": "Flyer del Festival Estéreo Picnic, marzo de 2016",
@@ -42,7 +43,8 @@
         "frase": "De cada edición quedan fotos, pulseras y boletas. Pero lo único que sobrevive a todas son las canciones: máquinas del tiempo capaces de devolvernos a un instante preciso, años después.",
         "img": "/assets/home/primera/boleta-2017.jpg",
         "alt": "Boleta del Festival Estéreo Picnic, 2017",
-        "clase": "boleta"
+        "clase": "boleta",
+        "camara": true
       },
       {
         "nombre": "Lo que hice",

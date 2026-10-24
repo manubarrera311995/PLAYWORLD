@@ -78,7 +78,7 @@
     justify-items: center;
     opacity: 0;
     will-change: transform;
-    border-radius: 50%;
+    border-radius: 3px;
     overflow: hidden;
   }
   img {
@@ -113,7 +113,7 @@
     justify-items: center;
   }
   .year {
-    font-family: Anton, Impact, sans-serif;
+    font-family: Outfit, sans-serif;
     font-size: clamp(18px, 2.4vw, 26px);
     line-height: 0.9;
     text-shadow: 0 1px 10px rgba(12, 0, 24, 0.55);

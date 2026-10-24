@@ -5,12 +5,14 @@
   import { almas, paletaDeAlma, type AlmaId } from "../../almas/almas";
   import { aplicarPaleta } from "../../sketches/paleta";
   import Revelado from "./Revelado.svelte";
+  import Carta from "./Carta.svelte";
   import Marca from "../../ui/Marca.svelte";
   import { navigate, type RutaParsed } from "../director/router";
   import { artUrl } from "../../datos/color";
   import { lineaFila, manchaDe } from "./boleta";
   import { descargarTarjeta } from "./tarjeta";
   import copy from "../hook/hook.copy.json";
+  import cartas from "./carta.copy.json";
 
   type Props = { ruta?: RutaParsed };
   let { ruta: _ruta }: Props = $props();
@@ -21,22 +23,27 @@
     momento: string;
     nombre: string;
     dicho: string;
-    coincide: boolean;
   };
 
-  let mira = $state<{ id: AlmaId; momento: string | null } | null>(null);
+  type CartaLineas = { lineas: string[] };
+
+  const onda = [
+    18, 28, 22, 46, 34, 62, 40, 24, 70, 48, 30, 58, 36, 20, 44, 66, 28, 52, 38, 16,
+    42, 60, 32, 22, 50, 36, 68, 26, 44, 18, 56, 40, 24, 48, 30, 64, 22, 38, 54, 20,
+  ];
 
   const rec = $derived($recorrido);
   const alma = $derived(rec.alma ? almas[rec.alma.principal] : null);
-  const eco = $derived(rec.alma ? almas[rec.alma.eco] : null);
   const temas = $derived(rec.seleccion?.tracks ?? []);
   const mancha = $derived(manchaDe(temas));
   const anio = $derived(rec.seleccion?.yearHint ?? rec.yearHint);
   const cruce = $derived(rec.alma ? lineaFila(rec.almasFila, rec.alma.principal) : null);
+  const lineas = $derived(
+    alma ? (cartas as Record<AlmaId, CartaLineas>)[alma.id].lineas : [],
+  );
 
   const horas = $derived.by((): Hora[] => {
     const ids = rec.almasFila ?? [];
-    const principal = rec.alma?.principal;
     return copy.questions.flatMap((pregunta, i) => {
       const id = ids[i];
       if (!id || !(id in almas)) return [];
@@ -48,25 +55,9 @@
         momento: pregunta.etiqueta,
         nombre: almas[almaId].nombre,
         dicho: opcion?.label ?? "",
-        coincide: almaId === principal,
       }];
     });
   });
-
-  function filaDe(i: number): number {
-    if (horas.length < 2) return i + 1;
-    const corte = horas.length - 1;
-    return i < corte ? i + 1 : i + 2;
-  }
-
-  const filaCruce = $derived(horas.length ? horas.length : 1);
-
-  const vista = $derived(mira ? almas[mira.id] : alma);
-  const deFila = $derived(mira?.momento ?? null);
-
-  function posar(id: AlmaId, momento: string | null): void {
-    mira = { id, momento };
-  }
 
   let guardando = $state(false);
 
@@ -92,124 +83,142 @@
     }
   }
 
+  function indice(i: number): string {
+    return `${String(i + 1).padStart(2, "0")}.`;
+  }
+
   onMount(() => {
     const r = get(recorrido);
     if (r.alma) aplicarPaleta(paletaDeAlma(r.alma.principal));
   });
 </script>
 
+{#snippet icono(id: string)}
+  {#if id === "llegas"}
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3.2" y="5" width="17.6" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" />
+      <circle cx="9" cy="10" r="1.5" fill="currentColor" />
+      <path d="M4.2 16.4 9 12.4l3.4 2.6 3.6-3.6 3.8 4.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+    </svg>
+  {:else if id === "show"}
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 2.4c.5 3.1-1.7 4.7-1.7 7.1 0 1.2.7 2.1 1.7 2.5-2.9.2-5.1 2.1-5.1 4.9C6.9 20.3 9.1 22 12 22s5.1-1.7 5.1-5.1c0-3.5-2.3-5.1-3.5-7.3.4-1.6 1-3.8-1.6-7.2Z"
+        fill="currentColor"
+      />
+    </svg>
+  {:else}
+    <svg viewBox="0 0 40 20" aria-hidden="true">
+      <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.6" />
+      <circle cx="7.4" cy="8.4" r="0.9" fill="currentColor" />
+      <circle cx="12.6" cy="8.4" r="0.9" fill="currentColor" />
+      <path d="M7.2 12.4h5.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+      <circle cx="30" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.6" />
+      <circle cx="27.4" cy="8.4" r="0.9" fill="currentColor" />
+      <circle cx="32.6" cy="8.4" r="0.9" fill="currentColor" />
+      <path d="M26.6 12.2c.8 1.3 2 2 3.4 2s2.6-.7 3.4-2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+    </svg>
+  {/if}
+{/snippet}
+
 <section class="creacion">
   <Revelado />
   {#if alma}
-    <div class="zona">
-      <header class="cabeza">
-        <Marca />
-        {#if anio != null}
-          <p class="eyebrow">{anio}</p>
-        {/if}
-        <h1 class="tipo-seccion">Tu alma</h1>
-      </header>
-      <div class="lienzo">
+    <div class="lienzo">
+      <svg class="onda" viewBox="0 0 640 80" preserveAspectRatio="none" aria-hidden="true">
+        {#each onda as alto, i (i)}
+          <rect x={i * 16} y={(80 - alto) / 2} width="6" height={alto} rx="3" />
+        {/each}
+      </svg>
+
+      <div class="camino">
+        <header class="cabeza">
+          <Marca />
+          {#if anio != null}
+            <p class="anio">{anio}</p>
+          {/if}
+          <h1>Tu alma</h1>
+        </header>
+
         {#if horas.length}
-          <ol class="noche">
+          <h2 class="ruta">El camino de tu alma</h2>
+          <ol class="pasos">
             {#each horas as hora, i (hora.id)}
-              <li
-                class={["hora", hora.coincide && "is-on", mira?.momento === hora.momento && "is-mira"]}
-                style:grid-row={filaDe(i)}
-              >
-                <p class="momento">{hora.momento}</p>
-                <button
-                  type="button"
-                  class="mood"
-                  onmouseenter={() => posar(hora.almaId, hora.momento)}
-                  onmouseleave={() => (mira = null)}
-                  onfocus={() => posar(hora.almaId, hora.momento)}
-                  onblur={() => (mira = null)}
-                >{hora.nombre}</button>
-                {#if hora.dicho}
-                  <p class="dicho">{hora.dicho}</p>
-                {/if}
+              <li>
+                <span class="num">{indice(i)}</span>
+                <div class="paso">
+                  <p class="momento">
+                    <span>{hora.momento}</span>
+                    <span class="guion" aria-hidden="true">—</span>
+                    <span class="icono">{@render icono(hora.id)}</span>
+                  </p>
+                  <p class="alma-paso">{hora.nombre}</p>
+                  {#if hora.dicho}
+                    <p class="dicho">{hora.dicho}</p>
+                  {/if}
+                </div>
               </li>
             {/each}
           </ol>
         {/if}
 
-        <div
-          class="veredicto"
-          class:solo={!horas.length}
-          style:grid-row={filaCruce}
-        >
-          <div class="eje">
-            {#if horas.length}
-              <div class="regla" aria-hidden="true"></div>
-            {/if}
-            <div class={["nombre", !deFila && mira && "is-mira"]}>
-              <p class="momento">Tus canciones</p>
-              <button
-                type="button"
-                class="mood"
-                onmouseenter={() => posar(alma.id, null)}
-                onmouseleave={() => (mira = null)}
-                onfocus={() => posar(alma.id, null)}
-                onblur={() => (mira = null)}
-              >{alma.nombre}</button>
-            </div>
-          </div>
+        <div class="acciones">
+          <button type="button" onclick={guardar} disabled={guardando}>
+            {guardando ? "Guardando…" : "Guardar boleta"}
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M4 8.5h16v9.2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8.5Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+              />
+              <path d="M4 8.5 6.2 4.8h11.6L20 8.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+              <path d="M9 4.8v3.7h6V4.8" fill="none" stroke="currentColor" stroke-width="1.6" />
+              <path d="M8 15.2h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+          </button>
+          <button type="button" class="demas" onclick={() => navigate("/colectiva")}>
+            Ver qué llevaron los demás
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="8" cy="8" r="2.2" fill="none" stroke="currentColor" stroke-width="1.6" />
+              <circle cx="16" cy="8.4" r="2" fill="none" stroke="currentColor" stroke-width="1.6" />
+              <path d="M3.8 17.6c.6-2.4 2.3-3.6 4.2-3.6s3.6 1.2 4.2 3.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+              <path d="M13.2 14.4c1.3-.5 2.6-.4 3.8.4 1.1.7 1.8 1.8 2.2 3.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+          </button>
         </div>
       </div>
-    </div>
 
-    <aside class="lado">
-      <div class="lectura">
-        {#if deFila}
-          <p class="borde">{deFila}</p>
-        {:else if eco}
-          <p class="borde">con un borde {eco.borde}</p>
-        {/if}
-        {#if vista}
-          <p class="texto">{vista.texto}</p>
-        {/if}
-        {#if !deFila}
-          <p class="origen">Esta alma salió de las cinco canciones que elegiste.</p>
-          {#if cruce}
-            <p class="cruce">{cruce}</p>
-          {/if}
-        {/if}
-      </div>
-
-      <article class="boleta" style:background={mancha.fondo}>
-        {#if anio != null}
-          <p class="anio">{anio}</p>
-        {/if}
+      <div class="veredicto">
+        <p class="kicker">Tus canciones</p>
+        <h2 class={["nombre", lineas.length > 2 && "is-largo"]}>
+          {#each lineas as linea (linea)}
+            <span>{linea}</span>
+          {/each}
+        </h2>
         {#if temas.length}
-          <ol class="portadas" class:es-cinco={temas.length === 5}>
-            {#each temas as tema, i (tema.id)}
+          <ol class="temas">
+            {#each temas as tema (tema.id)}
               {@const porta = artUrl(tema.art, "300")}
               <li>
                 {#if porta}
-                  <img src={porta} alt="" />
+                  <img src={porta} alt="{tema.track}, {tema.artist}" />
                 {:else}
                   <span class="hueco" aria-hidden="true"></span>
                 {/if}
-                <span class="pieza">
-                  <span class="cancion">{tema.track}</span>
-                  <span class="artista">{tema.artist}</span>
-                </span>
               </li>
             {/each}
           </ol>
         {/if}
-        <p class="sello">{alma.nombre}</p>
-      </article>
-    </aside>
+        <p class="origen">Esta alma surgió de las cinco canciones que elegiste.</p>
+        {#if cruce}
+          <p class="cruce">{cruce}</p>
+        {/if}
+      </div>
 
-    <div class="acciones">
-      <button type="button" onclick={guardar} disabled={guardando}>
-        {guardando ? "Guardando…" : "Guardar la boleta"}
-      </button>
-      <button type="button" onclick={() => navigate("/colectiva")}>
-        Mira qué se llevaron los demás
-      </button>
+      <aside class="lado">
+        <Carta id={alma.id} />
+      </aside>
     </div>
   {/if}
 </section>
@@ -219,200 +228,206 @@
     position: relative;
     min-height: 100%;
     min-height: 100dvh;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .zona {
+  .lienzo {
+    position: relative;
+    min-height: 100%;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns:
+      minmax(260px, 0.92fr)
+      minmax(220px, 1fr)
+      minmax(300px, calc((100dvh - 168px) * 9 / 16));
+    column-gap: clamp(20px, 2.4vw, 40px);
+    align-items: stretch;
+    padding: 64px clamp(24px, 3vw, 48px) 28px;
+  }
+
+  .onda {
+    position: absolute;
+    z-index: 0;
+    left: 18%;
+    right: 26%;
+    top: 34%;
+    height: 110px;
+    color: rgba(255, 196, 226, 0.2);
+    pointer-events: none;
+  }
+
+  .onda rect { fill: currentColor; }
+
+  .camino,
+  .veredicto,
+  .lado {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+
+  .camino {
     display: flex;
     flex-direction: column;
-    gap: clamp(28px, 5vh, 56px);
-    min-width: 0;
-    padding: var(--pad-y) clamp(20px, 3vw, 40px) 88px var(--pad-x);
+    padding-bottom: 8px;
   }
 
   .cabeza {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 14px;
   }
 
-  .lienzo {
-    flex: 1;
-    display: grid;
-    grid-template-columns: minmax(180px, 380px) minmax(0, 1fr);
-    column-gap: clamp(28px, 4vw, 56px);
-    row-gap: clamp(36px, 6vh, 72px);
-    align-content: center;
+  .cabeza :global(.tipo-marca) {
+    color: var(--ink-title);
   }
 
-  .noche {
-    display: contents;
+  .anio {
+    margin-top: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--ink-title);
+  }
+
+  h1 {
+    margin-top: 22px;
+    font-family: Outfit, sans-serif;
+    font-weight: 700;
+    font-size: clamp(48px, 4.6vw, 72px);
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    color: var(--ink-title);
+  }
+
+  .ruta {
+    margin-top: 28px;
+    font-family: Outfit, sans-serif;
+    font-weight: 700;
+    font-size: clamp(20px, 1.6vw, 26px);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--ink-title);
+  }
+
+  .pasos {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    margin-top: 22px;
+    padding-left: 16px;
     list-style: none;
   }
 
-  .hora { grid-column: 1; }
+  .pasos::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 0;
+    width: 1px;
+    background: rgba(255, 246, 239, 0.42);
+  }
+
+  .pasos li {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    column-gap: 6px;
+  }
+
+  .num {
+    padding-top: 1px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: rgba(255, 246, 239, 0.78);
+  }
 
   .momento {
-    margin-bottom: 6px;
-    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
     font-weight: 500;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--ink-mute);
-  }
-
-  .mood {
-    display: block;
-    padding: 0;
-    border: 0;
-    background: none;
-    font-family: Anton, Impact, sans-serif;
-    font-weight: 400;
-    max-width: 9em;
-    font-size: clamp(32px, 3.6vw, 56px);
-    line-height: 0.9;
-    letter-spacing: -0.03em;
-    text-align: left;
-    text-wrap: balance;
-    text-decoration: none;
     color: var(--ink-title);
-    cursor: pointer;
   }
 
-  .mood:focus-visible {
-    outline: 1px solid var(--ink);
-    outline-offset: 6px;
+  .guion {
+    letter-spacing: 0;
+    opacity: 0.8;
+  }
+
+  .icono {
+    display: inline-flex;
+    color: var(--ink-title);
+  }
+
+  .icono svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .momento .icono svg {
+    width: auto;
+    height: 16px;
+  }
+
+  .alma-paso {
+    margin-top: 6px;
+    font-family: Outfit, sans-serif;
+    font-weight: 700;
+    font-size: clamp(18px, 1.45vw, 22px);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    color: var(--ink-title);
   }
 
   .dicho {
-    margin-top: 10px;
-    max-width: 28ch;
-    font-size: 15px;
-    line-height: 1.35;
-    color: var(--ink-soft);
-  }
-
-  .veredicto {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: subgrid;
-    align-self: center;
-  }
-
-  .veredicto.solo { grid-column: 1 / -1; }
-
-  .eje {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: subgrid;
-    align-items: end;
-  }
-
-  .regla {
-    grid-column: 1;
-    height: 2px;
-    width: calc(100% + var(--pad-x) + clamp(28px, 4vw, 56px) - 16px);
-    margin-left: calc(var(--pad-x) * -1);
-    margin-bottom: 0.12em;
-    background: var(--c1);
-  }
-
-  .nombre { grid-column: 2; }
-
-  .veredicto.solo .nombre { grid-column: 1; }
-
-  .veredicto .momento { color: var(--c1); }
-
-  .veredicto .mood { color: var(--c1); }
-
-  .hora.is-on .mood {
-    position: relative;
-    color: var(--c1);
-  }
-
-  .hora.is-on .mood::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: calc(100% + 12px);
-    width: calc(var(--pad-x) + 12px);
-    height: 2px;
-    background: var(--c1);
-    transform: translateY(-50%);
-  }
-
-  .lado {
-    display: flex;
-    align-items: stretch;
-    min-height: 100dvh;
-  }
-
-  .lectura {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: min(340px, 28vw);
-    padding: var(--pad-y) clamp(20px, 2.4vw, 36px);
-  }
-
-  .borde {
-    margin-bottom: 12px;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--ink-mute);
-  }
-
-  .texto {
-    min-height: 9.6em;
-    max-width: 28em;
-    font-size: clamp(16px, 1.45vw, 20px);
-    line-height: 1.35;
-    letter-spacing: -0.01em;
-    color: var(--ink);
-  }
-
-  .origen,
-  .cruce {
-    max-width: 32em;
+    margin-top: 4px;
     font-size: 14px;
-    line-height: 1.4;
-    color: var(--ink-soft);
+    line-height: 1.35;
+    color: rgba(255, 246, 239, 0.78);
   }
-
-  .origen { margin-top: 18px; }
-
-  .cruce { margin-top: 8px; }
 
   .acciones {
-    position: fixed;
-    z-index: var(--z-ui);
-    left: var(--pad-x);
-    bottom: 24px;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 28px;
-    max-width: min(520px, calc(100vw - var(--pad-x) * 2));
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 32px;
   }
 
   .acciones button {
-    padding: 0;
-    border: 0;
-    background: none;
-    font-size: 13px;
-    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 42px;
+    padding: 8px 16px 8px 18px;
+    border: 1.5px solid rgba(255, 246, 239, 0.72);
+    border-radius: 999px;
+    background: transparent;
     color: var(--ink-title);
-    text-align: left;
-    text-decoration: underline;
-    text-underline-offset: 4px;
+    font-size: 14px;
+    letter-spacing: -0.01em;
     cursor: pointer;
   }
 
+  .acciones button svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+
+  .acciones button.demas {
+    box-shadow:
+      0 0 0 1px rgba(255, 170, 220, 0.18),
+      0 0 22px rgba(186, 84, 230, 0.42);
+  }
+
   .acciones button:focus-visible {
-    outline: 1px solid var(--ink);
+    outline: 1px solid var(--ink-title);
     outline-offset: 3px;
   }
 
@@ -421,159 +436,121 @@
     opacity: 0.55;
   }
 
-  .boleta {
-    position: sticky;
-    top: 0;
-    width: clamp(280px, 34vw, 460px);
-    height: 100dvh;
-    overflow: hidden;
-    background: #100a12;
+  .veredicto {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+    padding: 12px 0 48px;
   }
 
-  .anio,
-  .sello {
-    position: absolute;
-    z-index: 2;
-    color: #fff6ef;
-    font-size: 11px;
+  .kicker {
+    margin-bottom: 12px;
+    font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.22em;
-    text-transform: uppercase;
-    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
-  }
-
-  .anio {
-    top: 18px;
-    left: 16px;
     text-indent: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-title);
   }
 
-  .portadas {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-auto-rows: 1fr;
+  .nombre {
+    font-family: Outfit, sans-serif;
+    font-weight: 800;
+    font-size: clamp(56px, 16cqi, 120px);
+    line-height: 0.86;
+    letter-spacing: -0.045em;
+    background: linear-gradient(185deg, #ff6430 0%, #ff972c 40%, #ffd23a 78%, #ffe56a 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: #ffb03a;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .nombre.is-largo {
+    font-size: clamp(42px, 11cqi, 84px);
+  }
+
+  .nombre span { display: block; }
+
+  .temas {
+    display: flex;
+    gap: 8px;
+    margin-top: 22px;
     list-style: none;
   }
 
-  .portadas.es-cinco {
-    grid-template-rows: 38fr 20fr 16fr 26fr;
-  }
-
-  .portadas.es-cinco li:nth-child(1) { grid-column: 1; grid-row: 1; }
-  .portadas.es-cinco li:nth-child(2) { grid-column: 2; grid-row: 1 / span 2; }
-  .portadas.es-cinco li:nth-child(3) { grid-column: 1; grid-row: 2 / span 2; }
-  .portadas.es-cinco li:nth-child(4) { grid-column: 2; grid-row: 3 / span 2; }
-  .portadas.es-cinco li:nth-child(5) { grid-column: 1; grid-row: 4; }
-
-  .portadas.es-cinco li:nth-child(4) .pieza,
-  .portadas.es-cinco li:nth-child(5) .pieza {
-    top: 0;
-    bottom: auto;
-    padding: 8px 10px 22px;
-    background: linear-gradient(180deg, rgba(8, 4, 12, 0.78), rgba(8, 4, 12, 0));
-  }
-
-  .portadas li {
-    position: relative;
-    min-width: 0;
-    min-height: 0;
+  .temas li {
+    width: 54px;
+    height: 54px;
     overflow: hidden;
-  }
-
-  .portadas img,
-  .portadas .hueco {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    border-radius: 12px;
     background: rgba(0, 0, 0, 0.28);
   }
 
-  .pieza {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
+  .temas img,
+  .temas .hueco {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .origen,
+  .cruce {
+    max-width: 38em;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--ink-title);
+  }
+
+  .origen { margin-top: 18px; }
+
+  .cruce {
+    margin-top: 10px;
+    color: rgba(255, 246, 239, 0.9);
+  }
+
+  .lado {
     display: flex;
-    flex-direction: column;
+    align-items: stretch;
     justify-content: flex-end;
-    gap: 1px;
-    padding: 22px 10px 8px;
-    background: linear-gradient(0deg, rgba(8, 4, 12, 0.78), rgba(8, 4, 12, 0));
-    color: #fff6ef;
-    pointer-events: none;
+    align-self: stretch;
+    min-height: 0;
   }
 
-  .cancion,
-  .artista {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
+  @media (max-width: 1180px) {
+    .lienzo {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      row-gap: 28px;
+    }
 
-  .cancion {
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.15;
-  }
-
-  .artista {
-    font-size: 10px;
-    line-height: 1.15;
-    opacity: 0.84;
-  }
-
-  .sello {
-    right: 16px;
-    bottom: 16px;
-    left: 16px;
-    letter-spacing: 0.14em;
-    line-height: 1.35;
-    text-wrap: balance;
-  }
-
-  @media (max-width: 1023px) {
-    .creacion { grid-template-columns: 1fr; }
-
+    .camino { grid-column: 1; grid-row: 1; }
+    .veredicto { grid-column: 1; grid-row: 2; align-self: start; padding-bottom: 12px; }
     .lado {
-      min-height: 0;
-      flex-direction: column-reverse;
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      align-self: start;
+      padding-top: 36px;
     }
 
-    .lectura {
-      width: auto;
-      padding: 8px var(--pad-x) 88px;
-    }
-
-    .boleta {
-      position: relative;
-      width: 100%;
-      height: 78dvh;
-      min-height: 78dvh;
-    }
+    .onda { display: none; }
   }
 
   @media (max-width: 767px) {
     .lienzo {
       grid-template-columns: 1fr;
-      row-gap: 28px;
-      align-content: start;
+      padding-top: 56px;
     }
 
-    .hora,
+    .camino,
     .veredicto,
-    .eje,
-    .regla,
-    .nombre { grid-column: 1; }
-
-    .regla {
-      width: 88px;
-      margin-left: 0;
-      margin-bottom: 12px;
+    .lado {
+      grid-column: 1;
+      grid-row: auto;
     }
 
-    .hora.is-on .mood::before { display: none; }
+    .lado { justify-content: center; }
+    .acciones { margin-top: 28px; }
   }
 </style>

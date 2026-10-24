@@ -1,0 +1,110 @@
+{
+  "noctambula": {
+    "fondo": "#6238fe",
+    "tinta": "#ffffff",
+    "pastilla": "#8490fc",
+    "caja": "#3e29c2",
+    "borde": "#8d7bff",
+    "lineas": ["Alma", "Noctámbula"],
+    "rasgos": ["Madrugada", "Baile", "Energía alta"],
+    "lema": "La noche es tu hábitat",
+    "numero": "01",
+    "titular": ["La que vive el festival", "hasta el amanecer."],
+    "cuerpo": "Vives para la madrugada, las luces de neón y ese momento en que todo lo demás deja de importar. Para ti, el festival empieza cuando cae el sol y termina cuando ya no queda nadie en ningún escenario.",
+    "datos": [
+      { "etiqueta": "Tu momento", "valor": "Las 2:00 a.m." },
+      { "etiqueta": "Tu atributo", "valor": "Nunca te quedas sin energía" },
+      { "etiqueta": "Tus emociones", "valor": "Intensidad alta · Oscuridad alta · Bailabilidad alta" }
+    ]
+  },
+  "melancolica": {
+    "fondo": "#777cfc",
+    "tinta": "#ffffff",
+    "pastilla": "#6c00fc",
+    "caja": "#6c00fc",
+    "borde": "#bc9efe",
+    "lineas": ["Alma", "Melancólica", "Feliz"],
+    "rasgos": ["Atardecer", "Nostalgia", "Alegría"],
+    "lema": "Lo sientes todo",
+    "numero": "02",
+    "titular": ["Lloras en los conciertos", "y lo vives como lo mejor", "del mundo."],
+    "cuerpo": "Lloras en los conciertos y sonríes entre lágrimas. Encuentras en la música una forma de volver a lugares, personas y versiones de ti mismx que creías olvidadas. Tu felicidad también tiene algo de nostalgia.",
+    "datos": [
+      { "etiqueta": "Tu momento", "valor": "Cantar tu canción favorita" },
+      { "etiqueta": "Tu atributo", "valor": "Sentir mucho también es una forma de disfrutar" },
+      { "etiqueta": "Tus emociones", "valor": "Nostalgia alta · Alegría media" }
+    ]
+  },
+  "exploradora": {
+    "fondo": "#f0f030",
+    "tinta": "#f080d0",
+    "pastilla": "#3c9cfc",
+    "caja": "#3c9cfc",
+    "borde": "#f080d0",
+    "lineas": ["Alma", "Exploradora"],
+    "rasgos": ["Medio día", "Diversidad", "Curiosidad"],
+    "lema": "Siempre tras algo nuevo",
+    "numero": "03",
+    "titular": ["Llegas con la agenda en", "blanco, a propósito."],
+    "cuerpo": "Te interesan los nombres pequeños, los horarios de apertura y las propuestas que casi nadie comenta. Sales de cada edición con una playlist nueva y la sensación de haber encontrado algo completamente tuyo.",
+    "datos": [
+      { "etiqueta": "Tu misión", "valor": "Descubrir sonidos nuevos" },
+      { "etiqueta": "Tu atributo", "valor": "Creas playlist con canciones poco conocidas aún" },
+      { "etiqueta": "Tus emociones", "valor": "Popularidad baja · Diversidad de géneros alta" }
+    ]
+  },
+  "colectiva": {
+    "fondo": "#fe82da",
+    "tinta": "#f0f030",
+    "pastilla": "#c0489c",
+    "caja": "#c0489c",
+    "borde": "#f0f030",
+    "lineas": ["Alma", "Colectiva"],
+    "rasgos": ["Tarde", "Amistad", "Encuentro"],
+    "lema": "La música nos reúne",
+    "numero": "04",
+    "titular": ["La música es el escenario;", "el encuentro, lo importante."],
+    "cuerpo": "Vas tanto por la gente como por la música. Disfrutas los shows, pero también la fila, la búsqueda de comida y las conversaciones que se alargan mientras suena una banda de fondo.",
+    "datos": [
+      { "etiqueta": "Tu prioridad", "valor": "Compartir" },
+      { "etiqueta": "Tu atributo", "valor": "Disfrutas todo lo que pasa fuera del escenario" },
+      { "etiqueta": "Tus emociones", "valor": "Relajación alta · Energía media" }
+    ]
+  },
+  "intensa": {
+    "fondo": "#ff7f52",
+    "tinta": "#9030f0",
+    "pastilla": "#e46c3c",
+    "caja": "#d85a32",
+    "borde": "#9030f0",
+    "lineas": ["Alma", "Intensa"],
+    "rasgos": ["Primera fila", "Fuerza", "Adrenalina"],
+    "lema": "Vives todo al máximo",
+    "numero": "05",
+    "titular": ["Si no lo sientes en el cuerpo", "te falta vivirlo."],
+    "cuerpo": "Llegas horas antes, aguantas el sol y el empujón. Cuando empieza el show, te entregas por completo. Terminas sin voz, con las piernas agotadas y el alma satisfecha.",
+    "datos": [
+      { "etiqueta": "Tu energía", "valor": "Explosiva" },
+      { "etiqueta": "Tu atributo", "valor": "Sabes llegar siempre al frente del escenario" },
+      { "etiqueta": "Tus emociones", "valor": "Agresividad alta · Energía máxima" }
+    ]
+  },
+  "nostalgica": {
+    "fondo": "#9e36fd",
+    "tinta": "#c6ef1a",
+    "pastilla": "#b460fc",
+    "caja": "#b460fc",
+    "borde": "#c6ef1a",
+    "lineas": ["Alma", "Nostálgica"],
+    "rasgos": ["Crepúsculo", "Memoria", "Calma"],
+    "lema": "Una canción, mil recuerdos",
+    "numero": "06",
+    "titular": ["Escuchas canciones como", "quien abre un álbum", "de fotos."],
+    "cuerpo": "Llegas al festival con una historia —o varias— y dejas que la música abra puertas que creías cerradas. Sales más en calma de lo que entraste, con algo resuelto, algo pendiente y la certeza de que valió la pena.",
+    "datos": [
+      { "etiqueta": "Tu conexión", "valor": "Los recuerdos" },
+      { "etiqueta": "Tu atributo", "valor": "Viajas en el tiempo con canciones" },
+      { "etiqueta": "Tus emociones", "valor": "Nostalgia máxima · Tempo lento" }
+    ]
+  }
+}

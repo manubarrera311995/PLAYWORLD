@@ -17,5 +17,6 @@
   .edicion {
     min-height: 100%;
     min-height: 100dvh;
+    padding-top: 40px;
   }
 </style>

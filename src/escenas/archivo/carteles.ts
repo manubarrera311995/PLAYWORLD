@@ -1,4 +1,4 @@
-/** Cartel impreso del año. 2020 y 2021 no tienen pieza. */
+/** Cartel impreso del año. 2020 y 2021 no están en la línea: no hubo edición. */
 const CARTELES: Readonly<Record<number, string>> = {
   2010: "/assets/archivo/carteles/2010.webp",
   2011: "/assets/archivo/carteles/2011.webp",

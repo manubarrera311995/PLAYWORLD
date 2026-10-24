@@ -9,77 +9,48 @@ type Marco = {
   cue: HTMLElement | null;
 };
 
-type Ejes = { rx: number; ry: number; card: number };
+type Puesto = { x: number; y: number; card: number };
 
-/** El óvalo usa el ancho de la pantalla y queda más bajo que ancho. */
-function ejesDe(m: Marco): Ejes {
+/**
+ * La frase ocupa la izquierda. Las carátulas viven en el campo de la derecha
+ * y se desplazan con el scroll. En compacto quedan en una franja alta.
+ */
+function puestoDe(i: number, n: number, giro: number, m: Marco, aparte: number): Puesto {
   const s = m.stage.getBoundingClientRect();
-  const p = m.pin.getBoundingClientRect();
-  const cx = s.left + s.width * 0.5;
-  const cy = s.top + s.height * 0.5;
-  const cueTop = m.cue?.getBoundingClientRect().top;
-  const toBottom = (cueTop ?? p.bottom) - cy;
-  const cap = m.compacto ? 78 : 104;
-  const floor = m.compacto ? 48 : 68;
-  const card = Math.max(floor, Math.min(cap, Math.round(s.width * 0.072)));
-  const margen = card * 0.5 + 12;
-  const rx = Math.max(96, Math.min(cx - p.left, p.right - cx) - margen);
-  const ryTope = Math.max(72, Math.min(cy - p.top, toBottom) - margen);
-  const ry = Math.min(ryTope, rx * (m.compacto ? 0.7 : 0.56));
-  return { rx, ry, card };
-}
+  const cap = m.compacto ? 64 : 92;
+  const floor = m.compacto ? 42 : 60;
+  const card = Math.max(floor, Math.min(cap, Math.round(s.width * (m.compacto ? 0.16 : 0.058))));
+  const aire = card * 0.5 + (m.compacto ? 8 : 12);
+  const cols = m.compacto ? 4 : s.width > 1100 ? 3 : 2;
+  const col = i % cols;
+  const fila = Math.floor(i / cols);
+  const filas = Math.max(1, Math.ceil(n / cols));
+  const oscila = ((i * 17) % 11) - 5;
 
-/** Reparte los ángulos por arco, para que no se junten en las puntas del óvalo. */
-function fasesDe(n: number, rx: number, ry: number): number[] {
-  const pasos = 480;
-  const dist = new Array<number>(pasos);
-  let total = 0;
-  let px = rx;
-  let py = 0;
-  for (let i = 1; i <= pasos; i += 1) {
-    const a = (i / pasos) * Math.PI * 2;
-    const x = rx * Math.cos(a);
-    const y = ry * Math.sin(a);
-    total += Math.hypot(x - px, y - py);
-    dist[i - 1] = total;
-    px = x;
-    py = y;
+  if (m.compacto) {
+    const x0 = -s.width * 0.5 + aire;
+    const x1 = s.width * 0.5 - aire;
+    const y0 = -s.height * 0.5 + aire;
+    const y1 = -s.height * 0.5 + s.height * 0.4;
+    return {
+      x: x0 + ((col + 0.5) / cols) * (x1 - x0) + oscila * 3,
+      y: y0 + ((fila + 0.5) / filas) * (y1 - y0) - giro * 36,
+      card,
+    };
   }
-  const out: number[] = [];
-  for (let k = 0; k < n; k += 1) {
-    const objetivo = (k / n) * total;
-    let a = 0;
-    for (let i = 0; i < pasos; i += 1) {
-      if (dist[i]! >= objetivo) {
-        a = ((i + 1) / pasos) * Math.PI * 2;
-        break;
-      }
-    }
-    out.push(a - Math.PI / 2);
-  }
-  return out;
-}
 
-/** Rectángulo del centro que no toca las carátulas, sea cual sea el giro. */
-function huecoDe(ejes: Ejes): { w: number; h: number } {
-  const radio = ejes.card * 0.5 + 18;
-  let hh = Math.min(ejes.ry * 0.58, 168);
-  let hw = Math.min(ejes.rx * 0.62, 300);
-  const muestras = 180;
-  const choca = (w: number, h: number) => {
-    for (let i = 0; i < muestras; i += 1) {
-      const a = (i / muestras) * Math.PI * 2;
-      const cx = ejes.rx * Math.cos(a);
-      const cy = ejes.ry * Math.sin(a);
-      const nx = Math.max(-w, Math.min(w, cx));
-      const ny = Math.max(-h, Math.min(h, cy));
-      if (Math.hypot(cx - nx, cy - ny) < radio) return true;
-    }
-    return false;
+  const texto = Math.min(s.width * 0.42, 600);
+  const x0 = -s.width * 0.5 + texto + card * 0.15;
+  const x1 = s.width * 0.5 - aire;
+  const y0 = -s.height * 0.5 + aire;
+  const y1 = s.height * 0.5 - aire;
+  const x = x0 + ((col + 0.5) / cols) * (x1 - x0) + oscila * 8;
+  const y = y0 + ((fila + 0.5) / filas) * (y1 - y0) + (giro - 0.08) * (y1 - y0) * 0.4;
+  return {
+    x: x + aparte * (x1 - x) * 0.62,
+    y,
+    card,
   };
-  while (hh > 72 && choca(hw, hh)) hh -= 6;
-  while (hw > 110 && choca(hw, hh)) hw -= 6;
-  return { w: Math.round(hw * 2), h: Math.round(hh * 2) };
 }
 
 /** El scroller es `.escena-capa`. Sin pin de GSAP: el marco va con sticky. */
@@ -134,12 +105,13 @@ export function montarOrbita(root: HTMLElement): () => void {
       if (core) gsap.set(core, { scale: 1, transformOrigin: "50% 50%" });
       if (icono) gsap.set(icono, { scale: 1, transformOrigin: "50% 50%" });
 
-      const CARD_INICIO = 0.18;
-      const CARD_STAGGER = 0.64;
+      const CARD_INICIO = 0.66;
+      const CARD_STAGGER = 0.18;
       /** El scroll de la entrada cabe en este largo. Lo de después son los ocho fragmentos. */
       const DURACION = 2.4;
       const alTiempo = (p: number) => p * DURACION;
       let giroActual = 0;
+      let aparte = 0;
 
       let destelloHecho = false;
       let destelloTl: gsap.core.Timeline | undefined;
@@ -224,18 +196,13 @@ export function montarOrbita(root: HTMLElement): () => void {
         }
       };
 
-      const marco = (): Marco => ({ n, play, stage, pin, compacto, cue });
+      const marcoBase = (): Marco => ({ n, play, stage, pin, compacto, cue });
       const aplicarMedida = () => {
-        const ejes = ejesDe(marco());
-        const fases = fasesDe(n, ejes.rx, ejes.ry);
-        const hueco = huecoDe(ejes);
-        stage.style.setProperty("--hueco", hueco.w + "px");
-        stage.style.setProperty("--hueco-alto", hueco.h + "px");
         gsap.set(cards, {
-          width: ejes.card,
-          height: ejes.card,
-          x: (i: number) => Math.cos((fases[i] ?? 0) + giroActual) * ejes.rx,
-          y: (i: number) => Math.sin((fases[i] ?? 0) + giroActual) * ejes.ry,
+          width: (i: number) => puestoDe(i, n, giroActual, marcoBase(), aparte).card,
+          height: (i: number) => puestoDe(i, n, giroActual, marcoBase(), aparte).card,
+          x: (i: number) => puestoDe(i, n, giroActual, marcoBase(), aparte).x,
+          y: (i: number) => puestoDe(i, n, giroActual, marcoBase(), aparte).y,
         });
       };
 
@@ -263,7 +230,7 @@ export function montarOrbita(root: HTMLElement): () => void {
 
       aplicarMedida();
       gsap.set(cards, {
-        rotation: 0,
+        rotation: (i: number) => (i % 5 - 2) * 4,
         autoAlpha: 0,
         scale: 0.85,
         filter: "blur(8px)",
@@ -289,6 +256,11 @@ export function montarOrbita(root: HTMLElement): () => void {
           invalidateOnRefresh: true,
           onRefresh: aplicarMedida,
           onUpdate: (self) => {
+            const siguiente = self.progress >= 0.9 ? 1 : 0;
+            if (siguiente !== aparte) {
+              aparte = siguiente;
+              aplicarMedida();
+            }
             if (self.progress >= 0.92 && self.direction >= 0) encenderDestello();
             else if (self.progress < 0.88) apagarDestello();
           },
@@ -318,7 +290,7 @@ export function montarOrbita(root: HTMLElement): () => void {
       tl.to(
         viaje,
         {
-          a: (compacto ? 110 : 150) * (Math.PI / 180),
+          a: compacto ? 0.12 : 0.16,
           duration: giroFin - giroInicio,
           ease: "none",
           onUpdate: () => {

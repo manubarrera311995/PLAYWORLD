@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PLAYWORLD — el cartel, collage</title>
+  <style>
+    @font-face {
+      font-family: Outfit;
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("../public/fonts/outfit-latin-400-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "DM Sans";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("../public/fonts/dm-sans-latin-400-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "DM Sans";
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url("../public/fonts/dm-sans-latin-500-normal.woff2") format("woff2");
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: #000;
+      color: #fff6ef;
+      font-family: "DM Sans", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body { overflow: hidden; }
+
+    button { font-family: inherit; color: inherit; cursor: pointer; }
+    button:focus-visible { outline: 1px solid rgba(255, 246, 239, 0.7); outline-offset: 3px; }
+
+    .archivo {
+      width: 1440px;
+      height: 900px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      overflow: hidden;
+      background: #000;
+      transform-origin: center center;
+    }
+
+    /* El collage es el suelo: nace en el borde inferior y se disuelve hacia arriba. */
+    .fondo {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      -webkit-mask-image: linear-gradient(to top, #000 0%, #000 58%, transparent 88%);
+      mask-image: linear-gradient(to top, #000 0%, #000 58%, transparent 88%);
+    }
+
+    .fondo img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center bottom;
+      user-select: none;
+      -webkit-user-drag: none;
+      animation: subir 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .top {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 28px 28px 0 96px;
+      pointer-events: none;
+    }
+
+    .marca {
+      font-family: Outfit, sans-serif;
+      font-size: 13px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .folio {
+      margin-top: 4px;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255, 246, 239, 0.55);
+    }
+
+    .progreso {
+      font-family: ui-monospace, "SFMono-Regular", monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: rgba(255, 246, 239, 0.55);
+    }
+
+    .radio {
+      position: absolute;
+      z-index: 4;
+      left: 0;
+      top: 72px;
+      bottom: 28px;
+      width: 88px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 8px 0 8px 22px;
+    }
+
+    .radio::before {
+      content: "";
+      position: absolute;
+      left: 27px;
+      top: 8px;
+      bottom: 8px;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(255,246,239,0.28) 8%, rgba(255,246,239,0.28) 92%, transparent);
+    }
+
+    .tick {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      padding: 0 0 0 18px;
+      position: relative;
+      color: rgba(255, 246, 239, 0.34);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tick::before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 50%;
+      width: 5px;
+      height: 5px;
+      margin-top: -2.5px;
+      border-radius: 50%;
+      background: rgba(255, 246, 239, 0.28);
+    }
+
+    .tick.is-vacio { color: rgba(255, 246, 239, 0.18); }
+
+    .tick.is-on {
+      color: #fff6ef;
+      font-size: 12px;
+    }
+
+    .tick.is-on::before {
+      width: 9px;
+      height: 9px;
+      margin-top: -4.5px;
+      margin-left: -2px;
+      background: #fff6ef;
+    }
+
+    .nucleo {
+      position: absolute;
+      z-index: 2;
+      left: 88px;
+      right: 28px;
+      top: 96px;
+      display: grid;
+      justify-items: center;
+      gap: 16px;
+      pointer-events: none;
+      text-align: center;
+    }
+
+    .anio {
+      font-family: Outfit, sans-serif;
+      font-weight: 400;
+      font-size: 168px;
+      line-height: 0.82;
+      letter-spacing: -0.04em;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .nota {
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      color: rgba(255, 246, 239, 0.55);
+    }
+
+    .cta {
+      position: absolute;
+      z-index: 3;
+      left: 50%;
+      bottom: 64px;
+      transform: translateX(-50%);
+      appearance: none;
+      pointer-events: auto;
+      background: #000;
+      border: 1px solid rgba(255, 246, 239, 0.72);
+      padding: 11px 28px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .cta:hover { background: rgba(255, 246, 239, 0.08); }
+
+    .cue {
+      position: absolute;
+      z-index: 3;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255, 246, 239, 0.72);
+      text-shadow: 0 2px 12px #000;
+      pointer-events: none;
+    }
+
+    @keyframes subir {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fondo img { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <section class="archivo" aria-label="El cartel">
+    <div class="fondo" id="fondo"></div>
+    <header class="top">
+      <div>
+        <p class="marca">Playworld Archive</p>
+        <p class="folio">El cartel</p>
+      </div>
+      <p class="progreso" id="progreso">01 / 17</p>
+    </header>
+    <nav class="radio" id="radio" aria-label="Línea de tiempo de años"></nav>
+    <div class="nucleo">
+      <h1 class="anio" id="anio">2010</h1>
+      <p class="nota" id="nota" hidden>Memoria en construcción.</p>
+    </div>
+    <button class="cta" id="cta" type="button">Abrir edición</button>
+    <p class="cue">desliza</p>
+  </section>
+  <script>
+    const YEARS = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2022, 2023, 2024, 2025, 2026];
+    const SIN = new Set();
+    let i = 0;
+
+    const radio = document.getElementById("radio");
+    const fondo = document.getElementById("fondo");
+    const anio = document.getElementById("anio");
+    const nota = document.getElementById("nota");
+    const cta = document.getElementById("cta");
+    const progreso = document.getElementById("progreso");
+
+    YEARS.forEach((y, n) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "tick" + (SIN.has(y) ? " is-vacio" : "");
+      b.textContent = String(y);
+      b.addEventListener("click", () => ir(n));
+      radio.appendChild(b);
+    });
+
+    function pintar() {
+      const y = YEARS[i];
+      const vacio = SIN.has(y);
+      progreso.textContent = String(i + 1).padStart(2, "0") + " / " + String(YEARS.length).padStart(2, "0");
+      [...radio.children].forEach((el, n) => el.classList.toggle("is-on", n === i));
+      anio.textContent = String(y);
+      nota.hidden = !vacio;
+      fondo.replaceChildren();
+      if (vacio) return;
+      const img = document.createElement("img");
+      img.alt = "";
+      img.src = "linea-previews/" + y + ".png";
+      img.onload = () => recortar(img);
+      fondo.append(img);
+    }
+
+    function recortar(img) {
+      const w = 180;
+      const h = Math.max(1, Math.round(w * img.naturalHeight / img.naturalWidth));
+      const lienzo = document.createElement("canvas");
+      lienzo.width = w;
+      lienzo.height = h;
+      const ctx = lienzo.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0, w, h);
+      const data = ctx.getImageData(0, 0, w, h).data;
+      let minY = h;
+      let maxY = 0;
+      let minX = w;
+      let maxX = 0;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const p = (y * w + x) * 4;
+          if (data[p] + data[p + 1] + data[p + 2] > 28) {
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+          }
+        }
+      }
+      if (maxX <= minX || maxY <= minY) return;
+      const sx = img.naturalWidth / w;
+      const sy = img.naturalHeight / h;
+      const top = Math.max(0, Math.round((minY - 1) * sy));
+      const left = Math.max(0, Math.round((minX - 1) * sx));
+      const right = Math.max(0, Math.round((w - 1 - maxX - 1) * sx));
+      const bottom = Math.max(0, Math.round((h - 1 - maxY - 1) * sy));
+      img.style.objectViewBox = `inset(${top}px ${right}px ${bottom}px ${left}px)`;
+    }
+
+    function encajar() {
+      const marco = document.querySelector(".archivo");
+      const s = Math.min(innerWidth / 1440, innerHeight / 900);
+      marco.style.transform = `translate(-50%, -50%) scale(${s})`;
+    }
+
+    function ir(n) {
+      if (n < 0 || n >= YEARS.length || n === i) return;
+      i = n;
+      pintar();
+    }
+
+    let acc = 0;
+    let last = 0;
+    encajar();
+    window.addEventListener("resize", encajar);
+
+    document.querySelector(".archivo").addEventListener("wheel", (e) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      acc += e.deltaY;
+      if (Math.abs(acc) < 48) return;
+      const dir = acc > 0 ? 1 : -1;
+      acc = 0;
+      const now = performance.now();
+      if (now - last < 280) return;
+      last = now;
+      ir(i + dir);
+    }, { passive: false });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") ir(i + 1);
+      if (e.key === "ArrowUp" || e.key === "ArrowLeft") ir(i - 1);
+    });
+
+    pintar();
+  </script>
+</body>
+</html>
