@@ -25,7 +25,7 @@
     dicho: string;
   };
 
-  type CartaLineas = { lineas: string[] };
+  type CaraAlma = { lineas: string[]; tinta: string };
 
   const onda = [
     18, 28, 22, 46, 34, 62, 40, 24, 70, 48, 30, 58, 36, 20, 44, 66, 28, 52, 38, 16,
@@ -38,9 +38,8 @@
   const mancha = $derived(manchaDe(temas));
   const anio = $derived(rec.seleccion?.yearHint ?? rec.yearHint);
   const cruce = $derived(rec.alma ? lineaFila(rec.almasFila, rec.alma.principal) : null);
-  const lineas = $derived(
-    alma ? (cartas as Record<AlmaId, CartaLineas>)[alma.id].lineas : [],
-  );
+  const cara = $derived(alma ? (cartas as Record<AlmaId, CaraAlma>)[alma.id] : null);
+  const lineas = $derived(cara?.lineas ?? []);
 
   const horas = $derived.by((): Hora[] => {
     const ids = rec.almasFila ?? [];
@@ -191,7 +190,7 @@
 
       <div class="veredicto">
         <p class="kicker">Tus canciones</p>
-        <h2 class={["nombre", lineas.length > 2 && "is-largo"]}>
+        <h2 class={["nombre", lineas.length > 2 && "is-largo"]} style:--tinta={cara?.tinta}>
           {#each lineas as linea (linea)}
             <span>{linea}</span>
           {/each}
@@ -459,13 +458,9 @@
     font-family: Outfit, sans-serif;
     font-weight: 800;
     font-size: clamp(56px, 16cqi, 120px);
-    line-height: 0.86;
+    line-height: 0.88;
     letter-spacing: -0.045em;
-    background: linear-gradient(185deg, #ff6430 0%, #ff972c 40%, #ffd23a 78%, #ffe56a 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: #ffb03a;
-    -webkit-text-fill-color: transparent;
+    color: var(--tinta, #fff);
   }
 
   .nombre.is-largo {

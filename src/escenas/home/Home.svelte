@@ -19,6 +19,36 @@
   let { ruta: _ruta }: Props = $props();
 
   const trasCamara = copy.primera.pasos.findIndex((paso) => "camara" in paso && paso.camara);
+
+  /** El plano del título se apaga cuando el scroll lo disuelve o la pestaña no se ve. */
+  function planoTitulo(node: HTMLVideoElement): () => void {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    node.muted = true;
+    const sincronizar = () => {
+      const opacidad = node.style.opacity === "" ? 1 : Number.parseFloat(node.style.opacity);
+      const oculto =
+        reduce.matches ||
+        document.hidden ||
+        node.style.visibility === "hidden" ||
+        opacidad < 0.05;
+      if (oculto) {
+        if (!node.paused) node.pause();
+        return;
+      }
+      if (node.paused) void node.play().catch(() => undefined);
+    };
+    const observador = new MutationObserver(sincronizar);
+    observador.observe(node, { attributes: true, attributeFilter: ["style"] });
+    reduce.addEventListener("change", sincronizar);
+    document.addEventListener("visibilitychange", sincronizar);
+    sincronizar();
+    return () => {
+      observador.disconnect();
+      reduce.removeEventListener("change", sincronizar);
+      document.removeEventListener("visibilitychange", sincronizar);
+      node.pause();
+    };
+  }
 </script>
 
 <!--
@@ -28,6 +58,17 @@
 <section class="home" {@attach montarOrbita} {@attach montarPrimera} {@attach montarFondoHome}>
   <div class="home__pin">
     <FondoHome />
+    <video
+      class="home__plano"
+      muted
+      loop
+      playsinline
+      poster="/assets/home/titulo/playworld.jpg"
+      aria-hidden="true"
+      {@attach planoTitulo}
+    >
+      <source src="/assets/home/titulo/playworld.mp4" type="video/mp4" />
+    </video>
     <header class="home__top">
       <Marca texto={copy.brand} />
       <Asterisco />
@@ -148,6 +189,18 @@
     overflow: visible;
   }
   /* El layout de `.home__fondo` y de su foto vive ahora en `FondoHome.svelte`. */
+  .home__plano {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100dvh;
+    object-fit: cover;
+    object-position: center 28%;
+    pointer-events: none;
+    background: #14081c;
+  }
   .home__top {
     position: relative;
     z-index: 5;
@@ -476,13 +529,6 @@
   }
   .home__toma :global(.objeto) {
     width: 100%;
-    pointer-events: auto;
-  }
-  .home__toma :global(.rotulo) {
-    opacity: 0;
-  }
-  .home:global(.is-llena) .home__toma :global(.rotulo) {
-    opacity: 1;
   }
   .home__frase {
     margin: 0;
@@ -702,9 +748,6 @@
     margin: 8px 0 0;
     opacity: 1;
     visibility: visible;
-  }
-  .home:global(.is-quieto) .home__toma :global(.rotulo) {
-    opacity: 1;
   }
   .home:global(.is-quieto) .home__reliquias {
     justify-content: flex-start;
@@ -930,9 +973,6 @@
       margin-top: 12px;
       opacity: 1;
       visibility: visible;
-    }
-    .home__toma :global(.rotulo) {
-      opacity: 1;
     }
     .home__reliquias {
       justify-content: flex-start;

@@ -136,7 +136,7 @@ export function montarPrimera(root: HTMLElement): () => void {
             const ancho = ventana ? ventana.sale - ventana.entra : 1;
             const llena =
               ventana !== null &&
-              self.progress >= ventana.entra + ancho * 0.76 &&
+              self.progress >= ventana.entra + ancho * 0.56 &&
               self.progress < ventana.entra + ancho * 0.9;
             root.classList.toggle("is-toma", tomaViva);
             root.classList.toggle("is-llena", llena);
@@ -268,7 +268,7 @@ export function montarPrimera(root: HTMLElement): () => void {
 
       if (toma && vertical && ventana) {
         const nace = vertical.entra + (vertical.sale - vertical.entra) * 0.04;
-        const gira = ventana.entra + (ventana.sale - ventana.entra) * 0.46;
+        const gira = ventana.entra + (ventana.sale - ventana.entra) * 0.34;
         tl.to(
           toma,
           { autoAlpha: 1, duration: (vertical.sale - vertical.entra) * 0.14, ease: "power1.out" },
@@ -302,7 +302,7 @@ export function montarPrimera(root: HTMLElement): () => void {
             x: 0,
             y: 0,
             scale: 1,
-            duration: dur * 0.36,
+            duration: dur * 0.22,
             ease: "power2.inOut",
             immediateRender: false,
           },
@@ -317,10 +317,10 @@ export function montarPrimera(root: HTMLElement): () => void {
             autoAlpha: 0,
             scale: 0.9,
             y: -24,
-            duration: dur * 0.12,
+            duration: dur * 0.1,
             ease: "power2.in",
           },
-          entra + dur * 0.88,
+          entra + dur * 0.9,
         );
       }
       tl.set({}, {}, 1);
