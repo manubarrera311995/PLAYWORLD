@@ -44,7 +44,7 @@ export function entrarSuelo(root: HTMLElement): Limpieza {
   return () => ctx.revert();
 }
 
-/** La bajada queda fija al lado; entra una vez y no se va con la pregunta. */
+/** La bajada queda fija bajo las fotos; entra una vez y no se va con la pregunta. */
 export function entrarBajada(root: HTMLElement): Limpieza {
   if (get(reduce)) return LIMPIEZA_VACIA;
   const gsap = ensureGsap();

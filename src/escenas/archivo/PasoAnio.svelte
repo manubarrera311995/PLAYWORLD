@@ -110,6 +110,7 @@
     margin: 0;
     font-kerning: none;
     gap: 0.02em;
+    font-size: clamp(78px, min(19vw, 28vh), 246px);
   }
 
   .year span {
@@ -153,6 +154,7 @@
   @media (max-width: 767px) {
     .year {
       gap: 0.01em;
+      font-size: clamp(64px, 19vw, 112px);
     }
     .nucleo {
       gap: 10px;

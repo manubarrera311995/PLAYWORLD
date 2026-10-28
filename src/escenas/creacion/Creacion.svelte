@@ -9,8 +9,9 @@
   import Marca from "../../ui/Marca.svelte";
   import { navigate, type RutaParsed } from "../director/router";
   import { artUrl } from "../../datos/color";
-  import { lineaFila, manchaDe } from "./boleta";
-  import { descargarTarjeta } from "./tarjeta";
+  import { lineaFila } from "./boleta";
+  import { descargarCarta } from "./cartaImagen";
+  import { degradadoDe } from "../../motion/degradado";
   import copy from "../hook/hook.copy.json";
   import cartas from "./carta.copy.json";
 
@@ -25,21 +26,39 @@
     dicho: string;
   };
 
-  type CaraAlma = { lineas: string[]; tinta: string };
+  type CaraAlma = { lineas: string[]; tinta: string; fondo: string };
 
-  const onda = [
-    18, 28, 22, 46, 34, 62, 40, 24, 70, 48, 30, 58, 36, 20, 44, 66, 28, 52, 38, 16,
-    42, 60, 32, 22, 50, 36, 68, 26, 44, 18, 56, 40, 24, 48, 30, 64, 22, 38, 54, 20,
-  ];
+  /** Paradas del cielo de creación. La tinta tiene que separarse de todas. */
+  const CIELO = (() => {
+    const cielo = degradadoDe("creacion");
+    return [cielo.arriba, cielo.alta, cielo.media, cielo.baja, cielo.suelo];
+  })();
+
+  function canal(hex: string, shift: number): number {
+    const c = ((parseInt(hex.slice(1), 16) >> shift) & 255) / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  }
+
+  function contraste(a: string, b: string): number {
+    const luz = (hex: string) => 0.2126 * canal(hex, 16) + 0.7152 * canal(hex, 8) + 0.0722 * canal(hex, 0);
+    const hi = Math.max(luz(a), luz(b));
+    const lo = Math.min(luz(a), luz(b));
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
+  /** La tinta de la tarjeta se pierde cuando el cielo se le acerca. */
+  function sePierde(tinta: string): boolean {
+    return CIELO.some((fondo) => contraste(tinta, fondo) < 3);
+  }
 
   const rec = $derived($recorrido);
   const alma = $derived(rec.alma ? almas[rec.alma.principal] : null);
   const temas = $derived(rec.seleccion?.tracks ?? []);
-  const mancha = $derived(manchaDe(temas));
   const anio = $derived(rec.seleccion?.yearHint ?? rec.yearHint);
   const cruce = $derived(rec.alma ? lineaFila(rec.almasFila, rec.alma.principal) : null);
   const cara = $derived(alma ? (cartas as Record<AlmaId, CaraAlma>)[alma.id] : null);
   const lineas = $derived(cara?.lineas ?? []);
+  const conFondo = $derived(cara ? sePierde(cara.tinta) : false);
 
   const horas = $derived.by((): Hora[] => {
     const ids = rec.almasFila ?? [];
@@ -64,19 +83,7 @@
     if (guardando || !alma) return;
     guardando = true;
     try {
-      await descargarTarjeta({
-        alias: rec.seleccion?.alias ?? "",
-        proyecto: "PLAYWORLD",
-        anio,
-        alma: alma.nombre,
-        descripcion: alma.texto,
-        temas: temas.map((tema) => ({
-          track: tema.track,
-          artist: tema.artist,
-          art: artUrl(tema.art, "300"),
-        })),
-        mancha,
-      });
+      await descargarCarta(alma.id);
     } finally {
       guardando = false;
     }
@@ -124,12 +131,6 @@
   <Revelado />
   {#if alma}
     <div class="lienzo">
-      <svg class="onda" viewBox="0 0 640 80" preserveAspectRatio="none" aria-hidden="true">
-        {#each onda as alto, i (i)}
-          <rect x={i * 16} y={(80 - alto) / 2} width="6" height={alto} rx="3" />
-        {/each}
-      </svg>
-
       <div class="camino">
         <header class="cabeza">
           <Marca />
@@ -190,7 +191,11 @@
 
       <div class="veredicto">
         <p class="kicker">Tus canciones</p>
-        <h2 class={["nombre", lineas.length > 2 && "is-largo"]} style:--tinta={cara?.tinta}>
+        <h2
+          class={["nombre", lineas.length > 2 && "is-largo", conFondo && "con-fondo"]}
+          style:--tinta={cara?.tinta}
+          style:--fondo={cara?.fondo}
+        >
           {#each lineas as linea (linea)}
             <span>{linea}</span>
           {/each}
@@ -243,24 +248,9 @@
     padding: 64px clamp(24px, 3vw, 48px) 28px;
   }
 
-  .onda {
-    position: absolute;
-    z-index: 0;
-    left: 18%;
-    right: 26%;
-    top: 34%;
-    height: 110px;
-    color: rgba(255, 196, 226, 0.2);
-    pointer-events: none;
-  }
-
-  .onda rect { fill: currentColor; }
-
   .camino,
   .veredicto,
   .lado {
-    position: relative;
-    z-index: 1;
     min-width: 0;
   }
 
@@ -469,6 +459,14 @@
 
   .nombre span { display: block; }
 
+  .nombre.con-fondo {
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.04em 0.12em 0.1em;
+    border-radius: 0.04em;
+    background: var(--fondo);
+  }
+
   .temas {
     display: flex;
     gap: 8px;
@@ -528,8 +526,6 @@
       align-self: start;
       padding-top: 36px;
     }
-
-    .onda { display: none; }
   }
 
   @media (max-width: 767px) {

@@ -3,14 +3,16 @@
     onclick?: (e: MouseEvent) => void;
     href?: string;
     download?: string;
+    target?: string;
+    rel?: string;
     disabled?: boolean;
     children?: import("svelte").Snippet;
   };
-  let { onclick, href, download, disabled = false, children }: Props = $props();
+  let { onclick, href, download, target, rel, disabled = false, children }: Props = $props();
 </script>
 
 {#if href && !disabled}
-  <a class="boton" {href} {download} onclick={(e) => {
+  <a class="boton" {href} {download} {target} rel={rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)} onclick={(e) => {
     if (onclick) {
       e.preventDefault();
       onclick(e);

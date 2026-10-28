@@ -10,11 +10,12 @@
     titulo: string;
     subtitulo: string;
     meta: string;
+    enlace?: string | null;
     filas: readonly Fila[];
     yKey: RasgoKey;
     ontrait: (key: RasgoKey) => void;
   };
-  let { porta, art, titulo, subtitulo, meta, filas, yKey, ontrait }: Props = $props();
+  let { porta, art, titulo, subtitulo, meta, enlace = null, filas, yKey, ontrait }: Props = $props();
 
   const labels = copy.moods as Record<string, string>;
 </script>
@@ -29,6 +30,9 @@
     <p class="quien">{titulo}</p>
     <p class="tema">{subtitulo}</p>
     {#if meta}<p class="meta">{meta}</p>{/if}
+    {#if enlace}
+      <a class="enlace" href={enlace} target="_blank" rel="noopener noreferrer">{copy.escuchar}</a>
+    {/if}
   </div>
   <div class="cuerpo">
     {#each filas as fila (fila.key)}
@@ -62,6 +66,17 @@
   .quien { margin: 0; font-size: 13px; color: var(--ink-soft); }
   .tema { margin: 2px 0 0; font-size: 16px; font-weight: 500; letter-spacing: -0.02em; }
   .meta { margin: 4px 0 0; color: var(--ink-mute); font-size: 12px; }
+  .enlace {
+    display: inline-block;
+    margin-top: 10px;
+    color: var(--ink-soft);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 246, 239, 0.35);
+  }
+  .enlace:hover { color: var(--ink); border-bottom-color: var(--ink); }
   .tapa {
     width: 74px;
     height: 74px;

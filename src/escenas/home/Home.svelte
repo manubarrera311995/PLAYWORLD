@@ -132,12 +132,7 @@
         <span class="home__play-aura" aria-hidden="true"></span>
         <span class="home__play-ring" aria-hidden="true"></span>
         <span class="home__play-ring home__play-ring--eco" aria-hidden="true"></span>
-        <span class="home__play-core">
-          <span class="home__play-brillo" aria-hidden="true"></span>
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M8.2 5.4v13.2L19.4 12 8.2 5.4Z" />
-          </svg>
-        </span>
+        <img src="/assets/home/cd-player.png" alt="" draggable="false" />
       </button>
       <div class="home__toma">
         <Camara grande />
@@ -340,11 +335,11 @@
     left: 50%;
     top: 50%;
     z-index: 5;
-    width: clamp(88px, 14vw, 128px);
-    aspect-ratio: 1;
+    width: clamp(260px, 36vw, 460px);
+    aspect-ratio: 896 / 420;
     border: 0;
     padding: 0;
-    border-radius: 50%;
+    border-radius: 0;
     background: transparent;
     color: var(--ink-title);
     cursor: pointer;
@@ -356,15 +351,17 @@
   .home__play:global(.is-vivo) {
     pointer-events: auto;
   }
-  .home__play:global(.is-vivo):hover .home__play-core {
-    filter: brightness(1.16);
-    box-shadow:
-      0 0 42px rgba(255, 196, 110, 0.55),
-      0 18px 40px rgba(20, 0, 40, 0.32),
-      inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  .home__play img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
   }
-  .home__play:global(.is-vivo):active .home__play-core {
-    filter: brightness(0.96);
+  .home__play-aura,
+  .home__play-ring {
+    display: none;
   }
   .home__play-aura {
     position: absolute;
@@ -382,54 +379,6 @@
   }
   .home__play:global(.is-vivo) .home__play-aura {
     animation: play-aura 2.1s var(--ease-soft) infinite;
-  }
-  .home__play-core {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    place-items: center;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    border-radius: 50%;
-    border: 1.5px solid rgba(255, 255, 255, 0.62);
-    background: linear-gradient(
-      150deg,
-      rgba(255, 255, 255, 0.42) 0%,
-      rgba(255, 214, 150, 0.22) 42%,
-      rgba(255, 255, 255, 0.1) 100%
-    );
-    box-shadow:
-      0 0 28px rgba(255, 196, 110, 0.38),
-      0 16px 36px rgba(20, 0, 40, 0.28),
-      inset 0 1px 0 rgba(255, 255, 255, 0.58);
-    transition: filter 180ms var(--ease-soft), box-shadow 180ms var(--ease-soft);
-    will-change: transform;
-  }
-  .home__play-brillo {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    opacity: 0;
-    border-radius: inherit;
-    --shine-x: -20%;
-    background: radial-gradient(
-      circle 36% at var(--shine-x) 34%,
-      rgba(255, 255, 255, 0.9) 0%,
-      rgba(255, 255, 255, 0.28) 34%,
-      transparent 68%
-    );
-    mix-blend-mode: plus-lighter;
-    will-change: opacity;
-  }
-  .home__play-core svg {
-    position: relative;
-    z-index: 3;
-    display: block;
-    width: 34%;
-    height: 34%;
-    fill: currentColor;
   }
   .home__play-ring {
     position: absolute;
@@ -674,7 +623,7 @@
     display: none;
   }
   .home:global(.is-quieto) .home__play-destello,
-  .home:global(.is-quieto) .home__play-brillo,
+  .home:global(.is-quieto) :global(.home__play-brillo),
   .home:global(.is-quieto) .home__play-aura,
   .home:global(.is-quieto) .home__play-ring {
     display: none;
@@ -807,6 +756,9 @@
   @media (max-width: 767px) {
     .home {
       --entrada: 760;
+    }
+    .home__play {
+      width: min(86vw, 340px);
     }
     .home__fragmentos {
       display: none;
@@ -1022,7 +974,7 @@
       animation: none;
     }
     .home__play-destello,
-    .home__play-brillo,
+    :global(.home__play-brillo),
     .home__play-aura,
     .home__play-ring {
       display: none;

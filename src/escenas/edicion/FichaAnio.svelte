@@ -30,6 +30,7 @@
   import VistaCartel from "./VistaCartel.svelte";
   import FichaLado from "./FichaLado.svelte";
   import { cartelDe } from "../archivo/carteles";
+  import { urlEmbedPlaylist, urlTrack } from "../../datos/playlists";
 
   type Vista = "nube" | "rasgos" | "notas" | "cartel";
   type Props = { year: number };
@@ -74,6 +75,7 @@
   });
 
   const cartel = $derived(cartelDe(year));
+  const playlist = $derived(urlEmbedPlaylist(year));
   let cartelRoto = $state(false);
   let ratioCartel = $state(0.72);
   const hoja = $derived(cartel != null && !cartelRoto);
@@ -388,12 +390,25 @@
               <p class="contexto">{parrafo}</p>
             {/each}
           {/if}
-          <div class="stats">
-            <div class="stat"><strong>{tracks.length}</strong><span>{copy.stats.songs}</span></div>
-            <div class="stat"><strong>{info.minorShare}%</strong><span>{copy.stats.minor}</span></div>
-            <div class="stat"><strong>{info.nActs}</strong><span>{copy.stats.acts}</span></div>
-            <div class="stat"><strong>{nGeneros}</strong><span>{copy.stats.genres}</span></div>
-            <div class="stat"><strong>{nPaises}</strong><span>{copy.stats.countries}</span></div>
+          <div class="cierre">
+            <div class="stats">
+              <div class="stat"><strong>{tracks.length}</strong><span>{copy.stats.songs}</span></div>
+              <div class="stat"><strong>{info.minorShare}%</strong><span>{copy.stats.minor}</span></div>
+              <div class="stat"><strong>{info.nActs}</strong><span>{copy.stats.acts}</span></div>
+              <div class="stat"><strong>{nGeneros}</strong><span>{copy.stats.genres}</span></div>
+              <div class="stat"><strong>{nPaises}</strong><span>{copy.stats.countries}</span></div>
+            </div>
+            {#if playlist}
+              <iframe
+                class="playlist"
+                title="Playlist de {year} en Spotify"
+                src={playlist}
+                height="152"
+                loading="lazy"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+            {/if}
           </div>
         </div>
       </div>
@@ -468,6 +483,7 @@
         titulo={cabeza.titulo}
         subtitulo={cabeza.subtitulo}
         meta={cabeza.meta}
+        enlace={cancion?.spotifyId ? urlTrack(cancion.spotifyId) : null}
         filas={filasFicha}
         {yKey}
         ontrait={elegirRasgo}
@@ -616,7 +632,13 @@
   .contexto { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-soft); }
   .empty .contexto,
   .empty .contexto-titulo { margin-inline: auto; text-align: left; }
-  .stats { display: flex; flex-wrap: wrap; gap: 0; margin-top: 4px; }
+  .cierre {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-top: 4px;
+  }
+  .stats { display: flex; flex: 1; flex-wrap: wrap; gap: 0; min-width: 0; }
   .stat { padding: 0 16px; border-left: 1px solid rgba(255, 246, 239, 0.28); }
   .stat:first-child { padding-left: 0; border-left: 0; }
   .stat strong {
@@ -634,6 +656,13 @@
     font-size: 10px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
+  }
+  .playlist {
+    flex: 0 0 280px;
+    width: 280px;
+    height: 152px;
+    border: 0;
+    border-radius: 12px;
   }
   .tablero {
     display: grid;
@@ -679,6 +708,8 @@
   .acciones { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
   @media (max-width: 980px) {
     .tablero { grid-template-columns: 1fr; height: auto; }
+    .cierre { flex-direction: column; align-items: stretch; }
+    .playlist { flex-basis: auto; width: 100%; max-width: 420px; }
     .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 24px; }
     .stat { padding: 0; border-left: 0; }
     .escenario { min-height: 520px; }

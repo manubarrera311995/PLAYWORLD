@@ -154,7 +154,6 @@
       </div>
     {:else if pregunta}
       <div class="hook__paso">
-        <p class="hook__bajada tipo-cuerpo" {@attach entrarBajada}>{copy.bajada}</p>
         {#key pregunta.id}
         <div class="hook__cambia" {@attach entrarPaso}>
           <div class="hook__kicker">
@@ -184,6 +183,7 @@
           </div>
         </div>
         {/key}
+        <p class="hook__bajada tipo-cuerpo" {@attach entrarBajada}>{copy.bajada}</p>
       </div>
       {#if paso > 0}
         <button class="hook__atras" type="button" onclick={atras}>{copy.atras}</button>
@@ -299,10 +299,11 @@
     background: rgba(255, 246, 239, 0.88);
   }
   .hook__bajada {
-    max-width: 34ch;
-    margin: 0 auto 18px;
+    max-width: 42ch;
+    margin: 0;
     font-size: 15px;
     line-height: 1.45;
+    text-align: center;
     color: var(--ink-mute);
   }
   .hook__main {
@@ -315,6 +316,10 @@
   }
   .hook__paso {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(22px, 3.5vh, 36px);
     width: min(100%, 1080px);
   }
   .hook__cambia {
@@ -508,17 +513,6 @@
     .hook__resto {
       width: 64px;
       margin: 0 -10px;
-    }
-  }
-  @media (min-width: 1024px) {
-    .hook__bajada {
-      position: absolute;
-      left: 0;
-      bottom: 78px;
-      width: min(24ch, calc((100% - 540px) / 2));
-      max-width: none;
-      margin: 0;
-      text-align: left;
     }
   }
   @media (min-width: 768px) {

@@ -9,6 +9,16 @@
   mix-blend-mode: soft-light;
 }
 
+/* Años, ficha del año y alma: el grano textura el cielo y queda detrás
+   del collage, del cartel y de la card. El texto sigue encima. */
+.mundo:has(.archivo, .edicion, .creacion) .grano {
+  z-index: 1;
+}
+
+.mundo:has(.archivo, .edicion, .creacion) .director {
+  z-index: 2;
+}
+
 .grano canvas {
   display: block;
   width: 100%;
