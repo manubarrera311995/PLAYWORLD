@@ -75,11 +75,11 @@
 </script>
 
 <section class={["ipod-esc", `ipod-esc--${vp.modo}`]} {@attach entrar}>
+  <Marca />
   <div class="ipod-esc__device" data-ipod>
     <Ipod {oncerrar} />
   </div>
   <aside class="ipod-esc__copy" data-copy>
-    <Marca />
     {#if year != null}
       <p class="eyebrow">{year}</p>
     {/if}
@@ -91,6 +91,7 @@
 
 <style>
   .ipod-esc {
+    position: relative;
     height: 100%;
     min-height: 100dvh;
     display: grid;
@@ -107,6 +108,12 @@
     min-height: 0;
     height: 100%;
     overflow: hidden;
+  }
+  .ipod-esc :global(.tipo-marca) {
+    position: absolute;
+    top: var(--marca-top);
+    left: var(--pad-x);
+    z-index: 2;
   }
   .ipod-esc__copy {
     display: grid;

@@ -251,6 +251,7 @@
   }
 
   .lienzo {
+    --marca-ancla: 64px;
     position: relative;
     min-height: 100%;
     min-height: 100dvh;

@@ -55,7 +55,10 @@ function tramo(i: number, pesos: number[]): { entra: number; sale: number } {
 /**
  * «Mi primera vez» en el hueco del círculo. Cada frase entra mientras las
  * carátulas siguen girando; el play solo se enciende al final.
+ * Las frases no se disuelven: la que sale se recorta hacia arriba y la
+ * siguiente ya viene subiendo, con un solape corto.
  */
+const Y_FUERA = 118;
 export function montarPrimera(root: HTMLElement): () => void {
   const gsap = ensureGsap();
   const relato = root.querySelector<HTMLElement>(".home__relato");
@@ -110,7 +113,15 @@ export function montarPrimera(root: HTMLElement): () => void {
         };
       };
 
-      gsap.set(beats, { autoAlpha: 0 });
+      gsap.set(beats, { autoAlpha: 1 });
+      gsap.set(
+        beats.flatMap((beat) => {
+          if (beat.classList.contains("home__beat--umbral")) return [];
+          const frase = beat.querySelector<HTMLElement>(".home__frase");
+          return frase ? [frase] : [];
+        }),
+        { yPercent: Y_FUERA, autoAlpha: 0 },
+      );
       beats.forEach((el) => {
         el.setAttribute("aria-hidden", "true");
         el.setAttribute("inert", "");
@@ -184,18 +195,35 @@ export function montarPrimera(root: HTMLElement): () => void {
       }
 
       const cierreI = beats.findIndex((beat) => beat.classList.contains("home__beat--cierre"));
-      const puente = cierreI >= 0 ? tramo(cierreI, pesos).entra : null;
 
       beats.forEach((beat, i) => {
+        if (beat.classList.contains("home__beat--umbral") || beat.classList.contains("home__beat--lado")) return;
+        const frase = beat.querySelector<HTMLElement>(".home__frase");
+        if (!frase) return;
         const { entra, sale } = tramo(i, pesos);
-        const cierre = i === cierreI;
-        const previa = puente !== null && i === cierreI - 1;
-        tl.to(beat, { autoAlpha: 1, duration: fade, ease: "none" }, entra);
-        if (cierre) return;
+        const ancho = Math.max(0.02, sale - entra);
+        const d = Math.min(Math.max(ancho * 0.3, 0.016), 0.046);
+        const inicio = entra - (i === 0 ? 0 : d * 0.55);
+        const finEntrada = inicio + d;
+        tl.set(frase, { autoAlpha: 1 }, inicio);
+        tl.fromTo(
+          frase,
+          { yPercent: Y_FUERA },
+          { yPercent: 0, duration: d, ease: "none", immediateRender: false, force3D: true },
+          inicio,
+        );
+        if (i === cierreI) return;
+        let salida = sale - d * 0.72;
+        if (salida < finEntrada + ancho * 0.08) salida = finEntrada + ancho * 0.12;
         tl.to(
-          beat,
-          { autoAlpha: 0, duration: fade, ease: "none" },
-          previa && puente !== null ? puente : sale,
+          frase,
+          { yPercent: -Y_FUERA, duration: d, ease: "none", immediateRender: false, force3D: true },
+          salida,
+        );
+        tl.to(
+          frase,
+          { autoAlpha: 0, duration: d * 0.28, ease: "power1.in", immediateRender: false },
+          salida + d * 0.72,
         );
       });
 
@@ -208,7 +236,13 @@ export function montarPrimera(root: HTMLElement): () => void {
         const { entra, sale } = tramo(fanI, pesos);
         const dur = sale - entra;
         const abajo = () => pista.parentElement?.clientHeight ?? 0;
+        const tiraFan = pista.closest<HTMLElement>(".tira");
         gsap.set(pista, { y: abajo });
+        if (tiraFan) {
+          gsap.set(tiraFan, { autoAlpha: 0 });
+          tl.to(tiraFan, { autoAlpha: 1, duration: fade, ease: "power1.out" }, entra);
+          tl.to(tiraFan, { autoAlpha: 0, duration: fade, ease: "power1.in" }, Math.max(entra, sale - fade));
+        }
         tl.fromTo(
           pista,
           { y: abajo },
@@ -308,8 +342,28 @@ export function montarPrimera(root: HTMLElement): () => void {
           },
           gira,
         );
-        if (lado) {
-          tl.to(lado, { autoAlpha: 0, y: -12, duration: dur * 0.14, ease: "power1.in" }, gira);
+        const fraseLado = lado?.querySelector<HTMLElement>(".home__frase");
+        if (fraseLado) {
+          const hueco = Math.max(0.02, gira - ventana.entra);
+          const sube = Math.min(hueco * 0.42, 0.03);
+          tl.set(fraseLado, { autoAlpha: 1 }, ventana.entra);
+          tl.fromTo(
+            fraseLado,
+            { yPercent: Y_FUERA },
+            { yPercent: 0, duration: sube, ease: "none", immediateRender: false, force3D: true },
+            ventana.entra,
+          );
+          const corta = Math.min(hueco * 0.34, 0.028);
+          tl.to(
+            fraseLado,
+            { yPercent: -Y_FUERA, duration: corta, ease: "none", immediateRender: false, force3D: true },
+            gira,
+          );
+          tl.to(
+            fraseLado,
+            { autoAlpha: 0, duration: corta * 0.28, ease: "power1.in", immediateRender: false },
+            gira + corta * 0.72,
+          );
         }
         tl.to(
           toma,

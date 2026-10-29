@@ -77,12 +77,21 @@
         align-items: center;
         gap: 12px;
         border: 0;
-        background: none;
+        background: transparent;
         color: #fff8f1;
         padding: 18px 26px 18px 28px;
         font: 500 18px/1 "DM Sans", system-ui, sans-serif;
         letter-spacing: -0.01em;
         cursor: pointer;
+      }
+
+      .verbo {
+        background-color: var(--relleno);
+        transition: background-color 280ms cubic-bezier(0.22, 1, 0.36, 1);
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
       }
 
       .verbo:hover,
@@ -91,15 +100,6 @@
       .verbo:focus-visible {
         outline: 2px solid #fff8f1;
         outline-offset: 8px;
-      }
-
-      .forma {
-        position: absolute;
-        overflow: visible;
-        pointer-events: none;
-        z-index: 0;
-        color: var(--relleno);
-        transition: color 280ms cubic-bezier(0.22, 1, 0.36, 1);
       }
 
       .verbo span,
@@ -112,7 +112,7 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .forma { transition: none; }
+        .verbo { transition: none; }
       }
     </style>
   </head>
@@ -121,7 +121,6 @@
     <main>
       <p class="logo" aria-hidden="true"><span></span></p>
       <button class="verbo" type="button">
-        <svg class="forma" aria-hidden="true"></svg>
         <span>Abrir edición</span>
         <svg class="flecha" viewBox="0 0 18 10" aria-hidden="true">
           <path
@@ -136,114 +135,80 @@
       </button>
     </main>
     <script>
-      const ns = "http://www.w3.org/2000/svg";
       const boton = document.querySelector(".verbo");
-      const forma = boton.querySelector(".forma");
 
       function azar(i) {
         const x = Math.sin(i * 12.9898) * 43758.5453;
         return x - Math.floor(x);
       }
 
-      function punto(d, w, h) {
-        const r = h / 2;
-        const recta = Math.max(0, w - h);
-        const arco = Math.PI * r;
-        if (d < recta) return { x: r + d, y: 0, nx: 0, ny: -1 };
-        d -= recta;
-        if (d < arco) {
-          const a = -Math.PI / 2 + (d / arco) * Math.PI;
-          const nx = Math.cos(a);
-          const ny = Math.sin(a);
-          return { x: w - r + nx * r, y: r + ny * r, nx, ny };
-        }
-        d -= arco;
-        if (d < recta) return { x: w - r - d, y: h, nx: 0, ny: 1 };
-        d -= recta;
-        const a = Math.PI / 2 + (d / arco) * Math.PI;
-        const nx = Math.cos(a);
-        const ny = Math.sin(a);
-        return { x: r + nx * r, y: r + ny * r, nx, ny };
-      }
-
-      function filtro(id, desvio) {
-        const nodo = document.createElementNS(ns, "filter");
-        nodo.id = id;
-        nodo.setAttribute("x", "-40%");
-        nodo.setAttribute("y", "-40%");
-        nodo.setAttribute("width", "180%");
-        nodo.setAttribute("height", "180%");
-        const blur = document.createElementNS(ns, "feGaussianBlur");
-        blur.setAttribute("stdDeviation", String(desvio));
-        nodo.appendChild(blur);
-        return nodo;
-      }
-
-      function anillo(padre, w, h, inset, paso, radio, variacion, semilla) {
-        const iw = w - inset * 2;
-        const ih = h - inset * 2;
-        if (iw < 8 || ih < 8) return;
-        const radioEsquina = ih / 2;
-        const largo = 2 * Math.max(0, iw - ih) + 2 * Math.PI * radioEsquina;
-        for (let d = paso * 0.5, i = 0; d < largo - 0.6; d += paso, i++) {
-          const p = punto(d, iw, ih);
-          const circulo = document.createElementNS(ns, "circle");
-          circulo.setAttribute("cx", (p.x + inset).toFixed(2));
-          circulo.setAttribute("cy", (p.y + inset).toFixed(2));
-          circulo.setAttribute("r", (radio + azar(i + semilla) * variacion).toFixed(2));
-          padre.appendChild(circulo);
-        }
-      }
-
       function dibujar() {
         const w = boton.offsetWidth;
         const h = boton.offsetHeight;
-        forma.setAttribute("viewBox", `0 0 ${w} ${h}`);
-        forma.setAttribute("width", String(w));
-        forma.setAttribute("height", String(h));
-        forma.style.left = "0";
-        forma.style.top = "0";
-        forma.replaceChildren();
+        const dpr = 3;
+        const W = Math.round(w * dpr);
+        const H = Math.round(h * dpr);
+        const canvas = document.createElement("canvas");
+        canvas.width = W;
+        canvas.height = H;
+        const g = canvas.getContext("2d");
+        const img = g.createImageData(W, H);
+        const data = img.data;
+        const banda = 16 * dpr;
+        const paso = 5.6 * dpr;
+        const dy = paso * Math.sin(Math.PI / 3);
+        const radioP = H / 2;
 
-        const defs = document.createElementNS(ns, "defs");
-        defs.append(filtro("lejos", 0.95), filtro("medio", 0.28));
-        const recorte = document.createElementNS(ns, "clipPath");
-        recorte.id = "pastilla";
-        const marco = document.createElementNS(ns, "rect");
-        marco.setAttribute("width", String(w));
-        marco.setAttribute("height", String(h));
-        marco.setAttribute("rx", String(h / 2));
-        recorte.appendChild(marco);
-        defs.appendChild(recorte);
-        forma.appendChild(defs);
-
-        const cuerpo = document.createElementNS(ns, "g");
-        cuerpo.setAttribute("clip-path", "url(#pastilla)");
-        cuerpo.setAttribute("fill", "currentColor");
-
-        const nucleo = document.createElementNS(ns, "rect");
-        const margen = 6.2;
-        nucleo.setAttribute("x", String(margen));
-        nucleo.setAttribute("y", String(margen));
-        nucleo.setAttribute("width", String(w - margen * 2));
-        nucleo.setAttribute("height", String(h - margen * 2));
-        nucleo.setAttribute("rx", String((h - margen * 2) / 2));
-        cuerpo.appendChild(nucleo);
-
-        const capas = [
-          { id: "lejos", opacidad: 0.85, inset: 5.1, paso: 3.3, radio: 1.45, variacion: 0.2, semilla: 20 },
-          { id: "medio", opacidad: 1, inset: 3.2, paso: 4.0, radio: 1.2, variacion: 0.22, semilla: 40 },
-          { id: null, opacidad: 1, inset: 1.2, paso: 5.2, radio: 0.95, variacion: 0.32, semilla: 3 },
-        ];
-        for (const capa of capas) {
-          const grupo = document.createElementNS(ns, "g");
-          grupo.setAttribute("opacity", String(capa.opacidad));
-          if (capa.id) grupo.setAttribute("filter", `url(#${capa.id})`);
-          anillo(grupo, w, h, capa.inset, capa.paso, capa.radio, capa.variacion, capa.semilla);
-          cuerpo.appendChild(grupo);
+        function distAt(x, y) {
+          const cx = Math.min(Math.max(x, radioP), W - radioP);
+          return radioP - Math.hypot(x - cx, y - radioP);
         }
 
-        forma.appendChild(cuerpo);
+        const celdas = new Map();
+        function celda(x, y) {
+          const row = Math.floor(y / dy);
+          const shift = (row & 1) ? paso * 0.5 : 0;
+          const col = Math.floor((x - shift) / paso);
+          const clave = row + ":" + col;
+          const previa = celdas.get(clave);
+          if (previa) return previa;
+          const ccx = col * paso + paso * 0.5 + shift;
+          const ccy = row * dy + dy * 0.5;
+          const dist = distAt(ccx, ccy);
+          const t = Math.max(0, Math.min(1, dist / banda));
+          const ruido = 0.9 + azar(row * 47 + col * 13) * 0.18;
+          let radio = (1.15 * dpr + Math.pow(t, 0.72) * 3.55 * dpr) * ruido;
+          if (dist < radio + 0.4 * dpr) radio = Math.max(0, dist - 0.35 * dpr);
+          const punto = { ccx, ccy, radio, dist };
+          celdas.set(clave, punto);
+          return punto;
+        }
+
+        for (let y = 0; y < H; y++) {
+          for (let x = 0; x < W; x++) {
+            const dist = distAt(x + 0.5, y + 0.5);
+            let alpha = 0;
+            if (dist > 0.4) {
+              if (dist >= banda) alpha = 255;
+              else {
+                const c = celda(x + 0.5, y + 0.5);
+                if (c.radio > 0.55 * dpr && Math.hypot(x + 0.5 - c.ccx, y + 0.5 - c.ccy) <= c.radio) {
+                  alpha = 255;
+                }
+              }
+            }
+            const i = (y * W + x) * 4;
+            data[i] = 255;
+            data[i + 1] = 255;
+            data[i + 2] = 255;
+            data[i + 3] = alpha;
+          }
+        }
+
+        g.putImageData(img, 0, 0);
+        const url = canvas.toDataURL();
+        boton.style.webkitMaskImage = `url("${url}")`;
+        boton.style.maskImage = `url("${url}")`;
       }
 
       dibujar();

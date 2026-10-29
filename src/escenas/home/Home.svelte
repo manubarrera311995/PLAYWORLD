@@ -18,6 +18,19 @@
   let { ruta: _ruta }: Props = $props();
 
   const trasCamara = copy.primera.pasos.findIndex((paso) => "camara" in paso && paso.camara);
+  const MARCA_ADN = "Audio DNA";
+  const ENLACE_ADN = "https://manubarrera311995.github.io/audio-dna/";
+
+  /** Parte la frase solo donde aparece la marca, para enlazarla sin tocar el resto. */
+  function partes(frase: string): { texto: string; marca: boolean }[] {
+    const corte = frase.indexOf(MARCA_ADN);
+    if (corte < 0) return [{ texto: frase, marca: false }];
+    return [
+      { texto: frase.slice(0, corte), marca: false },
+      { texto: MARCA_ADN, marca: true },
+      { texto: frase.slice(corte + MARCA_ADN.length), marca: false },
+    ].filter((parte) => parte.marca || parte.texto.length > 0);
+  }
 
   /** El plano del título se apaga cuando el scroll lo disuelve o la pestaña no se ve. */
   function planoTitulo(node: HTMLVideoElement): () => void {
@@ -89,6 +102,27 @@
       </div>
       <span class="home__play-destello" aria-hidden="true"></span>
       <div class="home__relato" aria-label="{copy.primera.indice}. {copy.primera.lugar}">
+        {#snippet frase(texto: string)}
+          <div class="home__velo">
+            <p class="home__frase">
+              {#each partes(texto) as parte, j (j)}
+                {#if parte.marca}
+                  <a
+                    class="home__adn"
+                    href={ENLACE_ADN}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    translate="no"
+                  >
+                    <span class="home__adn-audio">Audio</span> <span class="home__adn-dna">DNA</span>
+                  </a>
+                {:else}
+                  {parte.texto}
+                {/if}
+              {/each}
+            </p>
+          </div>
+        {/snippet}
         {#each copy.primera.pasos as paso, i (paso.nombre)}
           <div
             class="home__beat"
@@ -102,7 +136,7 @@
           >
             {#if "camara" in paso && paso.camara}
               <div class="home__lado">
-                <p class="home__frase">{paso.frase}</p>
+                {@render frase(paso.frase)}
               </div>
             {:else}
               {#if paso.img && paso.nombre !== "La fan"}
@@ -111,7 +145,7 @@
               {#if "titulo" in paso && paso.titulo}
                 <p class="home__titulo">{paso.titulo}</p>
               {/if}
-              <p class="home__frase">{paso.frase}</p>
+              {@render frase(paso.frase)}
               {#if paso.nombre === "La fan"}
                 <Tira />
               {/if}
@@ -430,7 +464,7 @@
     opacity: 0;
     visibility: hidden;
   }
-  .home__beat--umbral > .home__frase,
+  .home__beat--umbral > .home__velo,
   .home__beat--umbral > .home__titulo,
   .home__beat--umbral > .home__pieza {
     position: absolute;
@@ -477,6 +511,13 @@
   .home__toma :global(.objeto) {
     width: 100%;
   }
+  .home__velo {
+    overflow: hidden;
+    width: 100%;
+    max-width: 40rem;
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+  }
   .home__frase {
     margin: 0;
     width: 100%;
@@ -486,12 +527,50 @@
     letter-spacing: -0.035em;
     text-wrap: pretty;
   }
+  .home__adn {
+    display: inline;
+    font-family: Syne, sans-serif;
+    font-weight: 800;
+    font-size: 1.05em;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    pointer-events: auto;
+    position: relative;
+    z-index: 2;
+    cursor: pointer;
+    background-image: linear-gradient(90deg, #eb4ea9, #70f1d5);
+    background-repeat: no-repeat;
+    background-position: 0 calc(100% - 0.02em);
+    background-size: 100% 2px;
+    transition: background-size 0.35s var(--ease-out);
+  }
+  .home__adn-audio {
+    color: #eb4ea9;
+  }
+  .home__adn-dna {
+    color: #70f1d5;
+  }
+  .home__adn:hover,
+  .home__adn:focus-visible {
+    background-size: 100% 3px;
+  }
+  .home__adn:focus-visible {
+    outline: 2px solid #70f1d5;
+    outline-offset: 4px;
+  }
   .home__beat--pregunta {
     left: calc(24px - var(--pad-x) - clamp(20px, 4vw, 72px));
     width: calc(100vw - 24px - var(--pad-x));
     right: auto;
     justify-content: center;
     padding-top: 0;
+  }
+  .home__beat--pregunta .home__velo {
+    max-width: none;
+    transform: translateY(-6vh);
   }
   .home__beat--pregunta .home__frase {
     max-width: none;
@@ -501,7 +580,6 @@
     line-height: 1.1;
     letter-spacing: -0.018em;
     text-wrap: pretty;
-    transform: translateY(-6vh);
   }
   .home__beat--fan {
     left: calc(42vw - clamp(20px, 4vw, 72px));
@@ -510,6 +588,14 @@
     justify-content: center;
     padding-top: 0;
     overflow: visible;
+  }
+  .home__beat--fan .home__velo,
+  .home__beat--entendido .home__velo,
+  .home__beat--lado .home__velo,
+  .home__beat--sigue .home__velo,
+  .home__beat--cierre .home__velo {
+    max-width: 36rem;
+    transform: translateY(9vh);
   }
   .home__beat--fan .home__frase,
   .home__beat--entendido .home__frase,
@@ -523,7 +609,6 @@
     line-height: 1.38;
     letter-spacing: -0.015em;
     text-wrap: pretty;
-    transform: translateY(9vh);
   }
   .home__beat--entendido,
   .home__beat--lado,
@@ -669,7 +754,12 @@
     align-items: flex-start;
     text-align: left;
   }
-  .home:global(.is-quieto) .home__beat--umbral > .home__frase,
+  .home:global(.is-quieto) .home__velo {
+    overflow: visible;
+    max-width: none;
+    transform: none;
+  }
+  .home:global(.is-quieto) .home__beat--umbral > .home__velo,
   .home:global(.is-quieto) .home__beat--umbral > .home__titulo,
   .home:global(.is-quieto) .home__beat--umbral > .home__pieza {
     position: static;
@@ -794,6 +884,14 @@
       padding-top: 0;
       transform: none;
     }
+    .home__beat--pregunta .home__velo,
+    .home__beat--fan .home__velo,
+    .home__beat--entendido .home__velo,
+    .home__beat--lado .home__velo,
+    .home__beat--sigue .home__velo,
+    .home__beat--cierre .home__velo {
+      transform: none;
+    }
     .home__beat--pregunta .home__frase {
       max-width: none;
       font-size: clamp(28px, 7.4vw, 36px);
@@ -901,7 +999,18 @@
       align-items: flex-start;
       text-align: left;
     }
-    .home__beat--umbral > .home__frase,
+    .home__velo,
+    .home__beat--pregunta .home__velo,
+    .home__beat--fan .home__velo,
+    .home__beat--entendido .home__velo,
+    .home__beat--lado .home__velo,
+    .home__beat--sigue .home__velo,
+    .home__beat--cierre .home__velo {
+      overflow: visible;
+      max-width: none;
+      transform: none;
+    }
+    .home__beat--umbral > .home__velo,
     .home__beat--umbral > .home__titulo,
     .home__beat--umbral > .home__pieza {
       position: static;

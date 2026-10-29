@@ -310,7 +310,13 @@
     aria-label="Recorrido"
     onclick={alternar}
   >
-    ✱
+    <span class="gozne__marca" aria-hidden="true">
+      <svg viewBox="0 0 48 48" width="48" height="48">
+        <g stroke="currentColor" stroke-width="7" stroke-linecap="round">
+          <path d="M24 8v32M10.1 16l27.8 16M10.1 32l27.8-16" />
+        </g>
+      </svg>
+    </span>
   </button>
 
   <nav id="recorrido" class="columna" aria-label="Recorrido" inert={!quiereAbrir} bind:this={columnaEl}>
@@ -399,21 +405,51 @@
   .gozne {
     position: absolute;
     z-index: 3;
-    top: 4px;
+    top: 0;
     right: var(--pad-x);
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 32px;
+    width: 64px;
+    height: 60px;
     margin: 0;
     padding: 0;
     border: 0;
     background: none;
     color: var(--ink-title);
-    font-size: 18px;
+    font-size: 48px;
     line-height: 1;
     pointer-events: auto;
     user-select: none;
+  }
+
+  .gozne__marca {
+    display: block;
+    transform-origin: center;
+    animation: palpite 1.7s var(--ease-soft) infinite;
+  }
+
+  .gozne__marca svg {
+    display: block;
+  }
+
+  @keyframes palpite {
+    0%,
+    58%,
+    100% {
+      transform: scale(1);
+    }
+
+    14% {
+      transform: scale(1.16);
+    }
+
+    28% {
+      transform: scale(1);
+    }
+
+    42% {
+      transform: scale(1.08);
+    }
   }
 
   .gozne:focus-visible,
@@ -425,8 +461,8 @@
   .columna {
     position: absolute;
     z-index: 1;
-    top: 42px;
-    right: calc(var(--pad-x) + 17px);
+    top: 60px;
+    right: calc(var(--pad-x) + 31px);
     display: flex;
     flex-direction: row;
     align-items: stretch;
@@ -526,6 +562,10 @@
     background: var(--ink-title);
   }
 
+  :global(html.reduce) .gozne__marca {
+    animation: none;
+  }
+
   :global(html.reduce) .columna {
     opacity: 0;
     visibility: hidden;
@@ -543,6 +583,10 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .gozne__marca {
+      animation: none;
+    }
+
     .columna {
       opacity: 0;
       visibility: hidden;

@@ -22,6 +22,7 @@
   --z-ui: 12;
   --pad-x: clamp(16px, 5vw, 64px);
   --pad-y: clamp(16px, 4vh, 40px);
+  --marca-top: 56px;
   --bp-compacto: 767px;
   --bp-medio: 1023px;
   --bp-cine: 1024px;

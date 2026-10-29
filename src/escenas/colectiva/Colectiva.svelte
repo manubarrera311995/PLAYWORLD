@@ -129,6 +129,7 @@
 
 <style>
   .colectiva {
+    --marca-ancla: 52px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -305,6 +306,7 @@
       column-gap: clamp(32px, 4vw, 72px);
       row-gap: clamp(32px, 4vh, 48px);
       align-items: stretch;
+      --marca-ancla: calc(var(--pad-y) + 36px);
       padding-top: calc(var(--pad-y) + 36px);
       padding-bottom: 28px;
     }

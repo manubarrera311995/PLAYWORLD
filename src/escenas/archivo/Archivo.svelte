@@ -214,6 +214,7 @@
 
 <style>
   .archivo {
+    --marca-ancla: 48px;
     position: relative;
     height: 100%;
     min-height: 100dvh;
