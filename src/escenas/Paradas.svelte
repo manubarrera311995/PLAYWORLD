@@ -4,6 +4,7 @@
   import { recorrido } from "../estado/recorrido";
   import { navigate, type RutaParsed } from "./director/router";
   import { anioDeParadas, vistaParadas, type ItemParada } from "./paradas";
+  import { enPregunta, pedirPregunta } from "./home/ancla";
   import { ensureGsap } from "../motion/gsap";
   import { reduce } from "../motion/reducedMotion";
 
@@ -15,7 +16,9 @@
 
   const rec = $derived($recorrido);
   const escena = $derived(ruta.name);
-  const vista = $derived(vistaParadas(escena, anioDeParadas(ruta, rec), rec.alma != null));
+  const vista = $derived(
+    vistaParadas(escena, anioDeParadas(ruta, rec), rec.alma != null, escena === "home" && $enPregunta),
+  );
   const ancho = $derived(`${Math.round(vista.avance * 1000) / 10}%`);
   const crema = $derived(`${Math.round(vista.avance * 1000) / 10}%`);
   const actualNombre = $derived(vista.items.find((item) => item.estado === "actual")?.nombre ?? "");
@@ -55,17 +58,32 @@
     punta.style.left = `${Math.max(8, Math.min(tip, max))}px`;
   }
 
+  function tinta(el: HTMLElement): DOMRect {
+    const rango = document.createRange();
+    rango.selectNodeContents(el);
+    const rects = rango.getClientRects();
+    return rects.length ? rects[0] : el.getBoundingClientRect();
+  }
+
   function vuelo(): { x: number; y: number; scale: number } {
     const punta = puntaEl;
     const destino = listaEl?.querySelector<HTMLElement>("[data-papel='actual'] .nombre");
     if (!punta || !destino) return { x: 0, y: 0, scale: 1 };
-    const desde = punta.getBoundingClientRect();
-    const hasta = destino.getBoundingClientRect();
-    const alto = desde.height || 1;
+    const base = punta.getBoundingClientRect();
+    const desde = tinta(punta);
+    const hasta = tinta(destino);
+    const desdeSize = parseFloat(getComputedStyle(punta).fontSize) || desde.height || 1;
+    const hastaSize = parseFloat(getComputedStyle(destino).fontSize) || hasta.height || 1;
+    const scale = hastaSize / desdeSize;
+    // El nombre está alineado a la derecha dentro de una caja más ancha.
+    // La escala sale de la esquina del elemento, así que se descuenta el
+    // margen entre esa esquina y la tinta.
+    const dx = desde.left - base.left;
+    const dy = desde.top - base.top;
     return {
-      x: hasta.left - desde.left,
-      y: hasta.top - desde.top,
-      scale: hasta.height / alto,
+      x: hasta.left - base.left - dx * scale,
+      y: hasta.top - base.top - dy * scale,
+      scale,
     };
   }
 
@@ -87,6 +105,13 @@
     // Al terminar la reversa el playhead está en 0. timeScale(1) sin pausa
     // lo vuelve a colgar del ticker y la apertura se reproduce sola.
     tl?.pause();
+    // autoAlpha deja opacity y visibility en línea. Si se quedan, tapan el
+    // visibility:hidden del CSS y los nombres siguen pintados al cerrar.
+    const gsap = ensureGsap();
+    const viajes = listaEl ? [...listaEl.querySelectorAll<HTMLElement>(".viaje")] : [];
+    if (viajes.length) gsap.set(viajes, { clearProps: "opacity,visibility,transform" });
+    if (puntaEl) gsap.set(puntaEl, { clearProps: "opacity,visibility,transform" });
+    if (reglaEl) gsap.set(reglaEl, { clearProps: "transform" });
     colocarPunta();
     if (href) navigate(href);
   }
@@ -110,6 +135,10 @@
 
     const armar = () => {
       linea = gsap.timeline({ paused: true, onReverseComplete: soltar });
+      // La parada actual guarda autoAlpha en el nodo. Al cambiar de escena
+      // ese nodo se reutiliza y, si no se limpia, la parada queda invisible.
+      const restos = [...arriba, ...abajo];
+      if (restos.length) gsap.set(restos, { clearProps: "opacity,visibility" });
 
       if (quieto) {
         gsap.set(regla, { scaleY: 1, transformOrigin: "top center" });
@@ -130,8 +159,8 @@
       gsap.set(regla, { scaleY: 0, transformOrigin: "top center" });
       gsap.set(punta, { x: 0, y: 0, scale: 1, autoAlpha: 1, transformOrigin: "0% 0%" });
       if (actual) gsap.set(actual, { autoAlpha: 0, y: 0, yPercent: 0 });
-      preparar(gsap, arriba, 110);
-      preparar(gsap, abajo, -110);
+      preparar(gsap, arriba, 48);
+      preparar(gsap, abajo, -48);
       colocarPunta();
       const destino = vuelo();
 
@@ -147,24 +176,25 @@
           x: destino.x,
           y: destino.y,
           scale: destino.scale,
-          duration: 0.7,
-          ease: "power4.out",
+          duration: 0.82,
+          ease: "power3.inOut",
           transformOrigin: "0% 0%",
         },
-        0.2,
+        0.16,
       );
-      linea.set(punta, { autoAlpha: 0, immediateRender: false }, 0.9);
-      if (actual) linea.set(actual, { autoAlpha: 1, immediateRender: false }, 0.9);
+      linea.to(punta, { autoAlpha: 0, duration: 0.2, ease: "power1.inOut" }, 0.82);
+      if (actual) linea.to(actual, { autoAlpha: 1, duration: 0.2, ease: "power1.inOut" }, 0.82);
 
       const paso = 0.02;
       if (arriba.length) {
         linea.fromTo(
           arriba,
-          { yPercent: 110 },
+          { yPercent: 48, autoAlpha: 0 },
           {
             yPercent: 0,
-            duration: 0.7,
-            ease: "power4.out",
+            autoAlpha: 1,
+            duration: 0.8,
+            ease: "power3.out",
             stagger: { each: paso, from: "end" },
             immediateRender: false,
             overwrite: "auto",
@@ -175,11 +205,12 @@
       if (abajo.length) {
         linea.fromTo(
           abajo,
-          { yPercent: -110 },
+          { yPercent: -48, autoAlpha: 0 },
           {
             yPercent: 0,
-            duration: 0.7,
-            ease: "power4.out",
+            autoAlpha: 1,
+            duration: 0.8,
+            ease: "power3.out",
             stagger: { each: paso, from: "start" },
             immediateRender: false,
             overwrite: "auto",
@@ -233,6 +264,11 @@
 
   function elegir(href: string): void {
     if (!quiereAbrir) return;
+    if (href === "/#pregunta") {
+      pedirPregunta();
+      cerrar("/", 1.3);
+      return;
+    }
     cerrar(href, 1.3);
   }
 
@@ -342,10 +378,18 @@
       <i class="regla__crema" style:height={crema}></i>
     </div>
   </nav>
+
+  <p class="colofon">
+    Creado por: Manuela Barrera Nieto.<br />
+    Maestría en Humanidades Digitales.<br />
+    Universidad de Los Andes, 2026.<br />
+    Todos los derechos reservados.
+  </p>
 </div>
 
 <style>
   .marco {
+    --gozne-top: 32px;
     position: fixed;
     inset: 0;
     z-index: 5;
@@ -359,9 +403,14 @@
     margin: 0;
     padding: 0;
     border: 0;
-    background: rgba(8, 4, 14, 0.62);
+    background: rgba(18, 8, 22, 0.28);
     opacity: 0;
     pointer-events: none;
+  }
+
+  .marco.is-presente .velo {
+    backdrop-filter: blur(64px) saturate(1.6);
+    -webkit-backdrop-filter: blur(64px) saturate(1.6);
   }
 
   .marco.is-presente .velo,
@@ -388,10 +437,10 @@
   .punta {
     position: absolute;
     z-index: 2;
-    top: 12px;
+    top: 10px;
     left: 8px;
     font-family: Outfit, sans-serif;
-    font-size: 11px;
+    font-size: 17px;
     font-weight: 400;
     font-style: normal;
     line-height: 1;
@@ -405,7 +454,7 @@
   .gozne {
     position: absolute;
     z-index: 3;
-    top: 0;
+    top: var(--gozne-top);
     right: var(--pad-x);
     display: grid;
     place-items: center;
@@ -461,18 +510,18 @@
   .columna {
     position: absolute;
     z-index: 1;
-    top: 60px;
+    top: calc(60px + var(--gozne-top));
     right: calc(var(--pad-x) + 31px);
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    gap: 14px;
+    gap: 26px;
     font-family: Outfit, sans-serif;
-    font-size: clamp(22px, 3vw, 40px);
+    font-size: clamp(22px, min(5vh, 7.4vw), 56px);
     font-weight: 400;
     font-style: normal;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
+    line-height: 1;
+    letter-spacing: 0;
     text-transform: none;
     color: var(--ink-title);
   }
@@ -480,8 +529,8 @@
   ol {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    gap: 0.16em;
+    align-items: stretch;
+    gap: 0.06em;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -490,8 +539,8 @@
   .mascara {
     display: block;
     overflow: hidden;
-    padding-inline: 8px;
-    margin-inline: -8px;
+    width: 100%;
+    padding: 0.16em 0.2em 0.28em;
   }
 
   .viaje {
@@ -560,6 +609,30 @@
     left: 0;
     width: 100%;
     background: var(--ink-title);
+  }
+
+  .colofon {
+    position: absolute;
+    z-index: 1;
+    left: var(--pad-x);
+    bottom: clamp(20px, 4vh, 40px);
+    max-width: 32ch;
+    margin: 0;
+    padding: 14px 16px 16px;
+    border: 1px solid rgba(255, 248, 241, 0.38);
+    font-family: Outfit, sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.45;
+    letter-spacing: 0;
+    text-align: left;
+    color: var(--ink-title);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .marco.is-presente .colofon {
+    opacity: 1;
   }
 
   :global(html.reduce) .gozne__marca {

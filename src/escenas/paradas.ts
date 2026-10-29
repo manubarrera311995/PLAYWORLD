@@ -2,6 +2,7 @@ import type { RutaParsed } from "./director/router";
 
 export const PARADAS = [
   { id: "home", nombre: "Home" },
+  { id: "primera", nombre: "Mi primera vez" },
   { id: "fila", nombre: "La fila" },
   { id: "anio", nombre: "El año" },
   { id: "cartel", nombre: "El cartel" },
@@ -47,6 +48,7 @@ export function anioDeParadas(
 
 function hrefDe(id: IdParada, anio: number | null, tieneAlma: boolean): string | null {
   if (id === "home") return "/";
+  if (id === "primera") return "/#pregunta";
   if (id === "fila") return "/hook";
   if (id === "anio") return anio != null ? `/archivo?y=${anio}` : "/archivo";
   if (id === "cartel") return anio != null ? `/edicion/${anio}` : null;
@@ -59,8 +61,10 @@ export function vistaParadas(
   escena: RutaParsed["name"],
   anio: number | null,
   tieneAlma: boolean,
+  enPregunta = false,
 ): VistaParadas {
-  const actual = PARADAS.findIndex((p) => p.id === ESCENA_PARADA[escena]);
+  const idActual = escena === "home" && enPregunta ? "primera" : ESCENA_PARADA[escena];
+  const actual = PARADAS.findIndex((p) => p.id === idActual);
   const items = PARADAS.map((p, i): ItemParada => {
     const estado: EstadoParada = i < actual ? "pasada" : i === actual ? "actual" : "futura";
     return {

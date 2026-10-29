@@ -1,4 +1,5 @@
-import { ensureGsap } from "../../motion/gsap";
+import { ensureGsap, ScrollTrigger } from "../../motion/gsap";
+import { consumirPregunta, enPregunta } from "./ancla";
 import { cruzarUmbral } from "./umbral";
 
 /**
@@ -78,7 +79,13 @@ export function montarPrimera(root: HTMLElement): () => void {
       isCompacto: "(max-width: 767px)",
     },
     (context) => {
-      if (context.conditions?.isReduce) return undefined;
+      if (context.conditions?.isReduce) {
+        if (consumirPregunta()) {
+          root.querySelector(".home__beat--pregunta")?.scrollIntoView({ block: "center" });
+          enPregunta.set(true);
+        }
+        return () => enPregunta.set(false);
+      }
       const compacto = Boolean(context.conditions?.isCompacto);
       const pesos = pesosDe(beats);
       const n = beats.length;
@@ -128,6 +135,13 @@ export function montarPrimera(root: HTMLElement): () => void {
       });
 
       let tiraFin = PLAY_VIVO;
+      let dentro = false;
+      const entraPregunta = tramo(0, pesos).entra;
+      const marcar = (valor: boolean) => {
+        if (valor === dentro) return;
+        dentro = valor;
+        enPregunta.set(valor);
+      };
 
       const tl = gsap.timeline({
         defaults: { ease: "none", immediateRender: false },
@@ -140,6 +154,7 @@ export function montarPrimera(root: HTMLElement): () => void {
           scrub: compacto ? 1.25 : 2.2,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
+            marcar(self.progress >= entraPregunta);
             let vivo = indice(self.progress, pesos);
             const cierreI = beats.findIndex((beat) => beat.classList.contains("home__beat--cierre"));
             if (cierreI >= 0 && vivo < 0 && self.progress >= tramo(cierreI, pesos).entra) vivo = cierreI;
@@ -379,7 +394,28 @@ export function montarPrimera(root: HTMLElement): () => void {
       }
       tl.set({}, {}, 1);
 
+      if (consumirPregunta()) {
+        const { entra, sale } = tramo(0, pesos);
+        const progreso = entra + (sale - entra) * 0.45;
+        const colocar = (intento: number) => {
+          const st = tl.scrollTrigger;
+          if (!st) return;
+          const largo = st.end - st.start;
+          if (largo < 1 && intento < 8) {
+            requestAnimationFrame(() => colocar(intento + 1));
+            return;
+          }
+          const y = st.start + largo * progreso;
+          const scroller = st.scroller;
+          if (scroller instanceof HTMLElement) scroller.scrollTop = y;
+          else window.scrollTo(0, y);
+          ScrollTrigger.update();
+        };
+        requestAnimationFrame(() => colocar(0));
+      }
+
       return () => {
+        enPregunta.set(false);
         soltarUmbral?.();
         tl.scrollTrigger?.kill();
         tl.kill();

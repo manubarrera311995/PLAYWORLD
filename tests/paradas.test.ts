@@ -19,19 +19,31 @@ describe("vistaParadas", () => {
     );
   });
 
-  it("en la fila se puede volver al home y el resto no se toca", () => {
-    const vista = vistaParadas("hook", 2013, false);
-    expect(vista.avance).toBeCloseTo(1 / 6);
-    expect(nombres("hook", 2013).slice(0, 3)).toEqual([
+  it("en la pregunta del home la parada actual es Mi primera vez", () => {
+    const vista = vistaParadas("home", null, false, true);
+    expect(vista.avance).toBeCloseTo(1 / 7);
+    expect(vista.items.slice(0, 3).map((item) => ({ nombre: item.nombre, estado: item.estado, href: item.href }))).toEqual([
       { nombre: "Home", estado: "pasada", href: "/" },
+      { nombre: "Mi primera vez", estado: "actual", href: null },
+      { nombre: "La fila", estado: "futura", href: null },
+    ]);
+  });
+
+  it("en la fila se puede volver al home y a la pregunta", () => {
+    const vista = vistaParadas("hook", 2013, false);
+    expect(vista.avance).toBeCloseTo(2 / 7);
+    expect(nombres("hook", 2013).slice(0, 4)).toEqual([
+      { nombre: "Home", estado: "pasada", href: "/" },
+      { nombre: "Mi primera vez", estado: "pasada", href: "/#pregunta" },
       { nombre: "La fila", estado: "actual", href: null },
       { nombre: "El año", estado: "futura", href: null },
     ]);
   });
 
   it("en el archivo se puede volver a la fila y el cartel sigue cerrado", () => {
-    expect(nombres("archivo", 2016).slice(0, 4)).toEqual([
+    expect(nombres("archivo", 2016).slice(0, 5)).toEqual([
       { nombre: "Home", estado: "pasada", href: "/" },
+      { nombre: "Mi primera vez", estado: "pasada", href: "/#pregunta" },
       { nombre: "La fila", estado: "pasada", href: "/hook" },
       { nombre: "El año", estado: "actual", href: null },
       { nombre: "El cartel", estado: "futura", href: null },
@@ -50,10 +62,10 @@ describe("vistaParadas", () => {
 
   it("en el iPod la línea sigue completa", () => {
     const vista = vistaParadas("ipod", 2019, false);
-    expect(vista.items).toHaveLength(7);
+    expect(vista.items).toHaveLength(8);
     expect(vista.items.find((item) => item.estado === "actual")?.nombre).toBe("Tu iPod");
     expect(vista.items.find((item) => item.id === "cartel")?.href).toBe("/edicion/2019");
-    expect(vista.avance).toBeCloseTo(4 / 6);
+    expect(vista.avance).toBeCloseTo(5 / 7);
   });
 
   it("sin año el cartel pasado no tiene a dónde volver", () => {
