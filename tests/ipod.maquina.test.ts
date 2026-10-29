@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { NOMBRES } from "../src/ipod/alias";
-import { aplicar, atrasDe, estadoInicial, estadoSellado, meterOQuitar, visible } from "../src/ipod/maquina";
+import {
+  MENU,
+  aplicar,
+  artistasVisibles,
+  atrasDe,
+  estadoInicial,
+  estadoSellado,
+  meterOQuitar,
+  tracksVisibles,
+  visible,
+} from "../src/ipod/maquina";
 import type { Track } from "../src/datos/tipos";
 
 function t(id: string): Track {
@@ -51,7 +61,7 @@ describe("máquina iPod", () => {
     expect(e.seleccion).toHaveLength(5);
     e = aplicar(e, { tipo: "back" }, ctx);
     expect(visible(e).kind).toBe("menu");
-    e = { ...e, cursor: 2 };
+    e = { ...e, cursor: MENU.indexOf("close") };
     e = aplicar(e, { tipo: "select" }, ctx);
     expect(e.cerrado).toBe(true);
   });
@@ -60,7 +70,7 @@ describe("máquina iPod", () => {
     let e = aplicar(estadoInicial(), { tipo: "select" }, ctx);
     e = meterOQuitar(e, pool[0]);
     e = aplicar(e, { tipo: "back" }, ctx);
-    e = { ...e, cursor: 2 };
+    e = { ...e, cursor: MENU.indexOf("close") };
     e = aplicar(e, { tipo: "select" }, ctx);
     expect(e.cerrado).toBe(false);
   });
@@ -196,6 +206,7 @@ describe("máquina iPod", () => {
 
     e = aplicar(e, { tipo: "back" }, ctx);
     expect(visible(e).kind).toBe("menu");
+    expect(e.cursor).toBe(MENU.indexOf("mine"));
     e = { ...e, cursor: 0 };
     const quieto = aplicar(e, { tipo: "select" }, ctx);
     expect(visible(quieto).kind).toBe("menu");
@@ -210,7 +221,11 @@ describe("máquina iPod", () => {
     if (pantalla.kind !== "cancion") return;
     expect(meterOQuitar(metida, pantalla.track).seleccion).toHaveLength(5);
 
-    const cierre = aplicar({ ...e, cursor: 2 }, { tipo: "select" }, ctx);
+    e = { ...e, cursor: MENU.indexOf("artists") };
+    const artistas = aplicar(e, { tipo: "select" }, ctx);
+    expect(visible(artistas).kind).toBe("menu");
+
+    const cierre = aplicar({ ...e, cursor: MENU.indexOf("close") }, { tipo: "select" }, ctx);
     expect(cierre.cerrado).toBe(true);
     expect(cierre.seleccion.map((tr) => tr.id)).toEqual(["a", "b", "c", "d", "e"]);
   });
@@ -222,5 +237,95 @@ describe("máquina iPod", () => {
     expect(atrasDe(e)).toBe("iPod");
     e = aplicar(e, { tipo: "select" }, ctx);
     expect(atrasDe(e)).toBe("2013");
+  });
+
+  it("artistas agrupa el año y abre solo sus canciones", () => {
+    const mix = {
+      pool: [
+        { ...t("b"), artist: "Zeta", track: "Bruma" },
+        { ...t("a"), artist: "Café Tacvba", track: "Aurora" },
+        { ...t("c"), artist: "Café Tacvba", track: "Abismo" },
+        { ...t("z"), artist: "Zeta", track: "Otra", year: 1999 },
+      ],
+      yearHint: 2013,
+    };
+    let e = aplicar(estadoInicial(), { tipo: "select" }, mix);
+    e = aplicar(e, { tipo: "paso", delta: 1 }, mix);
+    e = aplicar(e, { tipo: "select" }, mix);
+    const artistas = visible(e);
+    expect(artistas.kind).toBe("artistas");
+    if (artistas.kind === "artistas") {
+      expect(artistasVisibles(artistas)).toEqual(["Café Tacvba", "Zeta"]);
+    }
+    e = aplicar(e, { tipo: "filtrar", q: "zeta" }, mix);
+    const filtrados = visible(e);
+    if (filtrados.kind === "artistas") expect(artistasVisibles(filtrados)).toEqual(["Zeta"]);
+    e = aplicar(e, { tipo: "select" }, mix);
+    const lista = visible(e);
+    expect(lista.kind).toBe("lista");
+    if (lista.kind === "lista") {
+      expect(lista.titulo).toBe("Zeta");
+      expect(lista.tracks.map((tr) => tr.id)).toEqual(["b"]);
+      expect(lista.q).toBe("");
+    }
+    expect(atrasDe(e)).toBe("Artistas");
+  });
+
+  it("filtra canciones por título o artista, sin tildes", () => {
+    const mix = {
+      pool: [
+        { ...t("b"), artist: "Zeta", track: "Bruma" },
+        { ...t("a"), artist: "Café Tacvba", track: "Aurora" },
+        { ...t("c"), artist: "Café Tacvba", track: "Abismo" },
+      ],
+      yearHint: 2013,
+    };
+    let e = aplicar(aplicar(estadoInicial(), { tipo: "select" }, mix), { tipo: "select" }, mix);
+    e = aplicar(e, { tipo: "saltar", a: 1 }, mix);
+    e = aplicar(e, { tipo: "filtrar", q: "cafe" }, mix);
+    const cafe = visible(e);
+    expect(cafe.kind).toBe("lista");
+    if (cafe.kind === "lista") {
+      expect(cafe.q).toBe("cafe");
+      expect(tracksVisibles(cafe).map((tr) => tr.id)).toEqual(["c", "a"]);
+    }
+    expect(e.cursor).toBe(1);
+    expect(e.resaltada?.id).toBe("a");
+
+    e = aplicar(e, { tipo: "filtrar", q: "bru" }, mix);
+    const bru = visible(e);
+    if (bru.kind === "lista") expect(tracksVisibles(bru).map((tr) => tr.id)).toEqual(["b"]);
+    expect(e.cursor).toBe(0);
+
+    e = aplicar(e, { tipo: "filtrar", q: "   " }, mix);
+    const todo = visible(e);
+    if (todo.kind === "lista") expect(tracksVisibles(todo)).toHaveLength(3);
+
+    e = aplicar(e, { tipo: "filtrar", q: "zzz" }, mix);
+    const nada = visible(e);
+    if (nada.kind === "lista") expect(tracksVisibles(nada)).toHaveLength(0);
+    expect(e.cursor).toBe(0);
+  });
+
+  it("el filtro sigue al volver de la canción", () => {
+    let e = aplicar(aplicar(estadoInicial(), { tipo: "select" }, ctx), { tipo: "select" }, ctx);
+    e = aplicar(e, { tipo: "filtrar", q: "c" }, ctx);
+    e = aplicar(e, { tipo: "select" }, ctx);
+    expect(visible(e).kind).toBe("cancion");
+    if (visible(e).kind === "cancion") expect(visible(e).track.id).toBe("c");
+    e = aplicar(e, { tipo: "back" }, ctx);
+    const vuelta = visible(e);
+    expect(vuelta.kind).toBe("lista");
+    if (vuelta.kind === "lista") {
+      expect(vuelta.q).toBe("c");
+      expect(tracksVisibles(vuelta).map((tr) => tr.id)).toEqual(["c"]);
+    }
+  });
+
+  it("filtrar fuera de una lista no hace nada", () => {
+    const menu = aplicar(estadoInicial(), { tipo: "select" }, ctx);
+    const e = aplicar(menu, { tipo: "filtrar", q: "a" }, ctx);
+    expect(visible(e).kind).toBe("menu");
+    expect(e.cursor).toBe(0);
   });
 });

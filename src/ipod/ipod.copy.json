@@ -8,9 +8,12 @@
   "aliasDe": "iPod de",
   "menu": {
     "songs": "Canciones",
+    "artists": "Artistas",
     "mine": "Mi iPod",
     "close": "Cerrar el iPod"
   },
+  "buscar": "Buscar",
+  "nada": "Nada con «{q}»",
   "meter": "Meter al iPod",
   "quitar": "Quitar",
   "lleno": "Ya hay 5",

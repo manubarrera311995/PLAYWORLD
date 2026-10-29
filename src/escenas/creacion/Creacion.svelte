@@ -26,7 +26,7 @@
     dicho: string;
   };
 
-  type CaraAlma = { lineas: string[]; tinta: string; fondo: string };
+  type CaraAlma = { lineas: string[]; tinta: string; fondo: string; pastilla: string; borde: string };
 
   /** Paradas del cielo de creación. La tinta tiene que separarse de todas. */
   const CIELO = (() => {
@@ -51,6 +51,15 @@
     return CIELO.some((fondo) => contraste(tinta, fondo) < 3);
   }
 
+  /** Pastilla de la carta. El camino vive en el cielo oscuro de arriba: si ahí no se lee, pasa al borde. */
+  function acentoDe(carta: CaraAlma): string {
+    const arriba = CIELO.slice(0, 2);
+    const peor = (tinta: string) => Math.min(...arriba.map((fondo) => contraste(tinta, fondo)));
+    const opciones = [carta.pastilla, carta.borde, carta.fondo];
+    return opciones.find((c) => peor(c) >= 2.2)
+      ?? opciones.reduce((a, b) => (peor(a) >= peor(b) ? a : b));
+  }
+
   const rec = $derived($recorrido);
   const alma = $derived(rec.alma ? almas[rec.alma.principal] : null);
   const temas = $derived(rec.seleccion?.tracks ?? []);
@@ -59,6 +68,7 @@
   const cara = $derived(alma ? (cartas as Record<AlmaId, CaraAlma>)[alma.id] : null);
   const lineas = $derived(cara?.lineas ?? []);
   const conFondo = $derived(cara ? sePierde(cara.tinta) : false);
+  const acento = $derived(cara ? acentoDe(cara) : "");
 
   const horas = $derived.by((): Hora[] => {
     const ids = rec.almasFila ?? [];
@@ -76,6 +86,9 @@
       }];
     });
   });
+
+  /** Un solo paso: el primero que ya era esta alma. Si ninguno, el nombre carga el color. */
+  const pasoTinto = $derived(alma ? horas.findIndex((h) => h.almaId === alma.id) : -1);
 
   let guardando = $state(false);
 
@@ -131,6 +144,9 @@
   <Revelado />
   {#if alma}
     <div class="lienzo">
+      <div class="eco" aria-hidden="true">
+        <img src="/assets/almas/{alma.id}.png" alt="" />
+      </div>
       <div class="camino">
         <header class="cabeza">
           <Marca />
@@ -142,9 +158,9 @@
 
         {#if horas.length}
           <h2 class="ruta">El camino de tu alma</h2>
-          <ol class="pasos">
+          <ol class="pasos" style:--acento={acento}>
             {#each horas as hora, i (hora.id)}
-              <li>
+              <li class:tinto={i === pasoTinto}>
                 <span class="num">{indice(i)}</span>
                 <div class="paso">
                   <p class="momento">
@@ -238,6 +254,7 @@
     position: relative;
     min-height: 100%;
     min-height: 100dvh;
+    overflow: hidden;
     display: grid;
     grid-template-columns:
       minmax(260px, 0.92fr)
@@ -251,7 +268,36 @@
   .camino,
   .veredicto,
   .lado {
+    position: relative;
+    z-index: 1;
     min-width: 0;
+  }
+
+  .eco {
+    position: absolute;
+    z-index: 0;
+    left: 24%;
+    right: 6%;
+    bottom: 4%;
+    height: 62%;
+    pointer-events: none;
+  }
+
+  .eco img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: 42% 100%;
+    opacity: 0.82;
+    filter: blur(7px);
+    -webkit-mask-image:
+      linear-gradient(to top, transparent 0%, #000 14%, #000 40%, transparent 84%),
+      linear-gradient(to right, transparent 0%, #000 16%, #000 86%, transparent 100%);
+    mask-image:
+      linear-gradient(to top, transparent 0%, #000 14%, #000 40%, transparent 84%),
+      linear-gradient(to right, transparent 0%, #000 16%, #000 86%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
   }
 
   .camino {
@@ -330,6 +376,11 @@
     font-weight: 500;
     letter-spacing: 0.04em;
     color: rgba(255, 246, 239, 0.78);
+  }
+
+  .pasos li.tinto .num,
+  .pasos li.tinto .alma-paso {
+    color: var(--acento);
   }
 
   .momento {
@@ -526,6 +577,8 @@
       align-self: start;
       padding-top: 36px;
     }
+
+    .eco { display: none; }
   }
 
   @media (max-width: 767px) {
@@ -534,14 +587,9 @@
       padding-top: 56px;
     }
 
-    .camino,
-    .veredicto,
-    .lado {
-      grid-column: 1;
-      grid-row: auto;
-    }
-
-    .lado { justify-content: center; }
+    .camino { grid-column: 1; grid-row: 1; }
+    .veredicto { grid-column: 1; grid-row: 2; }
+    .lado { grid-column: 1; grid-row: 3; justify-content: center; }
     .acciones { margin-top: 28px; }
   }
 </style>

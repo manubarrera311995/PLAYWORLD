@@ -3,7 +3,7 @@
   import type { Track } from "../../datos/tipos";
   import { artUrl } from "../../datos/color";
   import copy from "../ipod.copy.json";
-  import { abrirPreview, type MandoSpotify } from "../spotify";
+  import { abrirPreview, ALTO_PREVIEW, type MandoSpotify } from "../spotify";
 
   type Props = {
     track: Track;
@@ -59,7 +59,7 @@
   {:else if fallo}
     <p class="nota">{copy.previewFallo}</p>
   {:else}
-    <div class="preview" class:listo aria-busy={!listo}>
+    <div class="preview" class:listo style="--alto: {ALTO_PREVIEW}px" aria-busy={!listo}>
       <div class="slot" bind:this={slot}></div>
       {#if !listo}
         <div class="carga" role="status">
@@ -78,15 +78,20 @@
 
 <style>
   .cancion {
+    box-sizing: border-box;
+    height: 100%;
+    min-height: 100%;
     display: grid;
     grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
     grid-template-areas:
       "art meta"
       "play play"
       "btn btn";
+    align-content: start;
     align-items: center;
     gap: 8px;
-    padding: 8px;
+    padding: 10px 8px 8px;
     color: #111;
     font-family: "DM Sans", Helvetica, Arial, sans-serif;
   }
@@ -108,28 +113,31 @@
     font-size: 12px;
     color: #4a4a4a;
   }
-  .nota { grid-area: play; white-space: normal; }
+  .nota { grid-area: play; align-self: start; white-space: normal; }
   .preview {
     position: relative;
     grid-area: play;
     width: 100%;
-    min-height: 152px;
+    height: var(--alto, 80px);
+    min-height: var(--alto, 80px);
     overflow: hidden;
-    border-radius: 2px;
+    border-radius: 4px;
+    align-self: start;
     background: #f4f4f4;
+    box-shadow: inset 0 0 0 1px #c6c6c6;
   }
   .preview:not(.listo) :global(iframe) {
     position: absolute;
     inset: 0;
     width: 100% !important;
-    height: 152px;
+    height: var(--alto, 80px) !important;
     opacity: 0;
     pointer-events: none;
   }
   .preview.listo :global(iframe) {
     display: block;
     width: 100% !important;
-    height: 152px;
+    height: var(--alto, 80px) !important;
     border: 0;
     opacity: 1;
     transition: opacity 280ms ease;
@@ -140,9 +148,9 @@
     z-index: 2;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    gap: 8px;
-    padding: 14px 10px;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 10px;
     background: linear-gradient(180deg, #f7f7f7 0%, #e4e4e4 100%);
   }
   .carga__txt {

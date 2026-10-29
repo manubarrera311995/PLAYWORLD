@@ -59,7 +59,46 @@
   });
 </script>
 
-<section class="colectiva">
+<section class={["colectiva", ficha && "con-ficha"]}>
+  <header>
+    <div class="tope">
+      <Marca texto={copy.brand} />
+      <Asterisco />
+    </div>
+    <h1>{copy.title}</h1>
+    <p class="sentir">{copy.sentir}</p>
+    <p class="invitacion">{copy.invitacion}</p>
+    <div class="filtros" role="group" aria-label="Filtrar por alma">
+      {#each ALMA_IDS as id (id)}
+        <button
+          type="button"
+          class={["filtro", filtro === id && "is-on", filtro !== "all" && filtro !== id && "is-off"]}
+          style:color={filtro === id ? tintaDe(id) : undefined}
+          aria-pressed={filtro === id}
+          onclick={() => ponerFiltro(id)}
+        >
+          {almas[id].corto}
+        </button>
+      {/each}
+      {#if mia}
+        <button
+          type="button"
+          class={["filtro", filtro === mia && "is-on"]}
+          aria-pressed={filtro === mia}
+          onclick={() => ponerFiltro(mia)}
+        >
+          {copy.filtroMia}
+        </button>
+      {/if}
+      {#if filtro !== "all"}
+        <button type="button" class="todas" onclick={() => (filtro = "all")}>{copy.filtroTodas}</button>
+      {/if}
+    </div>
+    {#if store.sinSenal}
+      <p class="aviso">{copy.avisoSenal}</p>
+    {/if}
+  </header>
+
   <div class="cielo">
     <Grafo
       rastros={store.items}
@@ -69,38 +108,6 @@
       onrastro={(id) => (foco = id)}
     />
   </div>
-
-  <header>
-    <div class="tope">
-      <Marca texto={copy.brand} />
-      <Asterisco />
-    </div>
-    <h1 class="tipo-seccion">{copy.title}</h1>
-    <p class="bajada tipo-cuerpo">{copy.bajada}</p>
-    <div class="filtros">
-      {#each ALMA_IDS as id (id)}
-        <button
-          type="button"
-          class={["filtro", filtro === id && "is-on", filtro !== "all" && filtro !== id && "is-off"]}
-          style:color={filtro === id ? tintaDe(id) : undefined}
-          onclick={() => ponerFiltro(id)}
-        >
-          {almas[id].corto}
-        </button>
-      {/each}
-      {#if mia}
-        <button type="button" class={["filtro", filtro === mia && "is-on"]} onclick={() => ponerFiltro(mia)}>
-          {copy.filtroMia}
-        </button>
-      {/if}
-      {#if filtro !== "all"}
-        <button type="button" onclick={() => (filtro = "all")}>{copy.filtroTodas}</button>
-      {/if}
-    </div>
-    {#if store.sinSenal}
-      <p class="aviso">{copy.avisoSenal}</p>
-    {/if}
-  </header>
 
   {#if ficha}
     <FichaRastro
@@ -113,118 +120,237 @@
   <footer>
     <p class="cierre">
       {#each cierreLineas as linea (linea)}
-        {linea}<br />
+        <span>{linea}</span>
       {/each}
     </p>
-    <button type="button" onclick={() => navigate("/archivo")}>{copy.ctaAnio}</button>
+    <button type="button" class="cta" onclick={() => navigate("/archivo")}>{copy.ctaAnio}</button>
   </footer>
 </section>
 
 <style>
   .colectiva {
     position: relative;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     min-height: 100dvh;
     overflow: hidden;
+    padding: 52px var(--pad-x) 20px;
+    gap: clamp(28px, 4.6vh, 56px);
   }
-  .cielo {
-    position: absolute;
-    inset: 0;
-  }
+
   header {
-    position: absolute;
-    z-index: 2;
-    left: var(--pad-x);
-    top: 48px;
-    width: min(280px, 52vw);
-    max-height: calc(100% - 148px);
+    flex: 0 1 auto;
+    min-height: 0;
     overflow: auto;
-    display: grid;
-    gap: 6px;
-    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: min(100%, 440px);
+    scrollbar-width: none;
   }
-  .tope { display: flex; align-items: center; gap: 10px; }
+  header::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cielo {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 104px;
+    overflow: hidden;
+  }
+
+  .tope {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   h1 {
-    max-width: 10ch;
+    max-width: 14ch;
+    margin-top: clamp(22px, 3vh, 36px);
+    font-family: Outfit, sans-serif;
+    font-weight: 400;
+    font-size: clamp(34px, 8vw, 44px);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    color: var(--ink-title);
+    text-wrap: balance;
   }
-  .bajada {
+
+  .sentir {
     max-width: 34ch;
+    margin-top: clamp(20px, 2.8vh, 32px);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    color: var(--ink-soft);
+    text-wrap: pretty;
   }
-  .filtros { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+
+  .invitacion {
+    max-width: 36ch;
+    margin-top: clamp(14px, 2vh, 20px);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--ink-mute);
+    text-wrap: pretty;
+  }
+
+  .filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    max-width: 40ch;
+    margin-top: clamp(28px, 3.6vh, 44px);
+  }
+
   .filtros button {
-    pointer-events: auto;
     border: 0;
     background: transparent;
-    padding: 0;
-    font-size: 14px;
+    padding: 2px 0;
+    font-size: 12px;
     font-weight: 500;
-    color: var(--ink-soft);
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    letter-spacing: 0.01em;
+    color: rgba(255, 246, 239, 0.74);
+    text-decoration: none;
     cursor: pointer;
   }
-  .filtros button.is-on { color: var(--ink-title); }
-  .filtros button.is-off { opacity: 0.35; }
+
+  .filtros button:hover,
+  .filtros button:focus-visible {
+    color: var(--ink);
+  }
+
+  .filtros button.is-on {
+    color: var(--ink-title);
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    text-decoration-thickness: 1px;
+  }
+
+  .filtros button.is-off {
+    opacity: 0.35;
+  }
+
+  .filtros button:focus-visible,
+  .cta:focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: 4px;
+  }
+
   .aviso {
     max-width: 36ch;
+    margin-top: 18px;
     font-size: 13px;
-    line-height: 1.4;
+    line-height: 1.45;
     color: var(--ink-mute);
   }
+
   footer {
-    position: absolute;
-    z-index: 2;
-    left: var(--pad-x);
-    bottom: 16px;
-    width: min(280px, 52vw);
-    display: grid;
-    gap: 8px;
-    pointer-events: none;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
   }
+
+  .con-ficha footer {
+    visibility: hidden;
+  }
+
   .cierre {
-    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7em;
+    max-width: 46ch;
+    font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    line-height: 1.7;
-    color: rgba(255, 246, 239, 0.78);
+    line-height: 1.35;
+    color: rgba(255, 246, 239, 0.62);
   }
-  footer button {
-    pointer-events: auto;
-    justify-self: start;
+
+  .cierre span {
+    display: block;
+  }
+
+  .cta {
     border: 0;
     background: transparent;
     padding: 0;
     font: inherit;
     font-size: 13px;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
     color: var(--ink);
     text-decoration: underline;
-    text-underline-offset: 4px;
+    text-underline-offset: 5px;
+    text-decoration-thickness: 1px;
     cursor: pointer;
   }
 
+  .cta:hover {
+    color: var(--ink-title);
+  }
+
   @media (min-width: 1024px) {
-    .colectiva { display: block; }
-    .cielo { position: absolute; inset: 0; min-height: 0; }
+    .colectiva {
+      display: grid;
+      grid-template-columns: min(400px, 32vw) minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr) auto;
+      column-gap: clamp(32px, 4vw, 72px);
+      row-gap: clamp(32px, 4vh, 48px);
+      align-items: stretch;
+      padding-top: calc(var(--pad-y) + 36px);
+      padding-bottom: 28px;
+    }
+
     header {
-      top: calc(var(--pad-y) + 28px);
-      width: min(300px, 28vw);
-      max-height: none;
-      gap: 12px;
-      overflow: visible;
-      pointer-events: none;
+      grid-column: 1;
+      grid-row: 1;
+      align-self: stretch;
+      width: auto;
+      max-width: none;
+      overflow: auto;
     }
+
+    .cielo {
+      grid-column: 2;
+      grid-row: 1;
+      min-height: 0;
+    }
+
     h1 {
-      max-width: 9ch;
+      font-size: clamp(40px, 3.2vw, 56px);
+      line-height: 1.02;
     }
+
     footer {
-      position: absolute;
-      left: var(--pad-x);
-      bottom: 28px;
-      width: min(360px, 32vw);
-      gap: 14px;
-      padding: 0;
+      grid-column: 1 / -1;
+      grid-row: 2;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 48px;
+    }
+
+    .con-ficha footer {
+      visibility: visible;
+    }
+
+    .cierre {
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      gap: 0.75em;
+    }
+
+    .cta {
+      flex: 0 0 auto;
+      text-align: right;
     }
   }
 </style>

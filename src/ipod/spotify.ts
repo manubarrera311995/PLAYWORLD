@@ -27,7 +27,8 @@ type ApiEmbed = {
 };
 
 const SCRIPT = "https://open.spotify.com/embed/iframe-api/v1";
-const ALTO = 152;
+/** Barra compacta. 152 es la ficha grande y no cabe en el LCD. */
+export const ALTO_PREVIEW = 80;
 
 let carga: Promise<ApiEmbed> | null = null;
 
@@ -73,7 +74,7 @@ export function abrirPreview(
   void cargarSpotify()
     .then((api) => {
       if (cancelado) return;
-      api.createController(slot, { uri: uriSpotify(spotifyId), width: ancho, height: ALTO }, {
+      api.createController(slot, { uri: uriSpotify(spotifyId), width: ancho, height: ALTO_PREVIEW }, {
         onCreateCallback: (c) => {
           if (cancelado) {
             c.destroy();

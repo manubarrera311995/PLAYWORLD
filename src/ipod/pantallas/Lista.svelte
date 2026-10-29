@@ -7,8 +7,13 @@
     onsaltar: (i: number) => void;
     metidas?: string[];
     vacio?: string;
+    /** Si llega, la barra filtra esta lista. Sin ella, la lista se ve como antes. */
+    q?: string;
+    onfiltrar?: (q: string) => void;
+    placeholder?: string;
   };
-  let { items, cursor, onsaltar, metidas, vacio }: Props = $props();
+  let { items, cursor, onsaltar, metidas, vacio, q = "", onfiltrar, placeholder = "Buscar" }: Props = $props();
+  let texto = $state(q);
   const marcas = $derived(new Set(metidas ?? []));
   const mostrarMarcas = $derived(metidas != null);
 
@@ -27,6 +32,36 @@
   }
 </script>
 
+<div class="panel">
+  {#if onfiltrar}
+    <form
+      class="buscar"
+      onsubmit={(ev) => {
+        ev.preventDefault();
+        if (items.length > 0) onsaltar(Math.min(cursor, items.length - 1));
+      }}
+      onpointerdown={(ev) => ev.stopPropagation()}
+      onpointerup={(ev) => ev.stopPropagation()}
+    >
+      <input
+        type="text"
+        value={texto}
+        {placeholder}
+        aria-label={placeholder}
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        enterkeyhint="search"
+        oninput={(ev) => {
+          texto = ev.currentTarget.value;
+          onfiltrar?.(texto);
+        }}
+        onkeydown={(ev) => {
+          if (ev.key === "Escape") ev.currentTarget.blur();
+        }}
+      />
+    </form>
+  {/if}
 {#if items.length === 0 && vacio}
   <p class="vacio">{vacio}</p>
 {:else}
@@ -56,8 +91,46 @@
     {/each}
   </ul>
 {/if}
+</div>
 
 <style>
+  .panel { min-width: 0; }
+  .buscar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    margin: 0;
+    padding: 5px 7px 4px;
+    background: #f4f4f4;
+    border-bottom: 1px solid #c6c6c6;
+  }
+  .buscar input {
+    width: 100%;
+    box-sizing: border-box;
+    height: 22px;
+    border: 1px solid #8a8a8a;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #ffffff 0%, #e6e6e6 100%);
+    box-shadow:
+      inset 0 1px 2px rgba(0, 0, 0, 0.28),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.65);
+    padding: 0 6px;
+    color: #111;
+    caret-color: #1c62d6;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    line-height: 20px;
+    appearance: none;
+  }
+  .buscar input:focus {
+    outline: none;
+    border-color: #1c62d6;
+  }
+  .buscar input::placeholder {
+    color: #8d8d8d;
+    font-weight: 500;
+  }
+  .panel:has(.buscar) .row { scroll-margin-top: 36px; }
   .vacio {
     margin: 0;
     padding: 16px 12px;

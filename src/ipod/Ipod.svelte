@@ -18,7 +18,10 @@
     estadoSellado,
     meterOQuitar,
     tituloDe,
+    artistasDelAnio,
+    artistasVisibles,
     tracksDelAnio,
+    tracksVisibles,
     visible,
     type EntradaIpod,
     type EstadoIpod,
@@ -68,7 +71,7 @@
 
   function leyendaCentro(pantalla: Pantalla, e: EstadoIpod): string {
     if (pantalla.kind === "boot") return copy.teclas.centro.boot;
-    if (pantalla.kind === "lista") return copy.teclas.centro.lista;
+    if (pantalla.kind === "lista" || pantalla.kind === "artistas") return copy.teclas.centro.lista;
     if (pantalla.kind === "miIpod") return copy.teclas.centro.miIpod;
     if (pantalla.kind === "cancion") {
       if (enSeleccion(e, pantalla.track.id)) return copy.teclas.centro.metida;
@@ -123,6 +126,16 @@
     onentrada({ tipo: "select" });
   }
 
+  function filtrar(q: string): void {
+    onentrada({ tipo: "filtrar", q });
+  }
+
+  function vacioDe(fuenteVacia: boolean, q: string, visibles: number): string | undefined {
+    if (fuenteVacia) return rec.yearHint == null ? copy.sinAnio : undefined;
+    if (visibles === 0 && q.trim()) return copy.nada.replaceAll("{q}", q.trim());
+    return undefined;
+  }
+
   const recAlEntrar = get(recorrido);
   const guardada = recAlEntrar.seleccion;
   if (guardada && guardada.tracks.length >= CAPACIDAD) {
@@ -147,15 +160,17 @@
       setIpodCtx({ pool: p, yearHint });
       ipod.update((s) => {
         const pantalla = visible(s);
-        if (pantalla.kind !== "lista" || pantalla.tracks.length > 0) return s;
-        const tracks = tracksDelAnio(p, yearHint);
-        if (!tracks.length) return s;
-        const lista: Pantalla = {
-          kind: "lista",
-          titulo: yearHint != null ? String(yearHint) : "Canciones",
-          tracks,
-        };
-        return { ...s, pila: [...s.pila.slice(0, -1), lista] };
+        if (pantalla.kind === "lista" && pantalla.tracks.length === 0) {
+          const tracks = tracksDelAnio(p, yearHint);
+          if (!tracks.length) return s;
+          return { ...s, pila: [...s.pila.slice(0, -1), { ...pantalla, tracks }] };
+        }
+        if (pantalla.kind === "artistas" && pantalla.nombres.length === 0) {
+          const nombres = artistasDelAnio(p, yearHint);
+          if (!nombres.length) return s;
+          return { ...s, pila: [...s.pila.slice(0, -1), { ...pantalla, nombres }] };
+        }
+        return s;
       });
     });
     return () => {
@@ -205,12 +220,27 @@
             onsaltar={saltar}
           />
         {:else if v.kind === "lista"}
+          {@const canciones = tracksVisibles(v)}
           <Lista
-            items={v.tracks}
+            items={canciones}
             cursor={estado.cursor}
             onsaltar={saltar}
             metidas={estado.seleccion.map((t) => t.id)}
-            vacio={rec.yearHint == null ? copy.sinAnio : undefined}
+            vacio={vacioDe(v.tracks.length === 0, v.q, canciones.length)}
+            q={v.tracks.length > 0 ? v.q : undefined}
+            onfiltrar={v.tracks.length > 0 ? filtrar : undefined}
+            placeholder={copy.buscar}
+          />
+        {:else if v.kind === "artistas"}
+          {@const nombres = artistasVisibles(v)}
+          <Lista
+            items={nombres}
+            cursor={estado.cursor}
+            onsaltar={saltar}
+            vacio={vacioDe(v.nombres.length === 0, v.q, nombres.length)}
+            q={v.nombres.length > 0 ? v.q : undefined}
+            onfiltrar={v.nombres.length > 0 ? filtrar : undefined}
+            placeholder={copy.buscar}
           />
         {:else if v.kind === "miIpod"}
           <MiIpod seleccion={estado.seleccion} cursor={estado.cursor} onsaltar={saltar} />

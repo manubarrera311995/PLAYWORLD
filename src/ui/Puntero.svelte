@@ -42,25 +42,73 @@
       el.style.color = punteroSobreClaro(pila.map(capaDe)) ? TINTA_NEGRA : TINTA;
     };
 
+    const ocultar = () => {
+      punto = null;
+      firma = "";
+      if (nodo) nodo.hidden = true;
+    };
+
+    const colocar = (x: number, y: number) => {
+      const el = nodo;
+      if (!el) return;
+      punto = { x, y };
+      teñir();
+      el.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+      el.hidden = false;
+    };
+
     const mover = (e: PointerEvent) => {
       const el = nodo;
       if (!el || !mq.matches || e.pointerType === "touch") return;
+      if (e.target instanceof HTMLIFrameElement) {
+        ocultar();
+        return;
+      }
       const sobreTexto = e.target instanceof Element && e.target.closest(TEXTO);
       if (sobreTexto) {
         el.hidden = true;
         return;
       }
-      punto = { x: e.clientX, y: e.clientY };
-      teñir();
-      el.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
-      el.hidden = false;
+      colocar(e.clientX, e.clientY);
     };
 
     const salir = (e: PointerEvent) => {
       if (!nodo || e.pointerType === "touch") return;
-      punto = null;
-      firma = "";
-      nodo.hidden = true;
+      ocultar();
+    };
+
+    // Spotify vive en un iframe de otro origen: ahí no llegan pointermove
+    // y el asterisco se quedaba clavado en el borde. Al entrar se esconde;
+    // al salir vuelve al punto por donde el mouse abandona el marco.
+    const entrarMarco = (e: PointerEvent) => {
+      if (!mq.matches || e.pointerType === "touch") return;
+      if (!(e.target instanceof HTMLIFrameElement)) return;
+      ocultar();
+    };
+
+    const salirMarco = (e: PointerEvent) => {
+      if (!nodo || !mq.matches || e.pointerType === "touch") return;
+      if (!(e.target instanceof HTMLIFrameElement)) return;
+      const destino = e.relatedTarget;
+      if (destino instanceof Element && destino.closest(TEXTO)) {
+        ocultar();
+        return;
+      }
+      const x = e.clientX;
+      const y = e.clientY;
+      const bajo = document.elementFromPoint(x, y);
+      if (
+        !(bajo instanceof Element) ||
+        bajo instanceof HTMLIFrameElement ||
+        x < 0 ||
+        y < 0 ||
+        x > window.innerWidth ||
+        y > window.innerHeight
+      ) {
+        ocultar();
+        return;
+      }
+      colocar(x, y);
     };
 
     const cambios = new MutationObserver(() => {
@@ -74,11 +122,15 @@
     });
 
     window.addEventListener("pointermove", mover, { passive: true });
+    document.addEventListener("pointerover", entrarMarco, true);
+    document.addEventListener("pointerout", salirMarco, true);
     document.addEventListener("pointerleave", salir);
     return () => {
       cambios.disconnect();
       mq.removeEventListener("change", aplicar);
       window.removeEventListener("pointermove", mover);
+      document.removeEventListener("pointerover", entrarMarco, true);
+      document.removeEventListener("pointerout", salirMarco, true);
       document.removeEventListener("pointerleave", salir);
     };
   });

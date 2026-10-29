@@ -83,10 +83,10 @@
   .ficha > * { position: relative; z-index: 3; }
   .is-side {
     position: absolute;
-    right: 48px;
+    right: var(--pad-x);
     top: 50%;
     width: min(320px, 34vw);
-    max-height: min(760px, calc(100% - 48px));
+    max-height: min(640px, calc(100% - 220px));
     transform: translateY(-50%);
     overflow: auto;
   }

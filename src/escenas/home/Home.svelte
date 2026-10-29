@@ -1,7 +1,6 @@
 <script lang="ts">
   import copy from "./home.copy.json";
   import Marca from "../../ui/Marca.svelte";
-  import Asterisco from "../../ui/Asterisco.svelte";
   import Collage from "./Collage.svelte";
   import FondoHome from "./FondoHome.svelte";
   import CueDesliza from "../../ui/CueDesliza.svelte";
@@ -71,7 +70,6 @@
     </video>
     <header class="home__top">
       <Marca texto={copy.brand} />
-      <Asterisco />
     </header>
     <div class="home__stage">
       <div class="home__copy">
@@ -489,23 +487,26 @@
     text-wrap: pretty;
   }
   .home__beat--pregunta {
-    width: min(88vw, 1120px);
+    left: calc(24px - var(--pad-x) - clamp(20px, 4vw, 72px));
+    width: calc(100vw - 24px - var(--pad-x));
+    right: auto;
     justify-content: center;
     padding-top: 0;
   }
   .home__beat--pregunta .home__frase {
     max-width: none;
     font-family: "DM Sans", system-ui, sans-serif;
-    font-weight: 800;
-    font-size: clamp(40px, 5.15vw, 86px);
-    line-height: 0.98;
-    letter-spacing: -0.046em;
+    font-weight: 400;
+    font-size: clamp(48px, 5.7vw, 104px);
+    line-height: 1.1;
+    letter-spacing: -0.018em;
     text-wrap: pretty;
+    transform: translateY(-6vh);
   }
   .home__beat--fan {
     left: calc(42vw - clamp(20px, 4vw, 72px));
     right: auto;
-    width: min(44vw, 640px);
+    width: min(36rem, 40vw);
     justify-content: center;
     padding-top: 0;
     overflow: visible;
@@ -515,12 +516,12 @@
   .home__beat--lado .home__frase,
   .home__beat--sigue .home__frase,
   .home__beat--cierre .home__frase {
-    max-width: none;
+    max-width: 36rem;
     font-family: "DM Sans", system-ui, sans-serif;
-    font-weight: 500;
-    font-size: clamp(32px, min(4.05vw, 6.2vh), 64px);
-    line-height: 1.12;
-    letter-spacing: -0.028em;
+    font-weight: 400;
+    font-size: clamp(22px, 1.85vw, 28px);
+    line-height: 1.38;
+    letter-spacing: -0.015em;
     text-wrap: pretty;
     transform: translateY(9vh);
   }
@@ -529,7 +530,7 @@
   .home__beat--sigue,
   .home__beat--cierre {
     right: auto;
-    width: min(44vw, 640px);
+    width: min(36rem, 42vw);
     justify-content: center;
     padding-top: 0;
     overflow: visible;
@@ -726,23 +727,26 @@
     letter-spacing: -0.03em;
   }
   .home:global(.is-quieto) .home__beat--pregunta {
-    width: min(100%, 920px);
+    left: auto;
+    width: 100%;
   }
   .home:global(.is-quieto) .home__beat--pregunta .home__frase {
-    font-size: clamp(32px, 4.6vw, 52px);
-    font-weight: 800;
-    line-height: 1.04;
-    letter-spacing: -0.042em;
+    max-width: none;
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.018em;
+    transform: none;
   }
   .home:global(.is-quieto) .home__beat--fan .home__frase,
   .home:global(.is-quieto) .home__beat--entendido .home__frase,
   .home:global(.is-quieto) .home__beat--lado .home__frase,
   .home:global(.is-quieto) .home__beat--sigue .home__frase,
   .home:global(.is-quieto) .home__beat--cierre .home__frase {
-    font-size: clamp(28px, 3.6vw, 44px);
-    font-weight: 500;
-    line-height: 1.12;
-    letter-spacing: -0.028em;
+    font-size: clamp(20px, 1.7vw, 26px);
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: -0.015em;
     transform: none;
   }
   .home:global(.is-quieto) .home__beat--fan,
@@ -750,7 +754,8 @@
   .home:global(.is-quieto) .home__beat--lado,
   .home:global(.is-quieto) .home__beat--sigue,
   .home:global(.is-quieto) .home__beat--cierre {
-    width: min(100%, 720px);
+    left: auto;
+    width: min(100%, 36rem);
   }
 
   @media (max-width: 767px) {
@@ -787,12 +792,15 @@
       height: auto;
       justify-content: flex-end;
       padding-top: 0;
+      transform: none;
     }
     .home__beat--pregunta .home__frase {
-      font-size: clamp(30px, 7.8vw, 44px);
-      font-weight: 800;
-      line-height: 1.04;
-      letter-spacing: -0.04em;
+      max-width: none;
+      font-size: clamp(28px, 7.4vw, 36px);
+      font-weight: 400;
+      line-height: 1.12;
+      letter-spacing: -0.018em;
+      transform: none;
     }
     .home__beat--fan {
       inset: auto 0 0 auto;
@@ -806,10 +814,10 @@
     .home__beat--lado .home__frase,
     .home__beat--sigue .home__frase,
     .home__beat--cierre .home__frase {
-      font-size: clamp(24px, 6vw, 32px);
-      font-weight: 500;
-      line-height: 1.14;
-      letter-spacing: -0.02em;
+      font-size: clamp(17px, 4.2vw, 21px);
+      font-weight: 400;
+      line-height: 1.4;
+      letter-spacing: -0.012em;
       transform: none;
     }
     .home__beat--entendido,
@@ -944,21 +952,28 @@
     .home__beat:has(.home__pieza) .home__frase {
       font-size: 22px;
     }
+    .home__beat--pregunta {
+      left: auto;
+      width: 100%;
+      transform: none;
+    }
     .home__beat--pregunta .home__frase {
-      font-size: clamp(32px, 4.6vw, 52px);
-      font-weight: 800;
-      line-height: 1.04;
-      letter-spacing: -0.042em;
+      max-width: none;
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.018em;
+      transform: none;
     }
     .home__beat--fan .home__frase,
     .home__beat--entendido .home__frase,
     .home__beat--lado .home__frase,
     .home__beat--sigue .home__frase,
     .home__beat--cierre .home__frase {
-      font-size: clamp(28px, 3.6vw, 44px);
-      font-weight: 500;
-      line-height: 1.12;
-      letter-spacing: -0.028em;
+      font-size: clamp(20px, 1.7vw, 26px);
+      font-weight: 400;
+      line-height: 1.4;
+      letter-spacing: -0.015em;
       transform: none;
     }
     .home__beat--fan,
@@ -966,7 +981,8 @@
     .home__beat--lado,
     .home__beat--sigue,
     .home__beat--cierre {
-      width: min(100%, 720px);
+      left: auto;
+      width: min(100%, 36rem);
     }
     .home__play:global(.is-vivo) .home__play-ring,
     .home__play-ring,

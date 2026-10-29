@@ -40,10 +40,14 @@
     params.hilos = layout.hilos;
   }
 
+  let generacion = 0;
+
   const stage = (el: HTMLElement) => {
+    const gen = ++generacion;
     mountEl = el;
     void compute(el, rastros, propioId).then(() => {
-      if (mountEl !== el) return;
+      if (gen !== generacion || mountEl !== el) return;
+      isla?.destroy();
       isla = p5Isla(el, grafoSketch, params, paleta);
     });
     const ro = new ResizeObserver(() => {

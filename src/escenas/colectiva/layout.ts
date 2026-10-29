@@ -41,20 +41,18 @@ function jitter(id: string): number {
   return ((h >>> 0) % 1000) / 1000 - 0.5;
 }
 
-/** Zona libre del mapa: a la derecha del texto, igual para todas las almas. */
+/**
+ * El lienzo ya es el cielo libre: el texto vive fuera, en la orilla.
+ * Aquí solo se deja un margen para que las estrellas no besen el borde.
+ */
 function campoDe(w: number, h: number): { cx: number; cy: number; radio: number } {
-  const cine = w >= 1024;
-  const columna = cine ? Math.min(300, w * 0.28) : Math.min(280, w * 0.52);
-  const izquierda = columna + 56;
-  const derecha = cine ? Math.min(280, w * 0.2) : 16;
-  const arriba = cine ? 28 : 12;
-  const abajo = cine ? 64 : 20;
-  const ancho = Math.max(160, w - izquierda - derecha);
-  const alto = Math.max(160, h - arriba - abajo);
+  const m = Math.max(18, Math.min(w, h) * 0.08);
+  const ancho = Math.max(48, w - m * 2);
+  const alto = Math.max(48, h - m * 2);
   return {
-    cx: izquierda + ancho / 2,
-    cy: arriba + alto / 2,
-    radio: Math.min(ancho, alto) * 0.38,
+    cx: m + ancho / 2,
+    cy: m + alto / 2,
+    radio: Math.min(ancho, alto) * 0.46,
   };
 }
 
