@@ -7,6 +7,7 @@
   import Revelado from "./Revelado.svelte";
   import Carta from "./Carta.svelte";
   import Marca from "../../ui/Marca.svelte";
+  import Boton from "../../ui/Boton.svelte";
   import { navigate, type RutaParsed } from "../director/router";
   import { artUrl } from "../../datos/color";
   import { lineaFila } from "./boleta";
@@ -179,7 +180,7 @@
         {/if}
 
         <div class="acciones">
-          <button type="button" onclick={guardar} disabled={guardando}>
+          <Boton compacto onclick={guardar} disabled={guardando}>
             {guardando ? "Guardando…" : "Guardar boleta"}
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
@@ -192,8 +193,8 @@
               <path d="M9 4.8v3.7h6V4.8" fill="none" stroke="currentColor" stroke-width="1.6" />
               <path d="M8 15.2h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
             </svg>
-          </button>
-          <button type="button" class="demas" onclick={() => navigate("/colectiva")}>
+          </Boton>
+          <Boton compacto onclick={() => navigate("/colectiva")}>
             Ver qué llevaron los demás
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="8" cy="8" r="2.2" fill="none" stroke="currentColor" stroke-width="1.6" />
@@ -201,7 +202,7 @@
               <path d="M3.8 17.6c.6-2.4 2.3-3.6 4.2-3.6s3.6 1.2 4.2 3.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
               <path d="M13.2 14.4c1.3-.5 2.6-.4 3.8.4 1.1.7 1.8 1.8 2.2 3.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
             </svg>
-          </button>
+          </Boton>
         </div>
       </div>
 
@@ -440,41 +441,8 @@
     padding-top: 32px;
   }
 
-  .acciones button {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 42px;
-    padding: 8px 16px 8px 18px;
-    border: 1.5px solid rgba(255, 246, 239, 0.72);
-    border-radius: 999px;
-    background: transparent;
-    color: var(--ink-title);
-    font-size: 14px;
-    letter-spacing: -0.01em;
-    cursor: pointer;
-  }
-
-  .acciones button svg {
-    width: 18px;
-    height: 18px;
-    flex: none;
-  }
-
-  .acciones button.demas {
-    box-shadow:
-      0 0 0 1px rgba(255, 170, 220, 0.18),
-      0 0 22px rgba(186, 84, 230, 0.42);
-  }
-
-  .acciones button:focus-visible {
-    outline: 1px solid var(--ink-title);
-    outline-offset: 3px;
-  }
-
-  .acciones button:disabled {
-    cursor: progress;
-    opacity: 0.55;
+  .acciones :global(.boton) {
+    max-width: 100%;
   }
 
   .veredicto {

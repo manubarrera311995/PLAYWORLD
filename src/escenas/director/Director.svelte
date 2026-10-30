@@ -58,6 +58,7 @@
     if (r.name === "edicion") {
       parcheRecorrido({ edicionAbierta: r.year, yearHint: r.year });
     }
+    if (r.name === "colectiva") parcheRecorrido({ flujoCompleto: true });
     if (r.name === "archivo" || r.name === "edicion" || r.name === "ipod") {
       void precargarPool();
     }

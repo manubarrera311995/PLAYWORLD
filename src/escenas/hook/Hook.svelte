@@ -30,6 +30,10 @@
 
   const pregunta = $derived(copy.questions[paso]);
   const elegido = $derived(respuestas[paso] || null);
+  const puedeVolver = $derived(Boolean(puerta) || paso > 0);
+  const puedeAvanzar = $derived(
+    !puerta && Boolean(elegido) && (paso < total - 1 || respuestas.every((id) => id)),
+  );
   const caratula = $derived(puerta ? caratulaDe(puerta.year) : null);
   const restos = $derived.by((): Resto[] => {
     const tope = puerta ? total : elegido ? paso + 1 : paso;
@@ -68,14 +72,18 @@
         paso += 1;
         return;
       }
-      const next = resolverPuerta(respuestas, copy.pesos, copy.desempate, copy.revelados);
-      puerta = next;
-      const almasFila = respuestas.flatMap((id, i) => {
-        const alma = copy.questions[i]?.options.find((o) => o.id === id)?.alma;
-        return alma ? [alma as AlmaId] : [];
-      });
-      parcheRecorrido({ yearHint: next.year, almasFila });
+      revelar();
     }, wait);
+  }
+
+  function revelar(): void {
+    const next = resolverPuerta(respuestas, copy.pesos, copy.desempate, copy.revelados);
+    puerta = next;
+    const almasFila = respuestas.flatMap((id, i) => {
+      const alma = copy.questions[i]?.options.find((o) => o.id === id)?.alma;
+      return alma ? [alma as AlmaId] : [];
+    });
+    parcheRecorrido({ yearHint: next.year, almasFila });
   }
 
   function atras(): void {
@@ -85,9 +93,17 @@
       return;
     }
     if (paso <= 0) return;
-    const anterior = paso - 1;
-    for (let i = anterior + 1; i < total; i += 1) respuestas[i] = "";
-    paso = anterior;
+    paso -= 1;
+  }
+
+  function adelante(): void {
+    if (!puedeAvanzar) return;
+    clearTimeout(timer);
+    if (paso < total - 1) {
+      paso += 1;
+      return;
+    }
+    revelar();
   }
 
   function irAlArchivo(): void {
@@ -137,19 +153,22 @@
   <div class="hook__main">
     {#if puerta && caratula}
       <div class="hook__revelado" {@attach entrarRevelado}>
-        <figure class="hook__caratula">
-          <span class="hook__cinta"></span>
-          <img src={caratula.art} alt="" draggable="false" />
-          {#if caratula.label}
-            <figcaption>{caratula.label}</figcaption>
-          {/if}
-        </figure>
+        <div class="hook__marco">
+          <figure class="hook__caratula">
+            <span class="hook__cinta"></span>
+            <img src={caratula.art} alt="" draggable="false" />
+            {#if caratula.label}
+              <figcaption>{caratula.label}</figcaption>
+            {/if}
+          </figure>
+        </div>
         <div class="hook__golpe">
           <Eyebrow texto={copy.revealEyebrow} />
           <h1 class="tipo-anio hook__anio">{puerta.year}</h1>
+        </div>
+        <div class="hook__sigue">
           <p class="tipo-cuerpo">{puerta.linea}</p>
           <Boton onclick={irAlArchivo}>{copy.cta}</Boton>
-          <button class="hook__atras" type="button" onclick={atras}>{copy.atras}</button>
         </div>
       </div>
     {:else if pregunta}
@@ -185,11 +204,32 @@
         {/key}
         <p class="hook__bajada tipo-cuerpo" {@attach entrarBajada}>{copy.bajada}</p>
       </div>
-      {#if paso > 0}
-        <button class="hook__atras" type="button" onclick={atras}>{copy.atras}</button>
-      {/if}
     {/if}
   </div>
+
+  {#if puedeVolver || puedeAvanzar}
+    <nav class="hook__nav" aria-label="Preguntas">
+      {#if puedeVolver}
+        <button class="hook__nav-btn" type="button" onclick={atras}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M14.5 5.5 8 12l6.5 6.5" />
+          </svg>
+          {copy.atras}
+        </button>
+      {/if}
+      {#if puedeVolver && puedeAvanzar}
+        <span class="hook__nav-corte" aria-hidden="true"></span>
+      {/if}
+      {#if puedeAvanzar}
+        <button class="hook__nav-btn" type="button" onclick={adelante}>
+          {copy.adelante}
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9.5 5.5 16 12l-6.5 6.5" />
+          </svg>
+        </button>
+      {/if}
+    </nav>
+  {/if}
 
   {#if restos.length}
     <aside class="hook__bolsa" aria-hidden="true">
@@ -414,6 +454,11 @@
     gap: clamp(20px, 4vh, 36px);
     width: min(100%, 720px);
   }
+  /* El giro de la polaroid se pinta fuera de su caja. El marco reserva ese
+     vuelo para que la esquina no entre en la frase. */
+  .hook__marco {
+    padding: 16px 18px 18px 12px;
+  }
   .hook__caratula {
     position: relative;
     width: clamp(132px, 26vw, 200px);
@@ -438,24 +483,55 @@
     text-transform: uppercase;
     color: #3a2018;
   }
-  .hook__golpe {
+  .hook__golpe,
+  .hook__sigue {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: clamp(16px, 3vh, 28px);
   }
-  .hook__atras {
+  .hook__sigue {
+    max-width: 28ch;
+  }
+  .hook__nav {
+    position: absolute;
+    z-index: 3;
+    left: var(--pad-x);
+    bottom: var(--pad-y);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .hook__nav-corte {
+    width: 1px;
+    height: 16px;
+    background: rgba(255, 246, 239, 0.28);
+  }
+  .hook__nav-btn {
     appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     border: 0;
     background: transparent;
     color: var(--ink-mute);
-    font-size: 11px;
+    font: inherit;
+    font-size: 14px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     cursor: pointer;
-    padding: 0;
+    padding: 12px 10px;
   }
-  .hook__atras:focus-visible {
+  .hook__nav-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .hook__nav-btn:focus-visible {
     outline: 2px solid var(--ink);
     outline-offset: 3px;
   }
@@ -501,8 +577,26 @@
     .hook__recorte:hover:not(.is-off) {
       translate: 0 -6px;
     }
+    .hook__nav-btn:hover {
+      color: var(--ink);
+    }
   }
   @media (max-width: 767px) {
+    .hook__nav {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+    }
+    .hook__nav-corte {
+      display: none;
+    }
+    .hook__nav-btn {
+      padding: 8px 6px;
+    }
+    .hook__bolsa {
+      justify-content: flex-end;
+      left: 42%;
+    }
     .hook__eco:nth-child(3),
     .hook__eco:nth-child(4) {
       display: none;
@@ -519,15 +613,29 @@
   @media (min-width: 768px) {
     .hook__revelado {
       grid-template-columns: auto minmax(0, 1fr);
-      align-items: center;
-      gap: 28px 36px;
+      align-items: end;
+      justify-items: start;
+      column-gap: 28px;
+      row-gap: clamp(18px, 3vh, 28px);
       text-align: left;
+    }
+    .hook__marco {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .hook__golpe {
+      grid-column: 2;
+      grid-row: 1;
+      align-items: flex-start;
+      align-self: end;
+    }
+    .hook__sigue {
+      grid-column: 2;
+      grid-row: 2;
+      align-items: flex-start;
     }
     .hook__caratula {
       rotate: -9deg;
-    }
-    .hook__golpe {
-      align-items: flex-start;
     }
     .hook__manos {
       width: min(100%, 480px);

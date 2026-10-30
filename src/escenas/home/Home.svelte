@@ -81,6 +81,7 @@
     >
       <source src="/assets/home/titulo/playworld.mp4" type="video/mp4" />
     </video>
+    <div class="home__plano-velo" aria-hidden="true"></div>
     <header class="home__top">
       <Marca texto={copy.brand} />
     </header>
@@ -227,6 +228,26 @@
     object-position: center 28%;
     pointer-events: none;
     background: #14081c;
+    filter: brightness(0.88) saturate(0.85);
+  }
+  .home__plano-velo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100dvh;
+    pointer-events: none;
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(8, 2, 16, 0.62) 0%,
+        rgba(10, 3, 20, 0.38) 16%,
+        rgba(14, 4, 24, 0.22) 38%,
+        rgba(14, 4, 24, 0.08) 58%,
+        transparent 76%
+      ),
+      radial-gradient(ellipse 85% 48% at 50% 36%, rgba(8, 2, 16, 0.32), transparent 70%);
   }
   .home__top {
     position: relative;

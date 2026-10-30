@@ -493,9 +493,9 @@
     <footer class="foot">
       <p>{copy.foot}</p>
       <div class="acciones">
-        <Boton href={`/data/archivo/tracks.${year}.json`} download={`playworld-${year}.json`}>{copy.download}</Boton>
-        <Boton onclick={() => navigate("/archivo")}>{copy.back}</Boton>
-        <Boton onclick={() => navigate("/ipod")}>{fill(copy.cta, { year })}</Boton>
+        <a class="texto" href={`/data/archivo/tracks.${year}.json`} download={`playworld-${year}.json`}>{copy.download}</a>
+        <button type="button" class="texto" onclick={() => navigate("/archivo")}>{copy.back}</button>
+        <Boton compacto onclick={() => navigate("/ipod")}>{fill(copy.cta, { year })}</Boton>
       </div>
     </footer>
   </div>
@@ -705,7 +705,35 @@
     color: var(--ink-mute);
     font-size: 11px;
   }
-  .acciones { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+  .acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    justify-content: flex-end;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .texto {
+    appearance: none;
+    border: 0;
+    padding: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: 0;
+    text-transform: none;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.28em;
+    cursor: pointer;
+  }
+  .texto:hover,
+  .texto:focus-visible { color: var(--ink); }
+  .texto:focus-visible {
+    outline: 2px solid #fff8f1;
+    outline-offset: 4px;
+  }
   @media (max-width: 980px) {
     .tablero { grid-template-columns: 1fr; height: auto; }
     .cierre { flex-direction: column; align-items: stretch; }

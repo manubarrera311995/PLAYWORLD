@@ -135,7 +135,7 @@ export function entrarRevelado(root: HTMLElement): Limpieza {
   const gsap = ensureGsap();
   const caratula = nodosDe(root, ".hook__caratula");
   const anio = nodosDe(root, ".hook__anio");
-  const resto = nodosDe(root, ".hook__golpe > :not(.hook__anio)");
+  const resto = nodosDe(root, ".hook__golpe > :not(.hook__anio), .hook__sigue > *");
   const ctx = gsap.context(() => {
     const tl = gsap.timeline();
     if (caratula.length) {

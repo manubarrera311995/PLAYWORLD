@@ -1,5 +1,6 @@
 import { ensureGsap, ScrollTrigger } from "../../motion/gsap";
-import { consumirPregunta, enPregunta } from "./ancla";
+import { cruceSuave } from "../paradas";
+import { consumirPregunta, crucePrimera, enPregunta } from "./ancla";
 import { cruzarUmbral } from "./umbral";
 
 /**
@@ -83,8 +84,12 @@ export function montarPrimera(root: HTMLElement): () => void {
         if (consumirPregunta()) {
           root.querySelector(".home__beat--pregunta")?.scrollIntoView({ block: "center" });
           enPregunta.set(true);
+          crucePrimera.set(1);
         }
-        return () => enPregunta.set(false);
+        return () => {
+          enPregunta.set(false);
+          crucePrimera.set(0);
+        };
       }
       const compacto = Boolean(context.conditions?.isCompacto);
       const pesos = pesosDe(beats);
@@ -136,11 +141,28 @@ export function montarPrimera(root: HTMLElement): () => void {
 
       let tiraFin = PLAY_VIVO;
       let dentro = false;
+      let crucePublicado = -1;
+      let anclar = false;
       const entraPregunta = tramo(0, pesos).entra;
+      const vaAPregunta = consumirPregunta();
+      if (vaAPregunta) {
+        anclar = true;
+        dentro = true;
+        enPregunta.set(true);
+        crucePublicado = 1;
+        crucePrimera.set(1);
+      }
       const marcar = (valor: boolean) => {
         if (valor === dentro) return;
         dentro = valor;
         enPregunta.set(valor);
+      };
+      const publicarCruce = (progress: number) => {
+        if (anclar) return;
+        const valor = Math.round(cruceSuave(progress) * 10000) / 10000;
+        if (valor === crucePublicado) return;
+        crucePublicado = valor;
+        crucePrimera.set(valor);
       };
 
       const tl = gsap.timeline({
@@ -154,6 +176,7 @@ export function montarPrimera(root: HTMLElement): () => void {
           scrub: compacto ? 1.25 : 2.2,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
+            publicarCruce(self.progress);
             marcar(self.progress >= entraPregunta);
             let vivo = indice(self.progress, pesos);
             const cierreI = beats.findIndex((beat) => beat.classList.contains("home__beat--cierre"));
@@ -393,8 +416,9 @@ export function montarPrimera(root: HTMLElement): () => void {
         );
       }
       tl.set({}, {}, 1);
+      publicarCruce(tl.scrollTrigger?.progress ?? 0);
 
-      if (consumirPregunta()) {
+      if (vaAPregunta) {
         const { entra, sale } = tramo(0, pesos);
         const progreso = entra + (sale - entra) * 0.45;
         const colocar = (intento: number) => {
@@ -407,6 +431,7 @@ export function montarPrimera(root: HTMLElement): () => void {
           }
           const y = st.start + largo * progreso;
           const scroller = st.scroller;
+          anclar = false;
           if (scroller instanceof HTMLElement) scroller.scrollTop = y;
           else window.scrollTo(0, y);
           ScrollTrigger.update();
@@ -416,6 +441,7 @@ export function montarPrimera(root: HTMLElement): () => void {
 
       return () => {
         enPregunta.set(false);
+        crucePrimera.set(0);
         soltarUmbral?.();
         tl.scrollTrigger?.kill();
         tl.kill();

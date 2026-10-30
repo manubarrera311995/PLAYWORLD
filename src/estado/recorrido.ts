@@ -9,6 +9,8 @@ export type Recorrido = {
   alma: { principal: AlmaId; eco: AlmaId; puntajes: Record<AlmaId, number> } | null;
   almasFila: AlmaId[] | null;
   rastroPropio: Rastro | null;
+  /** Llegó a la cartografía: el recorrido ya se puede recorrer en cualquier orden. */
+  flujoCompleto: boolean;
 };
 
 const KEY = "playworld.recorrido";
@@ -20,6 +22,7 @@ const vacio = (): Recorrido => ({
   alma: null,
   almasFila: null,
   rastroPropio: null,
+  flujoCompleto: false,
 });
 
 function leer(): Recorrido {

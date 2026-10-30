@@ -302,23 +302,6 @@
 
   .archivo__acciones :global(.boton) {
     pointer-events: auto;
-    background: transparent;
-    border-color: rgba(255, 246, 239, 0.72);
-    color: var(--ink-title);
-    padding: 11px 28px;
-    letter-spacing: 0.22em;
-  }
-
-  .archivo__acciones :global(.boton:hover) {
-    background: rgba(255, 246, 239, 0.08);
-  }
-
-  .tiene-collage .archivo__acciones :global(.boton) {
-    background: rgba(10, 4, 14, 0.82);
-  }
-
-  .tiene-collage .archivo__acciones :global(.boton:hover) {
-    background: rgba(10, 4, 14, 0.94);
   }
 
   .tiene-collage .archivo__top,

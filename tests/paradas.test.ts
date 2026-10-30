@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { anioDeParadas, vistaParadas } from "../src/escenas/paradas";
+import { anioDeParadas, avanceDibujado, cruceSuave, velosCruce, vistaParadas } from "../src/escenas/paradas";
 import type { RutaParsed } from "../src/escenas/director/router";
 
 const nombres = (escena: RutaParsed["name"], anio: number | null, tieneAlma = false) =>
@@ -89,6 +89,61 @@ describe("vistaParadas", () => {
     const vista = vistaParadas("edicion", 2014, true);
     expect(vista.items.find((item) => item.id === "mapa")?.estado).toBe("futura");
     expect(vista.items.find((item) => item.id === "alma")?.href).toBeNull();
+  });
+
+  it("con el flujo completo se puede saltar a cualquier sección", () => {
+    const vista = vistaParadas("hook", 2014, true, false, true);
+    expect(vista.items.find((item) => item.id === "fila")).toMatchObject({ estado: "actual", href: null });
+    expect(vista.items.find((item) => item.id === "home")?.href).toBe("/");
+    expect(vista.items.find((item) => item.id === "anio")?.href).toBe("/archivo?y=2014");
+    expect(vista.items.find((item) => item.id === "cartel")?.href).toBe("/edicion/2014");
+    expect(vista.items.find((item) => item.id === "ipod")?.href).toBe("/ipod");
+    expect(vista.items.find((item) => item.id === "alma")?.href).toBe("/creacion");
+    expect(vista.items.find((item) => item.id === "mapa")?.href).toBe("/colectiva");
+    expect(vista.avance).toBeCloseTo(2 / 7);
+  });
+
+  it("con el flujo completo el alma y el cartel siguen cerrados si no hay con qué abrirlos", () => {
+    const vista = vistaParadas("home", null, false, false, true);
+    expect(vista.items.find((item) => item.id === "alma")?.href).toBeNull();
+    expect(vista.items.find((item) => item.id === "cartel")?.href).toBeNull();
+    expect(vista.items.find((item) => item.id === "fila")?.href).toBe("/hook");
+    expect(vista.items.find((item) => item.id === "mapa")?.href).toBe("/colectiva");
+  });
+});
+
+describe("cruce de Home a Mi primera vez", () => {
+  it("empieza en el título y termina al asentarse la pregunta", () => {
+    expect(cruceSuave(0)).toBe(0);
+    expect(cruceSuave(0.05)).toBe(0);
+    expect(cruceSuave(0.19)).toBe(1);
+    expect(cruceSuave(1)).toBe(1);
+    expect(cruceSuave(0.12)).toBeGreaterThan(0.4);
+    expect(cruceSuave(0.12)).toBeLessThan(0.6);
+  });
+
+  it("el nombre sale y el siguiente entra en un fundido largo", () => {
+    expect(velosCruce(0)).toEqual({ sale: 1, entra: 0 });
+    expect(velosCruce(0.08)).toEqual({ sale: 1, entra: 0 });
+    const yendo = velosCruce(0.3);
+    expect(yendo.entra).toBe(0);
+    expect(yendo.sale).toBeGreaterThan(0.4);
+    expect(yendo.sale).toBeLessThan(0.7);
+    const medio = velosCruce(0.5);
+    expect(medio.sale).toBeLessThan(0.08);
+    expect(medio.entra).toBeLessThan(0.08);
+    const viniendo = velosCruce(0.7);
+    expect(viniendo.sale).toBe(0);
+    expect(viniendo.entra).toBeGreaterThan(0.4);
+    expect(velosCruce(0.92)).toEqual({ sale: 0, entra: 1 });
+    expect(velosCruce(1)).toEqual({ sale: 0, entra: 1 });
+  });
+
+  it("en el home la barra sigue el cruce y fuera de él respeta el paso", () => {
+    expect(avanceDibujado("home", 0, 0)).toBe(0);
+    expect(avanceDibujado("home", 1 / 7, 0.5)).toBeCloseTo(0.5 / 7);
+    expect(avanceDibujado("home", 1 / 7, 1)).toBeCloseTo(1 / 7);
+    expect(avanceDibujado("hook", 2 / 7, 0)).toBeCloseTo(2 / 7);
   });
 });
 

@@ -1,10 +1,12 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { get } from "svelte/store";
   import { recorrido } from "../estado/recorrido";
   import { navigate, type RutaParsed } from "./director/router";
-  import { anioDeParadas, vistaParadas, type ItemParada } from "./paradas";
-  import { enPregunta, pedirPregunta } from "./home/ancla";
+  import { fly, fade } from "svelte/transition";
+  import { cubicInOut } from "svelte/easing";
+  import { anioDeParadas, avanceDibujado, PARADAS, velosCruce, vistaParadas, type ItemParada } from "./paradas";
+  import { crucePrimera, enPregunta, pedirPregunta } from "./home/ancla";
   import { ensureGsap } from "../motion/gsap";
   import { reduce } from "../motion/reducedMotion";
 
@@ -17,17 +19,29 @@
   const rec = $derived($recorrido);
   const escena = $derived(ruta.name);
   const vista = $derived(
-    vistaParadas(escena, anioDeParadas(ruta, rec), rec.alma != null, escena === "home" && $enPregunta),
+    vistaParadas(
+      escena,
+      anioDeParadas(ruta, rec),
+      rec.alma != null,
+      escena === "home" && $enPregunta,
+      rec.flujoCompleto,
+    ),
   );
-  const ancho = $derived(`${Math.round(vista.avance * 1000) / 10}%`);
+  const cruce = $derived(escena === "home" ? $crucePrimera : 0);
+  const velos = $derived(escena === "home" ? velosCruce(cruce) : { sale: 0, entra: 1 });
+  const avanceDibujo = $derived(avanceDibujado(escena, vista.avance, cruce));
   const crema = $derived(`${Math.round(vista.avance * 1000) / 10}%`);
   const actualNombre = $derived(vista.items.find((item) => item.estado === "actual")?.nombre ?? "");
+  const nombreHome = PARADAS[0].nombre;
+  const nombrePrimera = PARADAS[1].nombre;
+  const quieto = $derived($reduce);
 
   let quiereAbrir = $state(false);
   let presente = $state(false);
 
   let raiz = $state<HTMLElement | undefined>();
   let pistaEl = $state<HTMLElement | undefined>();
+  let rellenoEl = $state<HTMLElement | undefined>();
   let puntaEl = $state<HTMLElement | undefined>();
   let gozneEl = $state<HTMLButtonElement | undefined>();
   let veloEl = $state<HTMLButtonElement | undefined>();
@@ -39,23 +53,61 @@
   let pendiente: string | null = null;
   let contexto: Contexto | null = null;
   let firmaEscena = "";
+  let cierre = 0;
+  let tweenRelleno: { kill: () => void } | null = null;
+  let tweenPunta: { kill: () => void } | null = null;
+  let escenaPrevia = "";
+  let presentada = false;
+
+  function entradaEtiqueta(): { y: number; duration: number; opacity?: number } {
+    if (!presentada || quieto) return { y: 0, duration: 0, opacity: 1 };
+    return { y: 6, duration: 720, opacity: 0, easing: cubicInOut };
+  }
+
+  function salidaEtiqueta(): { y: number; duration: number; easing?: (t: number) => number } {
+    if (quieto) return { y: 0, duration: 0 };
+    return { y: -6, duration: 640, easing: cubicInOut };
+  }
+
+  function salidaPila(): { duration: number } {
+    return { duration: quieto ? 0 : 640 };
+  }
 
   function papel(item: ItemParada): "actual" | "arriba" | "abajo" {
     if (item.estado === "actual") return "actual";
     return item.estado === "pasada" ? "arriba" : "abajo";
   }
 
-  function colocarPunta(): void {
+  function cortarMarca(): void {
+    tweenRelleno?.kill();
+    tweenPunta?.kill();
+    tweenRelleno = null;
+    tweenPunta = null;
+  }
+
+  function colocarPunta(animar = false): void {
     const pista = pistaEl;
     const gozne = gozneEl;
     const punta = puntaEl;
-    if (!pista || !gozne || !punta) return;
+    const relleno = rellenoEl;
+    if (!pista || !gozne || !punta || !relleno) return;
     if (tl && tl.progress() > 0) return;
     const caja = pista.getBoundingClientRect();
     const gozneCaja = gozne.getBoundingClientRect();
-    const tip = vista.avance * caja.width;
+    const tip = avanceDibujo * caja.width;
     const max = gozneCaja.left - caja.left - punta.offsetWidth - 12;
-    punta.style.left = `${Math.max(8, Math.min(tip, max))}px`;
+    const left = Math.max(8, Math.min(tip, max));
+    const width = `${Math.round(avanceDibujo * 1000) / 10}%`;
+    if (!animar || quieto) {
+      cortarMarca();
+      relleno.style.width = width;
+      punta.style.left = `${left}px`;
+      return;
+    }
+    const gsap = ensureGsap();
+    cortarMarca();
+    tweenRelleno = gsap.to(relleno, { width, duration: 0.85, ease: "power1.inOut" });
+    tweenPunta = gsap.to(punta, { left, duration: 0.85, ease: "power1.inOut" });
   }
 
   function tinta(el: HTMLElement): DOMRect {
@@ -68,9 +120,10 @@
   function vuelo(): { x: number; y: number; scale: number } {
     const punta = puntaEl;
     const destino = listaEl?.querySelector<HTMLElement>("[data-papel='actual'] .nombre");
-    if (!punta || !destino) return { x: 0, y: 0, scale: 1 };
+    const origen = punta?.querySelector<HTMLElement>(".is-viva") ?? punta;
+    if (!punta || !origen || !destino) return { x: 0, y: 0, scale: 1 };
     const base = punta.getBoundingClientRect();
-    const desde = tinta(punta);
+    const desde = tinta(origen);
     const hasta = tinta(destino);
     const desdeSize = parseFloat(getComputedStyle(punta).fontSize) || desde.height || 1;
     const hastaSize = parseFloat(getComputedStyle(destino).fontSize) || hasta.height || 1;
@@ -95,25 +148,42 @@
     if (!els.length) return;
     gsap.killTweensOf(els);
     for (const el of els) el.style.transform = "none";
-    gsap.set(els, { y: 0, yPercent, overwrite: "auto" });
+    // autoAlpha 0 es el reposo. Si el tween suelta el nodo antes de
+    // terminar la reversa, el nombre sigue en este estado y no reaparece.
+    gsap.set(els, { y: 0, yPercent, autoAlpha: 0, overwrite: "auto" });
   }
 
-  function soltar(): void {
-    presente = false;
-    const href = pendiente;
-    pendiente = null;
-    // Al terminar la reversa el playhead está en 0. timeScale(1) sin pausa
-    // lo vuelve a colgar del ticker y la apertura se reproduce sola.
-    tl?.pause();
+  function limpiarPiezas(): void {
     // autoAlpha deja opacity y visibility en línea. Si se quedan, tapan el
-    // visibility:hidden del CSS y los nombres siguen pintados al cerrar.
+    // visibility:hidden del CSS y los nombres siguen pintados, recortados
+    // por la máscara, al cerrar o al cambiar de vista.
     const gsap = ensureGsap();
     const viajes = listaEl ? [...listaEl.querySelectorAll<HTMLElement>(".viaje")] : [];
     if (viajes.length) gsap.set(viajes, { clearProps: "opacity,visibility,transform" });
     if (puntaEl) gsap.set(puntaEl, { clearProps: "opacity,visibility,transform" });
     if (reglaEl) gsap.set(reglaEl, { clearProps: "transform" });
     colocarPunta();
-    if (href) navigate(href);
+  }
+
+  function soltar(): void {
+    presente = false;
+    const href = pendiente;
+    pendiente = null;
+    const linea = tl;
+    // Al terminar la reversa el playhead está en 0. timeScale(1) sin pausa
+    // lo vuelve a colgar del ticker y la apertura se reproduce sola.
+    linea?.pause();
+    const gsap = ensureGsap();
+    const viajes = listaEl ? [...listaEl.querySelectorAll<HTMLElement>(".viaje")] : [];
+    if (viajes.length) gsap.set(viajes, { autoAlpha: 0 });
+    const gen = ++cierre;
+    // clearProps en el mismo turno de la clase is-presente los pinta un
+    // frame: el CSS aún los muestra y el inline ya no los esconde.
+    void tick().then(() => {
+      if (gen !== cierre || !raiz?.isConnected) return;
+      limpiarPiezas();
+      if (href) navigate(href);
+    });
   }
 
   function crearTimeline(): Linea {
@@ -164,10 +234,16 @@
       colocarPunta();
       const destino = vuelo();
 
-      linea.to(velo, { opacity: 1, duration: 0.45, ease: "power2.out" }, 0);
+      linea.to(velo, { opacity: 1, duration: 0.45, ease: "power2.out", easeReverse: "power2.out" }, 0);
       linea.to(
         regla,
-        { scaleY: 1, duration: 0.4, ease: "power4.out", transformOrigin: "top center" },
+        {
+          scaleY: 1,
+          duration: 0.4,
+          ease: "power4.out",
+          easeReverse: "power3.out",
+          transformOrigin: "top center",
+        },
         0.08,
       );
       linea.to(
@@ -186,37 +262,20 @@
       if (actual) linea.to(actual, { autoAlpha: 1, duration: 0.2, ease: "power1.inOut" }, 0.82);
 
       const paso = 0.02;
+      // .to() y no fromTo: al pasar el inicio en la reversa, fromTo devuelve
+      // el nodo al CSS visible y el nombre queda colgado hasta que el timeline termina.
+      const salida = {
+        yPercent: 0,
+        autoAlpha: 1,
+        duration: 0.8,
+        ease: "power3.out",
+        easeReverse: "power2.out",
+      };
       if (arriba.length) {
-        linea.fromTo(
-          arriba,
-          { yPercent: 48, autoAlpha: 0 },
-          {
-            yPercent: 0,
-            autoAlpha: 1,
-            duration: 0.8,
-            ease: "power3.out",
-            stagger: { each: paso, from: "end" },
-            immediateRender: false,
-            overwrite: "auto",
-          },
-          0.2,
-        );
+        linea.to(arriba, { ...salida, stagger: { each: paso, from: "end" } }, 0.2);
       }
       if (abajo.length) {
-        linea.fromTo(
-          abajo,
-          { yPercent: -48, autoAlpha: 0 },
-          {
-            yPercent: 0,
-            autoAlpha: 1,
-            duration: 0.8,
-            ease: "power3.out",
-            stagger: { each: paso, from: "start" },
-            immediateRender: false,
-            overwrite: "auto",
-          },
-          arriba.length ? 0.24 : 0.2,
-        );
+        linea.to(abajo, { ...salida, stagger: { each: paso, from: "start" } }, arriba.length ? 0.24 : 0.2);
       }
     };
 
@@ -235,6 +294,7 @@
   }
 
   function abrir(): void {
+    cierre += 1;
     pendiente = null;
     const linea = asegurar();
     if (!linea) return;
@@ -266,32 +326,47 @@
     if (!quiereAbrir) return;
     if (href === "/#pregunta") {
       pedirPregunta();
-      cerrar("/", 1.3);
+      cerrar("/");
       return;
     }
-    cerrar(href, 1.3);
+    cerrar(href);
   }
 
   $effect(() => {
     const firma = `${escena}:${vista.avance}:${actualNombre}`;
     if (firmaEscena && firmaEscena !== firma && (quiereAbrir || presente)) {
-      tl?.progress(0, true).kill();
+      // progress(0) volvería a pintar el corte de la máscara. Se mata el
+      // timeline y se sueltan los estilos en línea para que la vista nueva
+      // no herede nombres a medio entrar.
+      pendiente = null;
+      tl?.kill();
       tl = null;
       quiereAbrir = false;
       presente = false;
-      pendiente = null;
+      limpiarPiezas();
     }
     firmaEscena = firma;
   });
 
   $effect(() => {
-    void vista.avance;
+    const ahora = escena;
+    const mismoHome = ahora === "home" && escenaPrevia === "home";
+    void avanceDibujo;
     void actualNombre;
-    if (!pistaEl || !gozneEl || !puntaEl) return;
-    colocarPunta();
-    const observar = new ResizeObserver(() => colocarPunta());
-    observar.observe(pistaEl);
-    void document.fonts?.ready.then(() => colocarPunta());
+    void cruce;
+    void quieto;
+    if (!pistaEl || !gozneEl || !puntaEl || !rellenoEl) return;
+    colocarPunta(presentada && !mismoHome);
+    presentada = true;
+    escenaPrevia = ahora;
+  });
+
+  $effect(() => {
+    const pista = pistaEl;
+    if (!pista) return;
+    const observar = new ResizeObserver(() => colocarPunta(false));
+    observar.observe(pista);
+    void document.fonts?.ready.then(() => colocarPunta(false));
     return () => observar.disconnect();
   });
 
@@ -317,6 +392,7 @@
       contexto?.revert();
       contexto = null;
       tl = null;
+      cortarMarca();
     };
   });
 </script>
@@ -332,10 +408,31 @@
   ></button>
 
   <div class="pista" bind:this={pistaEl} aria-hidden="true">
-    <i style:width={ancho}></i>
+    <i bind:this={rellenoEl}></i>
   </div>
 
-  <span class="punta" bind:this={puntaEl} aria-hidden={presente}>{actualNombre}</span>
+  <span class="punta" bind:this={puntaEl} aria-hidden={presente}>
+    <span class="punta__mascara">
+      {#if escena === "home"}
+        <span class="punta__pila" out:fade={salidaPila()}>
+          <span
+            class={["punta__velo", velos.sale >= velos.entra && "is-viva"]}
+            style:opacity={velos.sale.toFixed(3)}
+            aria-hidden={velos.sale < 0.5}
+          >{nombreHome}</span>
+          <span
+            class={["punta__velo", velos.entra > velos.sale && "is-viva"]}
+            style:opacity={velos.entra.toFixed(3)}
+            aria-hidden={velos.entra < 0.5}
+          >{nombrePrimera}</span>
+        </span>
+      {:else}
+        {#key actualNombre}
+          <span class="punta__velo is-viva" in:fly={entradaEtiqueta()} out:fly={salidaEtiqueta()}>{actualNombre}</span>
+        {/key}
+      {/if}
+    </span>
+  </span>
 
   <button
     type="button"
@@ -430,6 +527,7 @@
 
   .pista i {
     display: block;
+    width: 0;
     height: 100%;
     background: var(--ink-title);
   }
@@ -449,6 +547,16 @@
     white-space: nowrap;
     color: var(--ink-title);
     will-change: transform;
+  }
+
+  .punta__mascara,
+  .punta__pila {
+    display: grid;
+  }
+
+  .punta__velo {
+    grid-area: 1 / 1;
+    white-space: nowrap;
   }
 
   .gozne {
@@ -474,30 +582,29 @@
   .gozne__marca {
     display: block;
     transform-origin: center;
-    animation: palpite 1.7s var(--ease-soft) infinite;
+    animation: respirar 4.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
   }
 
   .gozne__marca svg {
     display: block;
   }
 
-  @keyframes palpite {
+  @keyframes respirar {
     0%,
-    58%,
-    100% {
-      transform: scale(1);
-    }
-
-    14% {
-      transform: scale(1.16);
-    }
-
-    28% {
+    10% {
       transform: scale(1);
     }
 
     42% {
-      transform: scale(1.08);
+      transform: scale(1.09);
+    }
+
+    52% {
+      transform: scale(1.09);
+    }
+
+    100% {
+      transform: scale(1);
     }
   }
 
@@ -551,11 +658,13 @@
   .viaje[data-papel="arriba"],
   .viaje[data-papel="abajo"] {
     visibility: hidden;
+    opacity: 0;
   }
 
   .marco.is-presente .viaje[data-papel="arriba"],
   .marco.is-presente .viaje[data-papel="abajo"] {
     visibility: visible;
+    opacity: 1;
   }
 
   .viaje[data-papel="actual"] {
@@ -580,6 +689,12 @@
   }
 
   button.nombre {
+    /* El botón encoge al texto. Sin empujarlo al final, el nombre queda
+       al inicio de la fila y la entrada se ve cortada respecto a la regla. */
+    width: max-content;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: 0;
     transition: transform 0.2s var(--ease-out);
   }
 

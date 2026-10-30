@@ -61,6 +61,8 @@ export function montarOrbita(root: HTMLElement): () => void {
   const orbita = root.querySelector<HTMLElement>(".home__orbita");
   const copyEl = root.querySelector<HTMLElement>(".home__copy");
   const plano = root.querySelector<HTMLElement>(".home__plano");
+  const veloPlano = root.querySelector<HTMLElement>(".home__plano-velo");
+  const cielo = [plano, veloPlano].filter((nodo): nodo is HTMLElement => nodo !== null);
   const fragmentos = root.querySelector<HTMLElement>(".home__fragmentos");
   const play = root.querySelector<HTMLElement>(".home__play");
   const destello = root.querySelector<HTMLElement>(".home__play-destello");
@@ -238,7 +240,7 @@ export function montarOrbita(root: HTMLElement): () => void {
       });
       gsap.set(orbita, { rotation: 0 });
       gsap.set(copyEl, { autoAlpha: 1, scale: 1, y: 0 });
-      if (plano) gsap.set(plano, { autoAlpha: 1 });
+      if (cielo.length) gsap.set(cielo, { autoAlpha: 1 });
       if (fragmentos) gsap.set(fragmentos, { autoAlpha: 1 });
       gsap.set(play, { autoAlpha: 0, scale: 0.42, rotation: 0, y: 0, x: 0 });
       if (cue) gsap.set(cue, { autoAlpha: 1 });
@@ -268,7 +270,7 @@ export function montarOrbita(root: HTMLElement): () => void {
       });
 
       if (cue) tl.to(cue, { autoAlpha: 0, duration: 0.1, ease: "power1.out" }, 0.04);
-      if (plano) tl.to(plano, { autoAlpha: 0, duration: 0.34, ease: "power2.inOut" }, 0.04);
+      if (cielo.length) tl.to(cielo, { autoAlpha: 0, duration: 0.34, ease: "power2.inOut" }, 0.04);
 
       tl.to(
         copyEl,
