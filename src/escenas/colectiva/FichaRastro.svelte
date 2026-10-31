@@ -1,10 +1,22 @@
 <script lang="ts">
   import type { Rastro } from "../../rastros/tipos";
-  import { almas } from "../../almas/almas";
+  import { almas, type AlmaId } from "../../almas/almas";
   import { tracksPorIds } from "../../datos/archivo";
   import type { Track } from "../../datos/tipos";
   import copy from "./colectiva.copy.json";
+  import cartas from "../creacion/carta.copy.json";
   import { viewport } from "../../estado/viewport";
+
+  type Cara = {
+    fondo: string;
+    tinta: string;
+    pastilla: string;
+    caja: string;
+    borde: string;
+    lineas: string[];
+    rasgos: string[];
+    lema: string;
+  };
 
   type Props = {
     rastro: Rastro;
@@ -16,17 +28,15 @@
   let tracks = $state<Track[]>([]);
 
   const alma = $derived(almas[rastro.almaId]);
-  const tinta = $derived.by(() => {
-    const luz = (hex: string) => {
-      const n = hex.replace("#", "");
-      return (
-        0.2126 * Number.parseInt(n.slice(0, 2), 16) +
-        0.7152 * Number.parseInt(n.slice(2, 4), 16) +
-        0.0722 * Number.parseInt(n.slice(4, 6), 16)
-      );
-    };
-    return luz(alma.paleta.c1) >= luz(alma.paleta.c2) ? alma.paleta.c1 : alma.paleta.c2;
-  });
+  const cara = $derived((cartas as Record<AlmaId, Cara>)[rastro.almaId]);
+  const quien = $derived(propio ? copy.tu : rastro.alias ?? copy.alguien);
+
+  const estrellas = [
+    { x: 72, y: 4, n: 4.6, g: -8 },
+    { x: 4, y: 16, n: 3.2, g: 14 },
+    { x: 84, y: 28, n: 3.8, g: 18 },
+    { x: 8, y: 42, n: 2.6, g: -16 },
+  ];
 
   $effect(() => {
     const ids = rastro.trackIds;
@@ -36,121 +46,284 @@
       tracks = lista;
     });
   });
+
+  function indice(i: number): string {
+    return String(i + 1).padStart(2, "0");
+  }
 </script>
 
+{#snippet estrella(x: number, y: number, n: number, g: number)}
+  <svg
+    class="estrella"
+    style:left="{x}%"
+    style:top="{y}%"
+    style:width="{n}%"
+    style:transform="rotate({g}deg)"
+    viewBox="-12 -12 24 24"
+    aria-hidden="true"
+  >
+    <g fill="currentColor">
+      <rect x="-1.7" y="-10.5" width="3.4" height="21" rx="1.7" />
+      <rect x="-1.7" y="-10.5" width="3.4" height="21" rx="1.7" transform="rotate(60)" />
+      <rect x="-1.7" y="-10.5" width="3.4" height="21" rx="1.7" transform="rotate(120)" />
+    </g>
+  </svg>
+{/snippet}
+
 <aside
-  class={["ficha", "vidrio", vp.modo === "compacto" ? "is-sheet" : "is-side"]}
-  style:--alma={tinta}
+  class={["ficha", vp.modo === "compacto" ? "is-sheet" : "is-side"]}
+  style:--fondo={cara.fondo}
+  style:--tinta={cara.tinta}
+  style:--pastilla={cara.pastilla}
+  style:--caja={cara.caja}
+  style:--borde={cara.borde}
 >
-  <button type="button" class="x" onclick={oncerrar} aria-label="Cerrar">×</button>
-  <p class="quien eyebrow">{propio ? copy.tu : rastro.alias ?? copy.alguien}</p>
-  <h2 class="tipo-seccion">{alma.nombre}</h2>
-  <p class="frase">{alma.frase}</p>
-  {#if tracks.length}
-    <p class="se-llevo">{copy.seLlevo}</p>
-    <ol>
-      {#each tracks as t, i (t.id)}
-        <li>
-          <span class="num">0{i + 1}</span>
-          <span>
-            <span class="artista">{t.artist}</span>
-            <span class="titulo">{t.track}</span>
-          </span>
-        </li>
+  <div class="cara">
+    {#each estrellas as s, i (i)}
+      {@render estrella(s.x, s.y, s.n, s.g)}
+    {/each}
+    <div class="tope">
+      <p class="ceja">{quien}</p>
+      <button type="button" class="x" onclick={oncerrar} aria-label="Cerrar">×</button>
+    </div>
+    <div class="dibujo">
+      <img src="/assets/almas/{alma.id}.png" alt="" />
+    </div>
+    <h2 class="nombre">
+      {#each cara.lineas as linea (linea)}
+        <span>{linea}</span>
       {/each}
-    </ol>
-  {/if}
+    </h2>
+    <span class="regla" aria-hidden="true"></span>
+    <p class="rasgos">{cara.rasgos.join("  ·  ")}</p>
+    <p class="pastilla">* {cara.lema} *</p>
+    {#if tracks.length}
+      <div class="datos">
+        <p class="datos-ceja">{copy.seLlevo}</p>
+        <ol>
+          {#each tracks as t, i (t.id)}
+            <li>
+              <span class="num">{indice(i)}</span>
+              <span>
+                <span class="artista">{t.artist}</span>
+                <span class="titulo">{t.track}</span>
+              </span>
+            </li>
+          {/each}
+        </ol>
+      </div>
+    {/if}
+  </div>
 </aside>
 
 <style>
   .ficha {
     z-index: 4;
-    color: var(--ink);
-    padding: 22px 22px 18px 26px;
+    overflow: auto;
+    color: var(--tinta);
+    border: 1.5px solid var(--borde);
+    background: var(--fondo);
+    box-shadow: 0 18px 40px rgba(20, 0, 40, 0.28);
     container-type: inline-size;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--tinta) 40%, transparent) transparent;
   }
-  .ficha::before {
-    content: "";
+
+  .cara {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 7% 7% 6%;
+  }
+
+  .cara > :not(.estrella, .tope) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .estrella {
     position: absolute;
-    left: 10px;
-    top: 22px;
-    bottom: 22px;
-    width: 2px;
-    border-radius: 2px;
-    background: var(--alma, #fff6ef);
-    z-index: 3;
+    z-index: 0;
+    height: auto;
+    color: var(--tinta);
+    opacity: 0.42;
+    pointer-events: none;
   }
-  .ficha > * { position: relative; z-index: 3; }
+
   .is-side {
     position: absolute;
     right: var(--pad-x);
     top: 50%;
-    width: min(320px, 34vw);
-    max-height: min(640px, calc(100% - 220px));
+    width: min(340px, 34vw);
+    max-height: min(680px, calc(100% - 160px));
+    border-radius: 5.6cqw;
     transform: translateY(-50%);
-    overflow: auto;
   }
+
   .is-sheet {
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    max-height: 62dvh;
-    border-radius: 18px 18px 0 0;
-    overflow: auto;
-    background: linear-gradient(180deg, rgba(62, 24, 58, 0.9), rgba(32, 12, 36, 0.94));
-    backdrop-filter: blur(18px) saturate(1.2);
-    -webkit-backdrop-filter: blur(18px) saturate(1.2);
-  }
-  .x {
-    position: absolute;
-    z-index: 4;
+    left: 12px;
     right: 12px;
-    top: 12px;
+    bottom: 12px;
+    max-height: min(72dvh, 640px);
+    border-radius: 22px;
+  }
+
+  .tope {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin: -7% -7% 0;
+    padding: 5% 4% 2% 7%;
+    background: var(--fondo);
+  }
+
+  .x {
+    flex: 0 0 auto;
     width: 28px;
     height: 28px;
+    margin-top: -4px;
     border: 0;
-    border-radius: 999px;
     background: transparent;
-    color: var(--ink-mute);
-    font-size: 20px;
+    color: var(--tinta);
+    font-size: 22px;
     line-height: 1;
     cursor: pointer;
   }
-  h2 {
-    margin: 8px 0 10px;
-    max-width: 100%;
-    font-size: clamp(28px, 14cqi, 40px);
+
+  .x:focus-visible {
+    outline: 2px solid var(--tinta);
+    outline-offset: 2px;
+    border-radius: 999px;
   }
-  .frase {
-    max-width: 28ch;
-    font-size: 14px;
-    line-height: 1.4;
-    color: var(--ink-soft);
-  }
-  .se-llevo {
-    margin: 18px 0 0;
-    font-size: 10px;
+
+  .ceja,
+  .datos-ceja,
+  .rasgos {
     font-weight: 500;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--ink-mute);
   }
-  ol { list-style: none; }
+
+  .ceja,
+  .datos-ceja {
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .ceja {
+    max-width: 16ch;
+    padding-top: 4px;
+    font-size: clamp(11px, 2.7cqw, 13px);
+    line-height: 1.35;
+    text-indent: 0.16em;
+  }
+
+  .dibujo {
+    width: 46%;
+    margin: 3% 0 1%;
+  }
+
+  .dibujo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 148px;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .nombre span {
+    display: block;
+    font-family: Outfit, sans-serif;
+    font-weight: 800;
+    font-size: clamp(32px, 11.2cqw, 46px);
+    line-height: 0.88;
+    letter-spacing: -0.045em;
+  }
+
+  .regla {
+    display: block;
+    height: 1px;
+    margin: 4.2% 0 3%;
+    background: currentColor;
+    opacity: 0.55;
+  }
+
+  .rasgos {
+    font-size: clamp(13px, 3cqw, 15px);
+    letter-spacing: -0.01em;
+  }
+
+  .pastilla {
+    align-self: flex-start;
+    margin-top: 4.5%;
+    padding: 0.62em 1.05em 0.58em;
+    border-radius: 999px;
+    background: var(--pastilla);
+    color: #fff;
+    font-family: Outfit, sans-serif;
+    font-size: clamp(11px, 2.7cqw, 13px);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .datos {
+    margin-top: 6%;
+    padding: 4.5% 5% 2%;
+    border-radius: 4.4cqw;
+    background: var(--caja);
+    color: #fff;
+  }
+
+  .datos-ceja {
+    margin-bottom: 0.4em;
+    font-size: clamp(10px, 2.15cqw, 12px);
+    opacity: 0.72;
+  }
+
+  ol {
+    list-style: none;
+  }
+
   li {
     display: grid;
-    grid-template-columns: 22px 1fr;
-    column-gap: 8px;
-    padding: 8px 0 7px;
-    border-top: 1px solid rgba(255, 246, 239, 0.14);
+    grid-template-columns: 1.7em 1fr;
+    column-gap: 0.4em;
+    padding: 0.55em 0 0.45em;
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
   }
+
   .num {
-    padding-top: 3px;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    color: rgba(255, 246, 239, 0.55);
+    padding-top: 0.28em;
+    font-size: clamp(10px, 2.15cqw, 12px);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    opacity: 0.72;
   }
-  .artista, .titulo { display: block; }
-  .artista { font-size: 11px; color: var(--ink-mute); }
-  .titulo { font-size: 14px; font-weight: 500; letter-spacing: -0.01em; }
+
+  .artista,
+  .titulo {
+    display: block;
+  }
+
+  .artista {
+    font-size: clamp(11px, 2.5cqw, 13px);
+    font-weight: 500;
+    opacity: 0.72;
+  }
+
+  .titulo {
+    margin-top: 0.08em;
+    font-family: Outfit, sans-serif;
+    font-weight: 700;
+    font-size: clamp(14px, 3.35cqw, 16px);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+  }
 </style>

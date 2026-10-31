@@ -10,14 +10,33 @@ export const enPregunta = writable(false);
 export const crucePrimera = writable(0);
 
 let pedido = false;
+let saltar: (() => void) | null = null;
 
-/** La próxima vez que monte el home, el scroll cae en la pregunta. */
-export function pedirPregunta(): void {
+/**
+ * Lleva el home a «Mi primera vez».
+ * Si el home ya está en pantalla, salta y devuelve true.
+ * Si no, queda pedido para el próximo montaje y devuelve false.
+ */
+export function pedirPregunta(): boolean {
+  if (saltar) {
+    pedido = false;
+    saltar();
+    return true;
+  }
   pedido = true;
+  return false;
 }
 
 export function consumirPregunta(): boolean {
   const va = pedido;
   pedido = false;
   return va;
+}
+
+/** El home vivo registra cómo caer en la pregunta sin volver a montarse. */
+export function registrarSalto(fn: () => void): () => void {
+  saltar = fn;
+  return () => {
+    if (saltar === fn) saltar = null;
+  };
 }

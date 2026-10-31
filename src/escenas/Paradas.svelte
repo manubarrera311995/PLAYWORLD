@@ -182,7 +182,14 @@
     void tick().then(() => {
       if (gen !== cierre || !raiz?.isConnected) return;
       limpiarPiezas();
-      if (href) navigate(href);
+      if (!href) return;
+      // «Mi primera vez» vive en el scroll del home. Si esa escena ya
+      // está montada, el salto ocurre ahí: navegar a «/» no la remonta.
+      if (href === "/#pregunta") {
+        if (!pedirPregunta()) navigate("/");
+        return;
+      }
+      navigate(href);
     });
   }
 
@@ -324,11 +331,6 @@
 
   function elegir(href: string): void {
     if (!quiereAbrir) return;
-    if (href === "/#pregunta") {
-      pedirPregunta();
-      cerrar("/");
-      return;
-    }
     cerrar(href);
   }
 
@@ -397,7 +399,7 @@
   });
 </script>
 
-<div class={["marco", presente && "is-presente"]} bind:this={raiz}>
+<div class={["marco", presente && "is-presente", quiereAbrir && "is-abierto"]} bind:this={raiz}>
   <button
     type="button"
     class="velo"
@@ -744,14 +746,22 @@
     color: var(--ink-title);
     opacity: 0;
     pointer-events: none;
+    /* is-presente sigue hasta el final de la reversa. Si el crédito
+       espera esa clase, queda un segundo a plena opacidad y se corta. */
+    transition: opacity 0.5s ease-in-out;
   }
 
-  .marco.is-presente .colofon {
+  .marco.is-abierto .colofon {
     opacity: 1;
+    transition: opacity 0.45s var(--ease-out);
   }
 
   :global(html.reduce) .gozne__marca {
     animation: none;
+  }
+
+  :global(html.reduce) .colofon {
+    transition: none;
   }
 
   :global(html.reduce) .columna {
@@ -773,6 +783,10 @@
   @media (prefers-reduced-motion: reduce) {
     .gozne__marca {
       animation: none;
+    }
+
+    .colofon {
+      transition: none;
     }
 
     .columna {

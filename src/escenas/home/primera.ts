@@ -1,6 +1,6 @@
 import { ensureGsap, ScrollTrigger } from "../../motion/gsap";
 import { cruceSuave } from "../paradas";
-import { consumirPregunta, crucePrimera, enPregunta } from "./ancla";
+import { consumirPregunta, crucePrimera, enPregunta, registrarSalto } from "./ancla";
 import { cruzarUmbral } from "./umbral";
 
 /**
@@ -81,12 +81,15 @@ export function montarPrimera(root: HTMLElement): () => void {
     },
     (context) => {
       if (context.conditions?.isReduce) {
-        if (consumirPregunta()) {
+        const ir = () => {
           root.querySelector(".home__beat--pregunta")?.scrollIntoView({ block: "center" });
           enPregunta.set(true);
           crucePrimera.set(1);
-        }
+        };
+        if (consumirPregunta()) ir();
+        const soltarSalto = registrarSalto(ir);
         return () => {
+          soltarSalto();
           enPregunta.set(false);
           crucePrimera.set(0);
         };
@@ -418,28 +421,45 @@ export function montarPrimera(root: HTMLElement): () => void {
       tl.set({}, {}, 1);
       publicarCruce(tl.scrollTrigger?.progress ?? 0);
 
-      if (vaAPregunta) {
-        const { entra, sale } = tramo(0, pesos);
-        const progreso = entra + (sale - entra) * 0.45;
-        const colocar = (intento: number) => {
-          const st = tl.scrollTrigger;
-          if (!st) return;
-          const largo = st.end - st.start;
-          if (largo < 1 && intento < 8) {
-            requestAnimationFrame(() => colocar(intento + 1));
-            return;
-          }
-          const y = st.start + largo * progreso;
-          const scroller = st.scroller;
+      const { entra: entraBeat, sale: saleBeat } = tramo(0, pesos);
+      const progresoPregunta = entraBeat + (saleBeat - entraBeat) * 0.45;
+      const colocarPregunta = (intento: number, inmediato: boolean) => {
+        const st = tl.scrollTrigger;
+        if (!st) {
           anclar = false;
-          if (scroller instanceof HTMLElement) scroller.scrollTop = y;
-          else window.scrollTo(0, y);
-          ScrollTrigger.update();
-        };
-        requestAnimationFrame(() => colocar(0));
-      }
+          return;
+        }
+        const largo = st.end - st.start;
+        if (largo < 1 && intento < 8) {
+          requestAnimationFrame(() => colocarPregunta(intento + 1, inmediato));
+          return;
+        }
+        if (largo < 1) {
+          anclar = false;
+          return;
+        }
+        const y = st.start + largo * progresoPregunta;
+        const scroller = st.scroller;
+        if (scroller instanceof HTMLElement) scroller.scrollTop = y;
+        else window.scrollTo(0, y);
+        ScrollTrigger.update();
+        if (inmediato) st.getTween()?.progress(1);
+        anclar = false;
+      };
+
+      if (vaAPregunta) requestAnimationFrame(() => colocarPregunta(0, false));
+
+      const soltarSalto = registrarSalto(() => {
+        anclar = true;
+        dentro = true;
+        enPregunta.set(true);
+        crucePublicado = 1;
+        crucePrimera.set(1);
+        requestAnimationFrame(() => colocarPregunta(0, true));
+      });
 
       return () => {
+        soltarSalto();
         enPregunta.set(false);
         crucePrimera.set(0);
         soltarUmbral?.();

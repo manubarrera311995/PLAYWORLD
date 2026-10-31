@@ -19,6 +19,16 @@ describe("vistaParadas", () => {
     );
   });
 
+  it("en el título del home se puede saltar a Mi primera vez sin abrir el resto", () => {
+    const vista = vistaParadas("home", null, false);
+    expect(vista.items.find((item) => item.id === "primera")).toMatchObject({
+      estado: "futura",
+      href: "/#pregunta",
+    });
+    expect(vista.items.find((item) => item.id === "fila")?.href).toBeNull();
+    expect(vista.items.find((item) => item.id === "mapa")?.href).toBeNull();
+  });
+
   it("en la pregunta del home la parada actual es Mi primera vez", () => {
     const vista = vistaParadas("home", null, false, true);
     expect(vista.avance).toBeCloseTo(1 / 7);

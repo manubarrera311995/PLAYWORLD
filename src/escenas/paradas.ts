@@ -115,7 +115,11 @@ export function vistaParadas(
   const actual = PARADAS.findIndex((p) => p.id === idActual);
   const items = PARADAS.map((p, i): ItemParada => {
     const estado: EstadoParada = i < actual ? "pasada" : i === actual ? "actual" : "futura";
-    const visitable = estado === "pasada" || (flujoCompleto && estado === "futura");
+    // «Mi primera vez» es un tramo del home, no una escena posterior.
+    // Desde el título se puede saltar ahí sin abrir el resto del recorrido.
+    const visitable =
+      estado === "pasada" ||
+      (estado === "futura" && (flujoCompleto || p.id === "primera"));
     return {
       id: p.id,
       nombre: p.nombre,
